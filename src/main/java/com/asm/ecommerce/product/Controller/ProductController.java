@@ -9,7 +9,7 @@ public class ProductController {
 
     @RequestMapping("/hello/sayhi")
     public String sayHi(Model model){
-        model.addAttribute("sayhy","hi hi hi heehehehihihihaahahahhaha hahahhahhahahah!");
+        model.addAttribute("sayhy","hi hi hi heehehehihihihaahahahhaha hahahhahhahahah hihihihi!");
         model.addAttribute("subject","Spring Boot MVC - test connection ");
 
         return "hello";
