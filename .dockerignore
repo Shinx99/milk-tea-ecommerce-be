@@ -1,0 +1,84 @@
+# Maven build outputs
+target/
+**/target/
+
+# Git metadata (không cần trong image)
+.git/
+.gitignore
+.gitattributes
+
+# IDE files (không cần cho build)
+.idea/
+*.iml
+*.ipr
+*.iws
+.vscode/
+.nb-gradle/
+.nbproject/
+out/
+
+# Maven wrapper (keep scripts, ignore binary)
+.mvn/wrapper/maven-wrapper.jar
+.mvn/wrapper/maven-wrapper.properties
+
+# Logs & temporary files
+*.log
+*.out
+*.err
+*.tmp
+*.bak
+logs/
+
+# OS-specific files
+.DS_Store
+.AppleDouble
+.LSOverride
+Thumbs.db
+ehthumbs.db
+Desktop.ini
+*~
+*.swp
+*.swo
+$RECYCLE.BIN/
+
+# Environment & secrets ⭐ Critical
+.env
+.env.*
+!.env.example
+*.properties.local
+application-local.yml
+application-secrets.yml
+
+# Docker-related files ⭐ Important
+docker-compose*.yml
+compose*.yml
+Dockerfile*
+.dockerignore
+
+# Docker volumes/cache
+pgdata/
+m2cache/
+node_modules/
+
+# Documentation & non-essential ⭐ Build optimization
+README*
+*.md
+docs/
+documentation/
+
+# Testing artifacts ⭐ Production builds don't need
+**/test-output/
+**/*test*.log
+.testcontainers.properties
+
+# Development tools ⭐ Size optimization
+.editorconfig
+.prettierrc*
+eslint*
+jest.config*
+
+# Package manager files (có thể cần cho build) ⭐ Careful
+# Uncomment nếu không cần trong production builds
+# package-lock.json
+# yarn.lock
+# pom.xml.versionsBackup
