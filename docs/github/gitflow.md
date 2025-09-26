@@ -156,7 +156,7 @@ fix(scope): short description (#issue)
 docs(scope): documentation change
 chore: maintenance task
 
-text
+
 
 **Example:**  
 `git commit -m "feat(api): add validation (#789)"`
