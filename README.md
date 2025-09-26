@@ -31,10 +31,14 @@ This e-commerce platform demonstrates modern Spring Boot development practices w
 - **Java 17+** (optional for local development)
 
 ### Setup
-- git clone https://github.com/yourusername/milk-tea-ecommerce-springmvc <br>
-- cd milk-tea-ecommerce-springmvc <br>
-- cp .env.example .env <br>
-- docker compose up --build
+```bash
+ git clone https://github.com/Shinx99/milk-tea-ecommerce-springmvc.git
+ cd milk-tea-ecommerce-springmvc 
+ cp .env.example .env
+ ```
+ ```bash
+ docker compose up --build
+```
 
 ## ✨ Features
 
