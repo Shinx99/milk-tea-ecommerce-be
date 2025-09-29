@@ -1,0 +1,754 @@
+openapi: 3.1.0
+info:
+  title: E-commerce Backend API (Draft from ERD)
+  version: 0.1.0
+  description: |
+    Draft OpenAPI derived from ERD for core resources: Customer, Product, Category,
+    Cart, Order, Payment, Voucher, including junctions for N-N relations.
+servers:
+  - url: https://api.example.com/v1
+    description: Production
+  - url: https://staging.api.example.com/v1
+    description: Staging
+tags:
+  - name: Products
+  - name: Categories
+  - name: Customers
+  - name: Carts
+  - name: Orders
+  - name: Payments
+  - name: Vouchers
+paths:
+  /products:
+    get:
+      tags: [Products]
+      summary: List products
+      parameters:
+        - in: query
+          name: q
+          schema: { type: string }
+          description: Full-text search by name/description
+        - in: query
+          name: category_id
+          schema: { type: string }
+        - in: query
+          name: status
+          schema: { type: string, enum: [active, inactive, draft] }
+        - in: query
+          name: page
+          schema: { type: integer, minimum: 1, default: 1 }
+        - in: query
+          name: limit
+          schema: { type: integer, minimum: 1, maximum: 200, default: 20 }
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  items:
+                    type: array
+                    items: { $ref: '#/components/schemas/Product' }
+                  page: { type: integer }
+                  limit: { type: integer }
+                  total: { type: integer }
+    post:
+      tags: [Products]
+      summary: Create product
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/ProductCreate' }
+      responses:
+        "201":
+          description: Created
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/Product' }
+
+  /products/{productId}:
+    parameters:
+      - in: path
+        name: productId
+        required: true
+        schema: { type: string }
+    get:
+      tags: [Products]
+      summary: Get product by id
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/Product' }
+    patch:
+      tags: [Products]
+      summary: Update product
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/ProductUpdate' }
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/Product' }
+    delete:
+      tags: [Products]
+      summary: Delete product
+      responses:
+        "204":
+          description: No Content
+
+  /categories:
+    get:
+      tags: [Categories]
+      summary: List categories
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: array
+                items: { $ref: '#/components/schemas/Category' }
+    post:
+      tags: [Categories]
+      summary: Create category
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/CategoryCreate' }
+      responses:
+        "201":
+          description: Created
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/Category' }
+
+  /categories/{categoryId}:
+    parameters:
+      - in: path
+        name: categoryId
+        required: true
+        schema: { type: string }
+    get:
+      tags: [Categories]
+      summary: Get category
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/Category' }
+    patch:
+      tags: [Categories]
+      summary: Update category
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/CategoryUpdate' }
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/Category' }
+    delete:
+      tags: [Categories]
+      summary: Delete category
+      responses:
+        "204":
+          description: No Content
+
+  /customers:
+    get:
+      tags: [Customers]
+      summary: List customers
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: array
+                items: { $ref: '#/components/schemas/Customer' }
+    post:
+      tags: [Customers]
+      summary: Create customer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/CustomerCreate' }
+      responses:
+        "201":
+          description: Created
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/Customer' }
+
+  /customers/{customerId}:
+    parameters:
+      - in: path
+        name: customerId
+        required: true
+        schema: { type: string }
+    get:
+      tags: [Customers]
+      summary: Get customer
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/Customer' }
+    patch:
+      tags: [Customers]
+      summary: Update customer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/CustomerUpdate' }
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/Customer' }
+    delete:
+      tags: [Customers]
+      summary: Delete customer
+      responses:
+        "204":
+          description: No Content
+
+  /customers/{customerId}/orders:
+    get:
+      tags: [Orders]
+      summary: List orders of a customer
+      parameters:
+        - in: path
+          name: customerId
+          required: true
+          schema: { type: string }
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: array
+                items: { $ref: '#/components/schemas/Order' }
+
+  /customers/{customerId}/cart:
+    get:
+      tags: [Carts]
+      summary: Get active cart of customer
+      parameters:
+        - in: path
+          name: customerId
+          required: true
+          schema: { type: string }
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/Cart' }
+    post:
+      tags: [Carts]
+      summary: Create or reset active cart for customer
+      parameters:
+        - in: path
+          name: customerId
+          required: true
+          schema: { type: string }
+      responses:
+        "201":
+          description: Created
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/Cart' }
+
+  /carts/{cartId}/items:
+    parameters:
+      - in: path
+        name: cartId
+        required: true
+        schema: { type: string }
+    get:
+      tags: [Carts]
+      summary: List cart items
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: array
+                items: { $ref: '#/components/schemas/CartItem' }
+    post:
+      tags: [Carts]
+      summary: Add product to cart
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/CartItemCreate' }
+      responses:
+        "201":
+          description: Created
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/CartItem' }
+
+  /carts/{cartId}/items/{itemId}:
+    parameters:
+      - in: path
+        name: cartId
+        required: true
+        schema: { type: string }
+      - in: path
+        name: itemId
+        required: true
+        schema: { type: string }
+    patch:
+      tags: [Carts]
+      summary: Update cart item quantity
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                quantity: { type: integer, minimum: 0 }
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/CartItem' }
+    delete:
+      tags: [Carts]
+      summary: Remove cart item
+      responses:
+        "204":
+          description: No Content
+
+  /orders:
+    post:
+      tags: [Orders]
+      summary: Create order from cart
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                cart_id: { type: string }
+                description: { type: string }
+      responses:
+        "201":
+          description: Created
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/Order' }
+
+  /orders/{orderId}:
+    parameters:
+      - in: path
+        name: orderId
+        required: true
+        schema: { type: string }
+    get:
+      tags: [Orders]
+      summary: Get order
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/Order' }
+    patch:
+      tags: [Orders]
+      summary: Update order status/fields
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/OrderUpdate' }
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/Order' }
+
+  /orders/{orderId}/payments:
+    post:
+      tags: [Payments]
+      summary: Create a payment for order
+      parameters:
+        - in: path
+          name: orderId
+          required: true
+          schema: { type: string }
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/PaymentCreate' }
+      responses:
+        "201":
+          description: Created
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/Payment' }
+    get:
+      tags: [Payments]
+      summary: List payments for order
+      parameters:
+        - in: path
+          name: orderId
+          required: true
+          schema: { type: string }
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: array
+                items: { $ref: '#/components/schemas/Payment' }
+
+  /vouchers:
+    get:
+      tags: [Vouchers]
+      summary: List vouchers
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: array
+                items: { $ref: '#/components/schemas/Voucher' }
+    post:
+      tags: [Vouchers]
+      summary: Create voucher
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/VoucherCreate' }
+      responses:
+        "201":
+          description: Created
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/Voucher' }
+
+  /carts/{cartId}/vouchers:
+    post:
+      tags: [Vouchers]
+      summary: Apply voucher to cart
+      parameters:
+        - in: path
+          name: cartId
+          required: true
+          schema: { type: string }
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [code]
+              properties:
+                code: { type: string }
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/Cart' }
+    delete:
+      tags: [Vouchers]
+      summary: Remove voucher from cart
+      parameters:
+        - in: path
+          name: cartId
+          required: true
+          schema: { type: string }
+      responses:
+        "204":
+          description: No Content
+
+components:
+  schemas:
+    Timestamps:
+      type: object
+      properties:
+        created_at: { type: string, format: date-time }
+        updated_at: { type: string, format: date-time }
+
+    Product:
+      allOf:
+        - $ref: '#/components/schemas/Timestamps'
+      type: object
+      required: [id, name, price, status, is_active]
+      properties:
+        id: { type: string }
+        name: { type: string }
+        price: { type: number }
+        quantity: { type: integer }
+        description: { type: string }
+        status: { type: string }
+        sort_order: { type: integer }
+        slug: { type: string }
+        image_url: { type: string, format: uri }
+        is_active: { type: boolean }
+        category_id: { type: string }
+
+    ProductCreate:
+      type: object
+      required: [name, price, status]
+      properties:
+        name: { type: string }
+        price: { type: number }
+        quantity: { type: integer, default: 0 }
+        description: { type: string }
+        status: { type: string }
+        sort_order: { type: integer }
+        slug: { type: string }
+        image_url: { type: string, format: uri }
+        is_active: { type: boolean, default: true }
+        category_id: { type: string }
+
+    ProductUpdate:
+      type: object
+      properties:
+        name: { type: string }
+        price: { type: number }
+        quantity: { type: integer }
+        description: { type: string }
+        status: { type: string }
+        sort_order: { type: integer }
+        slug: { type: string }
+        image_url: { type: string, format: uri }
+        is_active: { type: boolean }
+        category_id: { type: string }
+
+    Category:
+      allOf:
+        - $ref: '#/components/schemas/Timestamps'
+      type: object
+      required: [id, name, is_active]
+      properties:
+        id: { type: string }
+        parent_id: { type: string, nullable: true }
+        slug: { type: string }
+        name: { type: string }
+        sort_order: { type: integer }
+        is_active: { type: boolean }
+
+    CategoryCreate:
+      type: object
+      required: [name]
+      properties:
+        parent_id: { type: string, nullable: true }
+        slug: { type: string }
+        name: { type: string }
+        sort_order: { type: integer }
+        is_active: { type: boolean, default: true }
+
+    CategoryUpdate:
+      type: object
+      properties:
+        parent_id: { type: string, nullable: true }
+        slug: { type: string }
+        name: { type: string }
+        sort_order: { type: integer }
+        is_active: { type: boolean }
+
+    Customer:
+      allOf:
+        - $ref: '#/components/schemas/Timestamps'
+      type: object
+      required: [id, email, name, is_active]
+      properties:
+        id: { type: string }
+        email: { type: string, format: email }
+        phone_number: { type: string }
+        name: { type: string }
+        address: { type: string }
+        is_active: { type: boolean }
+
+    CustomerCreate:
+      type: object
+      required: [email, name]
+      properties:
+        email: { type: string, format: email }
+        phone_number: { type: string }
+        name: { type: string }
+        address: { type: string }
+        password: { type: string }
+
+    CustomerUpdate:
+      type: object
+      properties:
+        email: { type: string, format: email }
+        phone_number: { type: string }
+        name: { type: string }
+        address: { type: string }
+        is_active: { type: boolean }
+
+    Cart:
+      type: object
+      required: [id, status]
+      properties:
+        id: { type: string }
+        status: { type: string, enum: [active, checked_out, expired] }
+        created_at: { type: string, format: date-time }
+        expire_at: { type: string, format: date-time, nullable: true }
+        session_key: { type: string, nullable: true }
+        customer_id: { type: string, nullable: true }
+
+    CartItem:
+      type: object
+      required: [id, cart_id, product_id, quantity]
+      properties:
+        id: { type: string }
+        cart_id: { type: string }
+        product_id: { type: string }
+        quantity: { type: integer, minimum: 0 }
+        price: { type: number }
+
+    CartItemCreate:
+      type: object
+      required: [product_id, quantity]
+      properties:
+        product_id: { type: string }
+        quantity: { type: integer, minimum: 1 }
+
+    Order:
+      allOf:
+        - $ref: '#/components/schemas/Timestamps'
+      type: object
+      required:
+        - id
+        - status
+        - total
+        - subtotal
+      properties:
+        id: { type: string }
+        customer_id: { type: string }
+        place_at: { type: string, format: date-time, nullable: true }
+        confirmed_at: { type: string, format: date-time, nullable: true }
+        completed_at: { type: string, format: date-time, nullable: true }
+        cancelled_at: { type: string, format: date-time, nullable: true }
+        status: { type: string }
+        description: { type: string }
+        total: { type: number }
+        subtotal: { type: number }
+        discount_total: { type: number, nullable: true }
+        tax_total: { type: number, nullable: true }
+        shipping_fee: { type: number, nullable: true }
+        items:
+          type: array
+          items: { $ref: '#/components/schemas/OrderItem' }
+
+    OrderUpdate:
+      type: object
+      properties:
+        status: { type: string }
+        description: { type: string }
+        confirmed_at: { type: string, format: date-time, nullable: true }
+        completed_at: { type: string, format: date-time, nullable: true }
+        cancelled_at: { type: string, format: date-time, nullable: true }
+
+    OrderItem:
+      type: object
+      required: [id, order_id, product_id, quantity, price]
+      properties:
+        id: { type: string }
+        order_id: { type: string }
+        product_id: { type: string }
+        quantity: { type: integer, minimum: 1 }
+        price: { type: number }
+
+    Payment:
+      allOf:
+        - $ref: '#/components/schemas/Timestamps'
+      type: object
+      required: [id, provider, amount, status]
+      properties:
+        id: { type: string }
+        order_id: { type: string }
+        provider: { type: string }
+        paid_at: { type: string, format: date-time, nullable: true }
+        refunded_at: { type: string, format: date-time, nullable: true }
+        amount: { type: number }
+        status: { type: string }
+        transaction_ref: { type: string }
+        payload: { type: object, additionalProperties: true }
+
+    PaymentCreate:
+      type: object
+      required: [provider, amount]
+      properties:
+        provider: { type: string }
+        amount: { type: number }
+        transaction_ref: { type: string }
+        payload: { type: object, additionalProperties: true }
+
+    Voucher:
+      allOf:
+        - $ref: '#/components/schemas/Timestamps'
+      type: object
+      required: [id, code, discount_type, is_active]
+      properties:
+        id: { type: string }
+        code: { type: string }
+        number: { type: integer, nullable: true }
+        start_at: { type: string, format: date-time, nullable: true }
+        expired_at: { type: string, format: date-time, nullable: true }
+        discount_type: { type: string }
+        is_active: { type: boolean }
+
+    VoucherCreate:
+      type: object
+      required: [code, discount_type]
+      properties:
+        code: { type: string }
+        number: { type: integer, nullable: true }
+        start_at: { type: string, format: date-time, nullable: true }
+        expired_at: { type: string, format: date-time, nullable: true }
+        discount_type: { type: string }
+        is_active: { type: boolean, default: true }
+
+  responses:
+    NotFound:
+      description: Resource not found
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              message: { type: string }
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
