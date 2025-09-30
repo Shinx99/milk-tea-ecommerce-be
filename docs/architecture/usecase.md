@@ -2,7 +2,7 @@
 
 ## System Use Case Diagram
 
-![use_case.png](../../images/use_case.png)
+![usecase.png](../../images/usecase.png)
 
 ---
 

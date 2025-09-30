@@ -2,10 +2,6 @@
 
 A high-level overview of end-to-end flows for customers and admin users in an e‑commerce system, clarifying process paths and authentication requirements for cross‑team alignment.
 
-## Flow Chart Diagram
-
-![flowchart.png](../../images/flowchart.png)
-
 ## Purpose
 This document explains the end‑to‑end flow for both customers and admin users in the e‑commerce system, using standard flow chart conventions for consistent analysis and communication.
 
