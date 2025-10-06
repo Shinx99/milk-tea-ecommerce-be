@@ -1,6 +1,6 @@
 services:
   postgres:
-    image: ${POSTGRES_IMAGE} #"--new add"
+    image: ${POSTGRES_IMAGE}
     container_name: ${APP_NAME:-ecommerce}-postgres
     environment:
       POSTGRES_DB: ${POSTGRES_DB}
@@ -10,7 +10,8 @@ services:
     ports:
       - "5432:5432"
     volumes:
-      - postgres_data:/var/lib/postgresql/data
+      - ${POSTGRES_VOLUME}
+
     healthcheck:
       test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER} -d ${POSTGRES_DB}"]
       interval: 10s
