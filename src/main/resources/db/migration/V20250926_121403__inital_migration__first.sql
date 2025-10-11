@@ -62,7 +62,6 @@ CREATE TABLE IF NOT EXISTS categories (
   id uuid PRIMARY KEY DEFAULT gen_random_uuid(),
   parent_id uuid REFERENCES categories(id),
   category_name varchar(255) NOT NULL,
-  slug varchar(255) UNIQUE,
   sort_order int NOT NULL DEFAULT 0,
   is_active boolean NOT NULL DEFAULT true,
   created_at timestamptz NOT NULL DEFAULT now(),
@@ -77,7 +76,6 @@ CREATE TABLE IF NOT EXISTS products(
   id uuid PRIMARY KEY DEFAULT gen_random_uuid(),
   category_id uuid REFERENCES categories(id),
   name varchar(255) NOT NULL,
-  slug varchar(255) UNIQUE,
   description text,
   quantity int NOT NULL DEFAULT 0 CHECK (quantity >= 0),
   price numeric(10,2) NOT NULL DEFAULT 0 CHECK (price >= 0),
@@ -89,27 +87,41 @@ CREATE INDEX IF NOT EXISTS idx_prod_category ON products(category_id);
 CREATE INDEX IF NOT EXISTS idx_prod_active ON products(is_active);
 
 -- 7) IMAGES
+-- Bảng IMAGES tối ưu cho Cloudinary (không dùng bảng variants)
 CREATE TABLE IF NOT EXISTS images (
   id uuid PRIMARY KEY DEFAULT gen_random_uuid(),
   product_id uuid NOT NULL REFERENCES products(id),
   sort_order int NOT NULL DEFAULT 0,
   is_primary boolean NOT NULL DEFAULT false,
-  public_id varchar(255) NOT NULL,
-  secure_url varchar(1000) NOT NULL,
-  resource_type varchar(20),
+
+  -- Cloudinary keys
+  asset_id varchar(64),                -- bất biến
+  public_id varchar(255) NOT NULL,     -- để build URL/API
+  resource_type varchar(20) NOT NULL DEFAULT 'image',  -- image|video|raw
+  delivery_type varchar(32) NOT NULL DEFAULT 'upload', -- upload|authenticated|private|fetch...
+  version bigint,                      -- cache-busting khi overwrite
+
+  -- Thông tin hiển thị/quản trị
   format varchar(16),
   width int,
   height int,
   bytes bigint,
+  secure_url varchar(1000),
   alt_text varchar(255),
+
   created_at timestamptz NOT NULL DEFAULT now()
 );
+
+-- Chỉ mục/Unique theo đúng không gian ID của Cloudinary
 CREATE INDEX IF NOT EXISTS idx_images_product ON images(product_id);
-CREATE UNIQUE INDEX IF NOT EXISTS ux_images_pubid ON images(public_id);
+CREATE INDEX IF NOT EXISTS idx_images_assetid ON images(asset_id);
+DROP INDEX IF EXISTS ux_images_pubid;
+CREATE UNIQUE INDEX IF NOT EXISTS ux_images_pubid_scoped
+  ON images(public_id, resource_type, delivery_type);
+
+-- Thứ tự ảnh trong sản phẩm
 CREATE UNIQUE INDEX IF NOT EXISTS ux_img_sort_per_product
   ON images(product_id, sort_order);
-CREATE UNIQUE INDEX IF NOT EXISTS ux_img_primary_per_product
-  ON images(product_id) WHERE is_primary = true;
 
 -- 8) CARTS ENUM
 DO $$
