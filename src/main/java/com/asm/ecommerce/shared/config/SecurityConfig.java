@@ -16,53 +16,61 @@ import org.springframework.security.web.SecurityFilterChain;
 @EnableWebSecurity
 @EnableMethodSecurity
 public class SecurityConfig {
+//fixed
+ /*
+     1. Public endpoints (permitAll)
+     - /actuator*//**
+     - /api/auth/**
+     - /api/products/**
 
+     2. Conditional endpoints (specific methods)
+     - GET /api/reviews/** → permitAll
+     - POST/PUT/DELETE /api/reviews/** → authenticated
+
+     3. Role-based endpoints
+     - /api/admin/** → ADMIN role
+
+     4. Protected endpoints (authenticated)
+     - /api/cart/**
+     - /api/orders/**
+
+     5. Default rule (CUỐI CÙNG)
+     - anyRequest() → authenticated
+*/
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         http
                 .csrf(AbstractHttpConfigurer::disable)
                 .cors(cors -> cors.configure(http))
                 .authorizeHttpRequests(auth -> auth
-                        // Actuator endpoints - Public (health check, monitoring)
-                        .requestMatchers("/actuator/**").permitAll()  // ⭐ THÊM DÒNG NÀY
+                        // 1. ⭐ Actuator endpoints - Public
+                        .requestMatchers("/actuator/**").permitAll()
 
-                        // Public endpoints
-                        .requestMatchers(
-                                "/api/auth/**",
-                                "/api/health",
-                                "/api/test/**"
-                        ).permitAll()
+                        // 2. ⭐ Auth endpoints - Public
+                        .requestMatchers("/api/auth/**").permitAll()
+                        .requestMatchers("/api/health", "/api/test/**").permitAll()
 
-                        // Public product browsing
-                        .requestMatchers(
-                                "/api/products",
-                                "/api/products/**",
-                                "/api/categories/**"
-                        ).permitAll()
+                        // 3. ⭐ Product browsing - Public
+                        .requestMatchers("/api/products/**").permitAll()
+                        .requestMatchers("/api/categories/**").permitAll()
 
-                        // Protected endpoints
-                        .requestMatchers(
-                                "/api/cart/**",
-                                "/api/orders/**",
-                                "/api/customers/**",
-                                "/api/payments/**"
-                        ).authenticated()
-
-                        // Admin endpoints
-                        .requestMatchers("/api/admin/**").hasRole("ADMIN")
-                        .requestMatchers("/api/statistics/**").hasRole("ADMIN")  // Add statistics
-
-                        .anyRequest().authenticated()
-
-                        // Reviews - Public read, authenticated write
+                        // 4. ⭐ Reviews - Public GET, authenticated POST/PUT/DELETE
                         .requestMatchers(HttpMethod.GET, "/api/reviews/**").permitAll()
                         .requestMatchers("/api/reviews/**").authenticated()
 
-                        // Customer endpoints
-                        .requestMatchers("/api/cart/**", "/api/orders/**").authenticated()
+                        // 5. ⭐ Admin endpoints - Require ADMIN role
+                        .requestMatchers("/api/admin/**").hasRole("ADMIN")
+                        .requestMatchers("/api/statistics/**").hasRole("ADMIN")
+
+                        // 6. ⭐ Protected customer endpoints - Require authentication
+                        .requestMatchers("/api/cart/**").authenticated()
+                        .requestMatchers("/api/orders/**").authenticated()
                         .requestMatchers("/api/customers/**").authenticated()
                         .requestMatchers("/api/payments/**").authenticated()
                         .requestMatchers("/api/vouchers/apply").authenticated()
+
+                        // 7. ⭐ Default - All other requests require authentication
+                        .anyRequest().authenticated()
                 )
                 .sessionManagement(session -> session
                         .sessionCreationPolicy(SessionCreationPolicy.STATELESS)

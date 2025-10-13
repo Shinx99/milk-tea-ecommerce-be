@@ -15,8 +15,6 @@ public interface CustomerRepository extends JpaRepository<CustomerModel, UUID> {
 
     //--------------------------------SEARCH----------------------------------------------
 
-    //Tra cuu theo email
-    Optional<CustomerModel> findByEmail(String email);
 
     //Tra cuu theo phone
     Optional<CustomerModel> findByPhone(String phone);
@@ -26,9 +24,6 @@ public interface CustomerRepository extends JpaRepository<CustomerModel, UUID> {
 
     //Tra cuu theo id -> thich hop cho ham update
     Optional<CustomerModel> findById(UUID uuid);
-
-    //Check email co khong
-    boolean existsByEmail(String email);
 
     //--------------------------------CRUD------------------------------------------------
 
