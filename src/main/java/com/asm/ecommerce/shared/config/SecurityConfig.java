@@ -16,7 +16,7 @@ import org.springframework.security.web.SecurityFilterChain;
 @EnableWebSecurity
 @EnableMethodSecurity
 public class SecurityConfig {
-
+//fixed
  /*
      1. Public endpoints (permitAll)
      - /actuator*//**
