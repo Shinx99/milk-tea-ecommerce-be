@@ -4,11 +4,10 @@ import jakarta.persistence.*;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
 import lombok.*;
-import org.hibernate.annotations.CreationTimestamp;
-import org.hibernate.annotations.UpdateTimestamp;
+import org.hibernate.annotations.CreationTimestamp;  // ⭐ Import
+import org.hibernate.annotations.UpdateTimestamp;    // ⭐ Import
 
 import java.time.Instant;
-import java.time.OffsetDateTime;
 import java.util.UUID;
 
 @Entity
@@ -31,23 +30,22 @@ public class User {
     @NotBlank
     private String passwordHash;
 
-    //Them mac dinh isActive = true
     @Column(name = "is_active")
     private Boolean isActive = true;
 
-    @CreationTimestamp
-    @Column(name = "created_at", nullable = false, columnDefinition = "timestamptz")
+    @Column(name = "created_at", updatable = false)  // ⭐ updatable = false (không update khi save)
+    @CreationTimestamp  // ⭐ Hibernate tự động set khi create
     private Instant createdAt;
 
-    @UpdateTimestamp
-    @Column(name = "updated_at", nullable = false, columnDefinition = "timestamptz")
+    @Column(name = "updated_at")
+    @UpdateTimestamp    // ⭐ Hibernate tự động update mỗi lần save
     private Instant updatedAt;
 
     @Column(name = "role_id")
     private UUID roleId;
 
     @Column(name = "customer_id")
-    private UUID customerId;  // ⭐ Chỉ lưu UUID, KHÔNG tham chiếu Customer entity
+    private UUID customerId;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "role_id", insertable = false, updatable = false)

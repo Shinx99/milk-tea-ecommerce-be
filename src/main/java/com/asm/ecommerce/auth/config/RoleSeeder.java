@@ -40,8 +40,6 @@ public class RoleSeeder {
                 .role(roleName)
                 .description(description)
                 .isActive(true)
-                .createdAt(OffsetDateTime.now())
-                .updatedAt(OffsetDateTime.now())
                 .build();
         repository.save(role);
     }

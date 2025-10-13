@@ -1,6 +1,8 @@
 package com.asm.ecommerce.auth.dto;
 
 import lombok.*;
+
+import java.time.Instant;
 import java.time.OffsetDateTime;
 import java.util.UUID;
 
@@ -14,5 +16,5 @@ public class RoleDto {
     private String role;
     private String description;
     private Boolean isActive;
-    private OffsetDateTime createdAt;
+    private Instant createdAt;
 }
