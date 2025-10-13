@@ -19,9 +19,7 @@ CREATE TABLE IF NOT EXISTS roles (
 -- 2) CUSTOMERS trước USERS (vì users references customers)
 CREATE TABLE IF NOT EXISTS customers(
   id uuid PRIMARY KEY DEFAULT gen_random_uuid(),
-  email varchar(255) NOT NULL UNIQUE,
-  password_hash varchar(255) NOT NULL,
-  phone varchar(40) NOT NULL,
+  phone varchar(40) NOT NULL UNIQUE,
   fullname varchar(255) NOT NULL,
   created_at timestamptz NOT NULL DEFAULT now(),
   updated_at timestamptz NOT NULL DEFAULT now(),
@@ -53,9 +51,13 @@ CREATE TABLE IF NOT EXISTS users (
   is_active boolean NOT NULL DEFAULT true,
   created_at timestamptz NOT NULL DEFAULT now(),
   updated_at timestamptz NOT NULL DEFAULT now(),
-  role_id uuid NOT NULL REFERENCES roles(id),
-  customer_id uuid NOT NULL REFERENCES customers(id)
+  role_id uuid NOT NULL REFERENCES roles(id) ON DELETE RESTRICT,
+  customer_id uuid REFERENCES customers(id) ON DELETE SET NULL
 );
+
+CREATE INDEX IF NOT EXISTS idx_users_role ON users(role_id);
+CREATE INDEX IF NOT EXISTS idx_users_customer ON users(customer_id);
+
 
 -- 5) CATEGORIES (tự tham chiếu)
 CREATE TABLE IF NOT EXISTS categories (

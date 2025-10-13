@@ -18,15 +18,20 @@ public class CustomerController {
 
     private final CustomerService service;
 
+    // GET: /api/customers
+    // METHOD: Display all
     @GetMapping
     public List<CustomerModel> listAll(){
         return service.listAll();
     }
 
+    // GET: /api/customers/active
+    // METHOD: Display active customers
     @GetMapping("/active")
     public List<CustomerModel> listActive(){
         return service.listActive();
     }
+
 
     @GetMapping("/{id}")
     public ResponseEntity<CustomerModel> findById(@PathVariable UUID id){
@@ -35,7 +40,9 @@ public class CustomerController {
                 .orElse(ResponseEntity.notFound().build());
     }
 
+
     // POST: /api/customers
+    // METHOD: create new customer
     @PostMapping
     public ResponseEntity<CustomerModel> create(@Valid @RequestBody CustomerModel input) {
         CustomerModel created = service.create(input);
@@ -43,6 +50,7 @@ public class CustomerController {
     }
 
     // PUT: /api/customers/{id}
+    // METHOD: update customer
     @PutMapping("/{id}")
     public ResponseEntity<CustomerModel> update(@PathVariable UUID id,
                                                 @Valid @RequestBody CustomerModel input) {
@@ -50,7 +58,9 @@ public class CustomerController {
         return ResponseEntity.ok(updated);
     }
 
+
     // DELETE (soft): /api/customers/{id}
+    // METHOD: Soft delete customer
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> softDelete(@PathVariable UUID id) {
         service.softDelete(id);
