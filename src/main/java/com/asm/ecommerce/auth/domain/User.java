@@ -1,7 +1,13 @@
 package com.asm.ecommerce.auth.domain;
 
 import jakarta.persistence.*;
+import jakarta.validation.constraints.Email;
+import jakarta.validation.constraints.NotBlank;
 import lombok.*;
+import org.hibernate.annotations.CreationTimestamp;
+import org.hibernate.annotations.UpdateTimestamp;
+
+import java.time.Instant;
 import java.time.OffsetDateTime;
 import java.util.UUID;
 
@@ -16,19 +22,26 @@ public class User {
     @Id
     private UUID id;
 
+    @Email
+    @NotBlank
+    @Column(name = "email", nullable = false, unique = true, length = 255)
     private String email;
 
-    @Column(name = "password_hash")
+    @Column(name = "password_hash", nullable = false, length = 255)
+    @NotBlank
     private String passwordHash;
 
+    //Them mac dinh isActive = true
     @Column(name = "is_active")
-    private Boolean isActive;
+    private Boolean isActive = true;
 
-    @Column(name = "created_at")
-    private OffsetDateTime createdAt;
+    @CreationTimestamp
+    @Column(name = "created_at", nullable = false, columnDefinition = "timestamptz")
+    private Instant createdAt;
 
-    @Column(name = "updated_at")
-    private OffsetDateTime updatedAt;
+    @UpdateTimestamp
+    @Column(name = "updated_at", nullable = false, columnDefinition = "timestamptz")
+    private Instant updatedAt;
 
     @Column(name = "role_id")
     private UUID roleId;
