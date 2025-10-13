@@ -47,7 +47,6 @@ public class CustomerServiceImpl implements CustomerService {
     public CustomerModel update(UUID id, CustomerModel input) {
         CustomerModel current = repo.findById(id)
                 .orElseThrow(() -> new EntityNotFoundException("Customer not found"));
-        if(input.getEmail() != null) current.setEmail((input.getEmail()));
         if(input.getPhone() != null) current.setPhone(input.getPhone());
         if(input.getFullname() != null) current.setFullname(input.getFullname());
         return current;

@@ -15,10 +15,7 @@ import java.util.UUID;
 
 @Entity
 @Table(
-        name = "customers",
-        uniqueConstraints = {
-                @UniqueConstraint(name = "uk_customers_email", columnNames = "email")
-        }
+        name = "customers"
 )
 @Getter
 @Setter
@@ -33,15 +30,6 @@ public class CustomerModel {
     @Column(name = "id", updatable = false, nullable = false, columnDefinition = "uuid")
     @JdbcTypeCode(SqlTypes.UUID)
     private UUID id;
-
-    @Email
-    @NotBlank
-    @Column(name = "email", nullable = false, unique = true, length = 255)
-    private String email;
-
-    @NotBlank
-    @Column(name = "password_hash", nullable = false, length = 255)
-    private String password;
 
     @NotBlank
     @Column(name = "phone", nullable = false, length = 40)
