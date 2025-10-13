@@ -18,6 +18,7 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.Instant;
 import java.time.OffsetDateTime;
 import java.util.UUID;
 
@@ -49,7 +50,7 @@ public class AuthService {
         }
 
         // TODO: Generate JWT token
-        String token = "temporary-token-" + UUID.randomUUID();
+        String token = "Token-" + UUID.randomUUID();
 
         AuthResponse response = userMapper.toAuthResponse(user, token);
 
@@ -85,8 +86,8 @@ public class AuthService {
                 .roleId(defaultRole.getId())
                 .customerId(tempCustomerId)
                 .isActive(true)
-                .createdAt(OffsetDateTime.now())
-                .updatedAt(OffsetDateTime.now())
+                .createdAt(Instant.now())
+                .updatedAt(Instant.now())
                 .build();
 
         User savedUser = userRepository.save(user);
@@ -124,7 +125,7 @@ public class AuthService {
 
         // Update password
         user.setPasswordHash(passwordEncoder.encode(request.getNewPassword()));
-        user.setUpdatedAt(OffsetDateTime.now());
+        user.setUpdatedAt(Instant.now());
 
         userRepository.save(user);
 
