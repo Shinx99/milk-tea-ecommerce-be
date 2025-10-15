@@ -5,6 +5,7 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.stereotype.Repository;
 
+import java.util.Collection;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
@@ -23,4 +24,9 @@ public interface UserRepository extends JpaRepository<User, UUID> {
     List<User> findByRoleName(String roleName);
 
     List<User> findByIsActive(Boolean isActive);
+
+    //Vuong edit
+    //Repo cho contract do customer yeu cau
+    //Contract lay thong tin customer (email) theo customerId
+    List<User> findByCustomerIdIn(Collection<UUID> customerIds);
 }

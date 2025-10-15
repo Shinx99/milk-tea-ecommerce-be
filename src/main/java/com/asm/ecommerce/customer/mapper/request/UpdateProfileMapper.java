@@ -7,9 +7,10 @@ import org.mapstruct.*;
 @Mapper(componentModel = "spring")
 public interface UpdateProfileMapper {
 
-    @BeanMapping(nullValuePropertyMappingStrategy = NullValuePropertyMappingStrategy.IGNORE)
+    @BeanMapping(ignoreByDefault = true,
+            nullValuePropertyMappingStrategy = NullValuePropertyMappingStrategy.IGNORE)
     @Mapping(target = "id", ignore = true)
     @Mapping(target = "createdAt", ignore = true)
     @Mapping(target = "updatedAt", ignore = true) // Hibernate tự cập nhật @UpdateTimestamp
-    void updateCustomer(@MappingTarget CustomerModel entity, UpdateProfileRequest dto);
+    void updateProfileCustomer(@MappingTarget CustomerModel entity, UpdateProfileRequest dto);
 }

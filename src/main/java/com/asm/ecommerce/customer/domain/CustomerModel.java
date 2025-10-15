@@ -48,5 +48,6 @@ public class CustomerModel {
     private Instant updatedAt;
 
     @Column(name = "is_active", nullable = false)
+    @Builder.Default
     private boolean isActive = true;
 }

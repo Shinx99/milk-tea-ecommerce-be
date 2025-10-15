@@ -81,6 +81,11 @@ spring:
     redis:
       time-to-live: ${SPRING_CACHE_REDIS_TIME_TO_LIVE:600s}
 
+  # URL nội bộ cho Feign khi chạy dạng modular monolith
+  user:
+    service:
+      url: http://localhost:${server.port}
+
 flyway:
   enabled: ${SPRING_FLYWAY_ENABLED:true}
   baseline-on-migrate: ${SPRING_FLYWAY_BASELINE_ON_MIGRATE:false}

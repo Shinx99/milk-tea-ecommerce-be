@@ -48,6 +48,10 @@ public class SecurityConfig {
 
                         // 2. ⭐ Auth endpoints - Public
                         .requestMatchers("/api/auth/**").permitAll()
+
+                        // 2.1. Internal API - Public (for inter-service communication)
+                        .requestMatchers("/api/internal/**").permitAll()
+
                         .requestMatchers("/api/health", "/api/test/**").permitAll()
 
                         // 3. ⭐ Product browsing - Public
@@ -65,11 +69,15 @@ public class SecurityConfig {
                         // 6. ⭐ Protected customer endpoints - Require authentication
                         .requestMatchers("/api/cart/**").authenticated()
                         .requestMatchers("/api/orders/**").authenticated()
-                        .requestMatchers("/api/customers/**").authenticated()
+                        .requestMatchers("/api/customers/**").permitAll()
                         .requestMatchers("/api/payments/**").authenticated()
                         .requestMatchers("/api/vouchers/apply").authenticated()
 
-                        // 7. ⭐ Default - All other requests require authentication
+                        // 7. Protected internal endpoint
+                        .requestMatchers("/internal/**").permitAll() // chỉ bật ở profile dev/local
+
+
+                        // 8. ⭐ Default - All other requests require authentication
                         .anyRequest().authenticated()
                 )
                 .sessionManagement(session -> session

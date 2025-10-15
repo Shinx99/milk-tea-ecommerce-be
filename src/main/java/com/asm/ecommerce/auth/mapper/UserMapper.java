@@ -3,33 +3,22 @@ package com.asm.ecommerce.auth.mapper;
 import com.asm.ecommerce.auth.domain.User;
 import com.asm.ecommerce.auth.dto.UserDto;
 import com.asm.ecommerce.auth.dto.response.AuthResponse;
-import org.springframework.stereotype.Component;
+import org.mapstruct.Mapper;
+import org.mapstruct.Mapping;
 
-@Component
-public class UserMapper {
+@Mapper(componentModel = "spring")
+public interface UserMapper {
 
-    public UserDto toDto(User user) {
-        return UserDto.builder()
-                .id(user.getId())
-                .email(user.getEmail())
-                .isActive(user.getIsActive())
-                .createdAt(user.getCreatedAt())
-                .roleId(user.getRoleId())
-                .roleName(user.getRole() != null ? user.getRole().getRole() : null)
-                .customerId(user.getCustomerId())
-                .build();
-    }
+    @Mapping(target = "roleName",
+            expression = "java(user.getRole() != null ? user.getRole().getRole() : null)")
+    UserDto toDto(User user);
 
-    public AuthResponse toAuthResponse(User user, String token) {
-        return AuthResponse.builder()
-                .userId(user.getId())
-                .email(user.getEmail())
-                .token(token)
-                .tokenType("Bearer")
-                .expiresIn(86400L) // 24 hours
-                .roleId(user.getRoleId())
-                .roleName(user.getRole() != null ? user.getRole().getRole() : null)
-                .customerId(user.getCustomerId())
-                .build();
-    }
+    @Mapping(target = "userId", source = "user.id")
+    @Mapping(target = "tokenType", constant = "Bearer")
+    @Mapping(target = "expiresIn", constant = "86400L")
+    @Mapping(target = "roleName",
+            expression = "java(user.getRole() != null ? user.getRole().getRole() : null)")
+    AuthResponse toAuthResponse(User user, String token);
 }
+
+

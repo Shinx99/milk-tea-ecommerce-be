@@ -1,6 +1,7 @@
 package com.asm.ecommerce.customer.controller;
 
 import com.asm.ecommerce.customer.domain.CustomerModel;
+import com.asm.ecommerce.customer.dto.response.DisplayResponse;
 import com.asm.ecommerce.customer.service.CustomerService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -21,15 +22,15 @@ public class CustomerController {
     // GET: /api/customers
     // METHOD: Display all
     @GetMapping
-    public List<CustomerModel> listAll(){
-        return service.listAll();
+    public List<DisplayResponse> listAll(){
+        return service.displayAll();
     }
 
     // GET: /api/customers/active
     // METHOD: Display active customers
     @GetMapping("/active")
-    public List<CustomerModel> listActive(){
-        return service.listActive();
+    public List<DisplayResponse> listActive(){
+        return service.displayActive();
     }
 
 

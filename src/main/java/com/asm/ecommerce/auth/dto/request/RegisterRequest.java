@@ -24,10 +24,10 @@ public class RegisterRequest {
     private String password;
 
     @NotBlank(message = "Phone is required")
-    @Pattern(regexp = "[0-9]{10,11}$", message = "Invalid phone number")
+    @Pattern(regexp = "^[0-9]{10,11}$", message = "Invalid phone number") // ✅ Fixed: added ^
     private String phone;
 
     @NotBlank(message = "Full name is required")
+    @Size(min = 2, max = 100, message = "Full name must be between 2 and 100 characters")
     private String fullname;
-
 }
