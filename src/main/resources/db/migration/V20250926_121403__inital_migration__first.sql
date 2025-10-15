@@ -16,6 +16,19 @@ CREATE TABLE IF NOT EXISTS roles (
   is_active boolean NOT NULL DEFAULT true
 );
 
+-- 2) USERS
+CREATE TABLE IF NOT EXISTS users (
+  id uuid PRIMARY KEY DEFAULT gen_random_uuid(),
+  email varchar(255) NOT NULL UNIQUE,
+  password_hash varchar(255) NOT NULL,
+  is_active boolean NOT NULL DEFAULT true,
+  created_at timestamptz NOT NULL DEFAULT now(),
+  updated_at timestamptz NOT NULL DEFAULT now(),
+  role_id uuid NOT NULL REFERENCES roles(id) ON DELETE RESTRICT
+);
+CREATE INDEX IF NOT EXISTS idx_users_role ON users(role_id);
+
+
 -- 2) CUSTOMERS trước USERS (vì users references customers)
 CREATE TABLE IF NOT EXISTS customers(
   id uuid PRIMARY KEY DEFAULT gen_random_uuid(),
@@ -23,8 +36,10 @@ CREATE TABLE IF NOT EXISTS customers(
   fullname varchar(255) NOT NULL,
   created_at timestamptz NOT NULL DEFAULT now(),
   updated_at timestamptz NOT NULL DEFAULT now(),
-  is_active boolean NOT NULL DEFAULT true
+  is_active boolean NOT NULL DEFAULT true,
+  user_id uuid references users(id) not null
 );
+CREATE INDEX IF NOT EXISTS idx_customers_users ON customers(user_id);
 
 -- 3) ADDRESSES (sau customers)
 CREATE TABLE IF NOT EXISTS addresses (
@@ -42,22 +57,6 @@ CREATE TABLE IF NOT EXISTS addresses (
 );
 CREATE UNIQUE INDEX IF NOT EXISTS ux_addr_default_per_user
   ON addresses(customer_id) WHERE is_default = true;
-
--- 4) USERS (sau cả roles và customers)
-CREATE TABLE IF NOT EXISTS users (
-  id uuid PRIMARY KEY DEFAULT gen_random_uuid(),
-  email varchar(255) NOT NULL UNIQUE,
-  password_hash varchar(255) NOT NULL,
-  is_active boolean NOT NULL DEFAULT true,
-  created_at timestamptz NOT NULL DEFAULT now(),
-  updated_at timestamptz NOT NULL DEFAULT now(),
-  role_id uuid NOT NULL REFERENCES roles(id) ON DELETE RESTRICT,
-  customer_id uuid REFERENCES customers(id) ON DELETE SET NULL
-);
-
-CREATE INDEX IF NOT EXISTS idx_users_role ON users(role_id);
-CREATE INDEX IF NOT EXISTS idx_users_customer ON users(customer_id);
-
 
 -- 5) CATEGORIES (tự tham chiếu)
 CREATE TABLE IF NOT EXISTS categories (

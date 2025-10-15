@@ -86,6 +86,8 @@ public class UserServiceIml implements UserService{
 
     // ... existing methods
 
+    //Vuong
+    //Khong con customer_id nua -> check lai gium em phat
     @Override
     @Transactional
     public void updateCustomerId(UUID userId, UUID customerId) {
@@ -95,7 +97,7 @@ public class UserServiceIml implements UserService{
                 .orElseThrow(() -> new ResourceNotFoundException(
                         "User not found with ID: " + userId));
 
-        user.setCustomerId(customerId);
+        //user.setCustomerId(customerId);
         user.setUpdatedAt(java.time.Instant.now());
         userRepository.save(user);
 

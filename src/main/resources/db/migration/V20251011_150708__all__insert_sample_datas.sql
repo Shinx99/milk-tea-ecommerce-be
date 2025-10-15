@@ -3,6 +3,9 @@ BEGIN;
 -- Có thể giữ, vô hại nếu đã enable ở migration đầu
 CREATE EXTENSION IF NOT EXISTS pgcrypto;
 
+-- Bật extension cho crypt()/gen_salt() nếu chưa có
+-- CREATE EXTENSION IF NOT EXISTS pgcrypto;
+
 -- 1) ROLES
 INSERT INTO roles (role, description) VALUES
 ('admin', 'Quản trị'),
@@ -10,83 +13,96 @@ INSERT INTO roles (role, description) VALUES
 ('customer', 'Khach hang')
 ON CONFLICT (role) DO UPDATE SET description = EXCLUDED.description;
 
--- 2) CUSTOMERS
-INSERT INTO customers (phone, fullname)
-SELECT '0902000001','Alice MilkTea'
-WHERE NOT EXISTS (SELECT 1 FROM customers WHERE phone='0902000001');
+-- 2) USERS (tạo trước để customers tham chiếu user_id)
 
-INSERT INTO customers (phone, fullname)
-SELECT '0902000002','Bob MilkTea'
-WHERE NOT EXISTS (SELECT 1 FROM customers WHERE phone='0902000002');
-
-INSERT INTO customers (phone, fullname)
-SELECT '0902000003','Carol MilkTea'
-WHERE NOT EXISTS (SELECT 1 FROM customers WHERE phone='0902000003');
-
-INSERT INTO customers (phone, fullname)
-SELECT '0902000004','Dave MilkTea'
-WHERE NOT EXISTS (SELECT 1 FROM customers WHERE phone='0902000004');
-
-INSERT INTO customers (phone, fullname)
-SELECT '0902000005','Erin MilkTea'
-WHERE NOT EXISTS (SELECT 1 FROM customers WHERE phone='0902000005');
-
--- 3) USERS
--- Admin: role admin, user hệ thống (customer_id NULL)
-INSERT INTO users (email, password_hash, role_id, customer_id)
+-- Admin, Staff (không gắn customer)
+INSERT INTO users (email, password_hash, role_id, is_active)
 SELECT 'admin@milktea.local',
        crypt('Admin#123', gen_salt('bf')),
        (SELECT id FROM roles WHERE role='admin'),
-       NULL
-WHERE NOT EXISTS (SELECT 1 FROM users WHERE email='admin@milktea.local');
+       true
+ON CONFLICT (email) DO NOTHING;
 
--- Staff: role staff, user hệ thống (customer_id NULL)
-INSERT INTO users (email, password_hash, role_id, customer_id)
+INSERT INTO users (email, password_hash, role_id, is_active)
 SELECT 'staff@milktea.local',
        crypt('Staff#1', gen_salt('bf')),
        (SELECT id FROM roles WHERE role='staff'),
-       NULL
-WHERE NOT EXISTS (SELECT 1 FROM users WHERE email='staff@milktea.local');
+       true
+ON CONFLICT (email) DO NOTHING;
 
--- Customer1: role customer, gắn với customer '0902000001'
-INSERT INTO users (email, password_hash, role_id, customer_id)
+-- Customer users (mỗi email ứng với một khách hàng sau này)
+INSERT INTO users (email, password_hash, role_id, is_active)
 SELECT 'customer1@milktea.local',
        crypt('Customer#1', gen_salt('bf')),
        (SELECT id FROM roles WHERE role='customer'),
-       (SELECT id FROM customers WHERE phone='0902000001')
-WHERE NOT EXISTS (SELECT 1 FROM users WHERE email='customer1@milktea.local');
+       true
+ON CONFLICT (email) DO NOTHING;
 
--- Customer2: role customer, gắn với customer '0902000002'
-INSERT INTO users (email, password_hash, role_id, customer_id)
+INSERT INTO users (email, password_hash, role_id, is_active)
 SELECT 'customer2@milktea.local',
        crypt('Customer#2', gen_salt('bf')),
        (SELECT id FROM roles WHERE role='customer'),
-       (SELECT id FROM customers WHERE phone='0902000002')
-WHERE NOT EXISTS (SELECT 1 FROM users WHERE email='customer2@milktea.local');
+       true
+ON CONFLICT (email) DO NOTHING;
 
--- Customer3: role customer, gắn với customer '0902000003'
-INSERT INTO users (email, password_hash, role_id, customer_id)
+INSERT INTO users (email, password_hash, role_id, is_active)
 SELECT 'customer3@milktea.local',
-       crypt('Customer#2', gen_salt('bf')),
+       crypt('Customer#3', gen_salt('bf')),
        (SELECT id FROM roles WHERE role='customer'),
-       (SELECT id FROM customers WHERE phone='0902000003')
-WHERE NOT EXISTS (SELECT 1 FROM users WHERE email='customer3@milktea.local');
+       true
+ON CONFLICT (email) DO NOTHING;
 
--- Customer4: role customer, gắn với customer '0902000004'
-INSERT INTO users (email, password_hash, role_id, customer_id)
+INSERT INTO users (email, password_hash, role_id, is_active)
 SELECT 'customer4@milktea.local',
-       crypt('Customer#2', gen_salt('bf')),
+       crypt('Customer#4', gen_salt('bf')),
        (SELECT id FROM roles WHERE role='customer'),
-       (SELECT id FROM customers WHERE phone='0902000004')
-WHERE NOT EXISTS (SELECT 1 FROM users WHERE email='customer4@milktea.local');
+       true
+ON CONFLICT (email) DO NOTHING;
 
--- Customer5: role customer, gắn với customer '0902000005'
-INSERT INTO users (email, password_hash, role_id, customer_id)
+INSERT INTO users (email, password_hash, role_id, is_active)
 SELECT 'customer5@milktea.local',
-       crypt('Customer#2', gen_salt('bf')),
+       crypt('Customer#5', gen_salt('bf')),
        (SELECT id FROM roles WHERE role='customer'),
-       (SELECT id FROM customers WHERE phone='0902000005')
-WHERE NOT EXISTS (SELECT 1 FROM users WHERE email='customer5@milktea.local');
+       true
+ON CONFLICT (email) DO NOTHING;
+
+-- 3) CUSTOMERS (sau users, tham chiếu user_id theo email)
+
+INSERT INTO customers (phone, fullname, user_id)
+SELECT '0902000001','Alice MilkTea',
+       (SELECT id FROM users WHERE email='customer1@milktea.local')
+ON CONFLICT (phone) DO UPDATE
+SET fullname = EXCLUDED.fullname,
+    user_id  = EXCLUDED.user_id;
+
+INSERT INTO customers (phone, fullname, user_id)
+SELECT '0902000002','Bob MilkTea',
+       (SELECT id FROM users WHERE email='customer2@milktea.local')
+ON CONFLICT (phone) DO UPDATE
+SET fullname = EXCLUDED.fullname,
+    user_id  = EXCLUDED.user_id;
+
+INSERT INTO customers (phone, fullname, user_id)
+SELECT '0902000003','Carol MilkTea',
+       (SELECT id FROM users WHERE email='customer3@milktea.local')
+ON CONFLICT (phone) DO UPDATE
+SET fullname = EXCLUDED.fullname,
+    user_id  = EXCLUDED.user_id;
+
+INSERT INTO customers (phone, fullname, user_id)
+SELECT '0902000004','Dave MilkTea',
+       (SELECT id FROM users WHERE email='customer4@milktea.local')
+ON CONFLICT (phone) DO UPDATE
+SET fullname = EXCLUDED.fullname,
+    user_id  = EXCLUDED.user_id;
+
+INSERT INTO customers (phone, fullname, user_id)
+SELECT '0902000005','Erin MilkTea',
+       (SELECT id FROM users WHERE email='customer5@milktea.local')
+ON CONFLICT (phone) DO UPDATE
+SET fullname = EXCLUDED.fullname,
+    user_id  = EXCLUDED.user_id;
+
 
 -- 4) CATEGORIES (cha)
 INSERT INTO categories (parent_id, category_name, sort_order, is_active)

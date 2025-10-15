@@ -44,9 +44,6 @@ public class User {
     @Column(name = "role_id")
     private UUID roleId;
 
-    @Column(name = "customer_id")
-    private UUID customerId;
-
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "role_id", insertable = false, updatable = false)
     private Role role;

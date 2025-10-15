@@ -1,5 +1,6 @@
 package com.asm.ecommerce.customer.domain;
 
+import com.asm.ecommerce.auth.domain.User;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
@@ -50,4 +51,8 @@ public class CustomerModel {
     @Column(name = "is_active", nullable = false)
     @Builder.Default
     private boolean isActive = true;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "user_id", nullable = false)
+    private User userId;
 }
