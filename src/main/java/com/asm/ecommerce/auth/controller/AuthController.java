@@ -6,18 +6,20 @@ import com.asm.ecommerce.auth.service.AuthService;
 import com.asm.ecommerce.shared.dto.ApiResponse;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.UUID;
 
+@Slf4j
 @RestController
 @RequestMapping("/api/auth")
 @RequiredArgsConstructor
 public class AuthController {
 
-    private final AuthService authService;
+    private final AuthService authService;     //Inject interface
 
     @PostMapping("/login")
     public ResponseEntity<ApiResponse<AuthResponse>> login(
@@ -28,15 +30,20 @@ public class AuthController {
     @PostMapping("/register")
     public ResponseEntity<ApiResponse<AuthResponse>> register(
             @Valid @RequestBody RegisterRequest request) {
+
+        log.info("Received registration request for email: {}", request.getEmail());
+
         return ResponseEntity
                 .status(HttpStatus.CREATED)
                 .body(authService.register(request));
     }
 
-    @PostMapping("/change-password")
+    @PutMapping("/change-password/{userId}")  // Full path: /api/auth/change-password/{userId}
     public ResponseEntity<ApiResponse<Void>> changePassword(
-            @RequestParam UUID userId,
+            @PathVariable UUID userId,
             @Valid @RequestBody ChangePasswordRequest request) {
+
+        log.info("Received change password request for userId: {}", userId);
         return ResponseEntity.ok(authService.changePassword(userId, request));
     }
 

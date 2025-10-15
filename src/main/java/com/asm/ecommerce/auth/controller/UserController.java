@@ -1,7 +1,7 @@
 package com.asm.ecommerce.auth.controller;
 
 import com.asm.ecommerce.auth.dto.UserDto;
-import com.asm.ecommerce.auth.service.UserService;
+import com.asm.ecommerce.auth.service.UserServiceIml;
 import com.asm.ecommerce.shared.dto.ApiResponse;
 import com.asm.ecommerce.shared.dto.PageResponse;
 import lombok.RequiredArgsConstructor;
@@ -19,7 +19,7 @@ import java.util.UUID;
 @RequiredArgsConstructor
 public class UserController {
 
-    private final UserService userService;
+    private final UserServiceIml userService;
 
     @GetMapping("/{id}")
     @PreAuthorize("hasRole('ADMIN') or #id == authentication.principal.id")

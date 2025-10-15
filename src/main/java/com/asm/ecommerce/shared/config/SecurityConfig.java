@@ -48,6 +48,10 @@ public class SecurityConfig {
 
                         // 2. ⭐ Auth endpoints - Public
                         .requestMatchers("/api/auth/**").permitAll()
+
+                        // 2.1. Internal API - Public (for inter-service communication)
+                        .requestMatchers("/api/internal/**").permitAll()
+
                         .requestMatchers("/api/health", "/api/test/**").permitAll()
 
                         // 3. ⭐ Product browsing - Public
