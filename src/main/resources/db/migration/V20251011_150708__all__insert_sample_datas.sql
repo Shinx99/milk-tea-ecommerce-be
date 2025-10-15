@@ -48,21 +48,45 @@ SELECT 'staff@milktea.local',
        NULL
 WHERE NOT EXISTS (SELECT 1 FROM users WHERE email='staff@milktea.local');
 
--- Customer1: role customer, gắn với customer '0902000003'
+-- Customer1: role customer, gắn với customer '0902000001'
 INSERT INTO users (email, password_hash, role_id, customer_id)
 SELECT 'customer1@milktea.local',
        crypt('Customer#1', gen_salt('bf')),
        (SELECT id FROM roles WHERE role='customer'),
-       (SELECT id FROM customers WHERE phone='0902000003')
+       (SELECT id FROM customers WHERE phone='0902000001')
 WHERE NOT EXISTS (SELECT 1 FROM users WHERE email='customer1@milktea.local');
 
--- Customer2: role customer, gắn với customer '0902000004'
+-- Customer2: role customer, gắn với customer '0902000002'
 INSERT INTO users (email, password_hash, role_id, customer_id)
 SELECT 'customer2@milktea.local',
        crypt('Customer#2', gen_salt('bf')),
        (SELECT id FROM roles WHERE role='customer'),
-       (SELECT id FROM customers WHERE phone='0902000004')
+       (SELECT id FROM customers WHERE phone='0902000002')
 WHERE NOT EXISTS (SELECT 1 FROM users WHERE email='customer2@milktea.local');
+
+-- Customer3: role customer, gắn với customer '0902000003'
+INSERT INTO users (email, password_hash, role_id, customer_id)
+SELECT 'customer3@milktea.local',
+       crypt('Customer#2', gen_salt('bf')),
+       (SELECT id FROM roles WHERE role='customer'),
+       (SELECT id FROM customers WHERE phone='0902000003')
+WHERE NOT EXISTS (SELECT 1 FROM users WHERE email='customer3@milktea.local');
+
+-- Customer4: role customer, gắn với customer '0902000004'
+INSERT INTO users (email, password_hash, role_id, customer_id)
+SELECT 'customer4@milktea.local',
+       crypt('Customer#2', gen_salt('bf')),
+       (SELECT id FROM roles WHERE role='customer'),
+       (SELECT id FROM customers WHERE phone='0902000004')
+WHERE NOT EXISTS (SELECT 1 FROM users WHERE email='customer4@milktea.local');
+
+-- Customer5: role customer, gắn với customer '0902000005'
+INSERT INTO users (email, password_hash, role_id, customer_id)
+SELECT 'customer5@milktea.local',
+       crypt('Customer#2', gen_salt('bf')),
+       (SELECT id FROM roles WHERE role='customer'),
+       (SELECT id FROM customers WHERE phone='0902000005')
+WHERE NOT EXISTS (SELECT 1 FROM users WHERE email='customer5@milktea.local');
 
 -- 4) CATEGORIES (cha)
 INSERT INTO categories (parent_id, category_name, sort_order, is_active)

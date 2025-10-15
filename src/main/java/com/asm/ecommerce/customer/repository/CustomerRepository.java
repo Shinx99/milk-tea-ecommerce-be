@@ -15,7 +15,6 @@ public interface CustomerRepository extends JpaRepository<CustomerModel, UUID> {
 
     //--------------------------------SEARCH----------------------------------------------
 
-
     //Tra cuu theo phone
     Optional<CustomerModel> findByPhone(String phone);
 
