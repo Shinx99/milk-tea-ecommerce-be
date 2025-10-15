@@ -10,7 +10,6 @@ import com.asm.ecommerce.auth.dto.response.AuthResponse;
 import com.asm.ecommerce.auth.mapper.UserMapper;
 import com.asm.ecommerce.customer.service.CustomerService;
 import com.asm.ecommerce.shared.dto.ApiResponse;
-import com.asm.ecommerce.shared.event.UserRegisteredEvent;
 import com.asm.ecommerce.shared.exception.BadRequestException;
 import com.asm.ecommerce.shared.exception.ResourceNotFoundException;
 import com.asm.ecommerce.shared.exception.UnauthorizedException;
@@ -147,53 +146,9 @@ public class AuthServiceIml implements AuthService {
             throw new BadRequestException("Email already exists");
         }
 
-        // 2. Get default customer role
-        var customerRole = roleRepository.findByRole("customer")
-                .orElseThrow(() -> new ResourceNotFoundException("Customer role not found"));
+        return null;
 
-        // 3. Create User entity
-        UUID userId = UUID.randomUUID();
-        User user = User.builder()
-                .id(userId)
-                .email(request.getEmail())
-                .passwordHash(passwordEncoder.encode(request.getPassword()))
-                .roleId(customerRole.getId())
-                .customerId(null) // ✅ Will be set by Customer module via event
-                .isActive(false) // Inactive until email verification
-                .createdAt(Instant.now())
-                .updatedAt(Instant.now())
-                .build();
-
-        // 4. Save user to database
-        User savedUser = userRepository.save(user);
-        log.info("User created successfully with ID: {}", savedUser.getId());
-
-        // 5. ✅ Publish UserRegisteredEvent for async customer creation
-        UserRegisteredEvent event = UserRegisteredEvent.builder()
-                .userId(savedUser.getId())
-                .email(savedUser.getEmail())
-                .fullname(request.getFullname())
-                .phone(request.getPhone())
-                .registeredAt(Instant.now())
-                .build();
-
-        eventPublisher.publishEvent(event);
-        log.info("UserRegisteredEvent published for user: {}", savedUser.getEmail());
-
-        // 6. Prepare response (without waiting for customer creation)
-        String token = "temporary-token-" + UUID.randomUUID(); // TODO: Generate real JWT
-
-        AuthResponse response = AuthResponse.builder()
-                .userId(savedUser.getId())
-                .email(savedUser.getEmail())
-                .token(token)
-                .build();
-
-        return ApiResponse.<AuthResponse>builder()
-                .success(true)
-                .message("Registration successful. Your customer profile is being created.")
-                .data(response)
-                .build();
     }
+
 }
 
