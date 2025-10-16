@@ -3,6 +3,7 @@ package com.asm.ecommerce.auth.controller;
 import com.asm.ecommerce.auth.dto.UserDto;
 import com.asm.ecommerce.auth.service.UserContractService;
 import com.asm.ecommerce.auth.service.UserService;
+import com.asm.ecommerce.auth.service.UserService;
 import com.asm.ecommerce.shared.dto.ApiResponse;
 import com.asm.ecommerce.shared.dto.PageResponse;
 import lombok.RequiredArgsConstructor;
@@ -13,8 +14,6 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.List;
-import java.util.Map;
 import java.util.UUID;
 
 @RestController
@@ -23,7 +22,6 @@ import java.util.UUID;
 public class UserController {
 
     private final UserService userService;
-    private final UserContractService userContractService;
 
     @GetMapping("/{id}")
     @PreAuthorize("hasRole('ADMIN') or #id == authentication.principal.id")

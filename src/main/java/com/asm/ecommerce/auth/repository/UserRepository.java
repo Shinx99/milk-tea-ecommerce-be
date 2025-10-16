@@ -26,7 +26,6 @@ public interface UserRepository extends JpaRepository<User, UUID> {
     List<User> findByIsActive(Boolean isActive);
 
     //Vuong edit
-    //Repo cho contract do customer yeu cau
-    //Contract lay thong tin customer (email) theo customerId
-    List<User> findByCustomerIdIn(Collection<UUID> customerIds);
+    // Co the khong can nua
+    //List<User> findByCustomerIdIn(Collection<UUID> customerIds);
 }

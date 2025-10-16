@@ -1,7 +1,7 @@
 package com.asm.ecommerce.customer.mapper.response;
 
 import com.asm.ecommerce.auth.dto.UserDto;
-import com.asm.ecommerce.customer.domain.CustomerModel;
+import com.asm.ecommerce.customer.domain.Customer;
 import com.asm.ecommerce.customer.dto.response.DisplayResponse;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
@@ -15,5 +15,5 @@ public interface DisplayMapper {
     @Mapping(target = "active",    source = "customer.active")
     @Mapping(target = "createdAt",  source = "customer.createdAt")
     @Mapping(target = "updatedAt", source = "customer.updatedAt")
-    DisplayResponse display(CustomerModel customer, UserDto user);
+    DisplayResponse display(Customer customer, UserDto user);
 }
