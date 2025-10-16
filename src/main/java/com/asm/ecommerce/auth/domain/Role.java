@@ -33,7 +33,8 @@ public class Role {
     private Instant updatedAt;  // ⭐ Instant
 
     @Column(name = "is_active")
-    private Boolean isActive;
+    @Builder.Default
+    private Boolean isActive = true;
 
     @OneToMany(mappedBy = "role", fetch = FetchType.LAZY)
     private List<User> users;

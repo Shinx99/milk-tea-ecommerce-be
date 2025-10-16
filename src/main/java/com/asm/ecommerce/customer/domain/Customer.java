@@ -1,8 +1,6 @@
 package com.asm.ecommerce.customer.domain;
 
-import com.asm.ecommerce.auth.domain.User;
 import jakarta.persistence.*;
-import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
 import lombok.*;
 import org.hibernate.annotations.CreationTimestamp;
@@ -23,7 +21,7 @@ import java.util.UUID;
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-public class CustomerModel {
+public class Customer {
 
     @Id
     @GeneratedValue
@@ -31,6 +29,10 @@ public class CustomerModel {
     @Column(name = "id", updatable = false, nullable = false, columnDefinition = "uuid")
     @JdbcTypeCode(SqlTypes.UUID)
     private UUID id;
+
+    @Column(name = "user_id", unique = true, nullable = false)
+    @JdbcTypeCode(SqlTypes.UUID)
+    private UUID userId;
 
     @NotBlank
     @Column(name = "phone", nullable = false, length = 40)
@@ -52,7 +54,5 @@ public class CustomerModel {
     @Builder.Default
     private boolean isActive = true;
 
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "user_id", nullable = false)
-    private User userId;
+
 }

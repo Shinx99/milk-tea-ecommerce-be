@@ -20,7 +20,7 @@ import java.util.UUID;
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-public class AddressModel {
+public class Address {
 
     @Id
     @GeneratedValue
@@ -32,7 +32,7 @@ public class AddressModel {
     @ManyToOne(fetch = FetchType.LAZY, optional = false)
     @JoinColumn(name = "customer_id", nullable = false,
             foreignKey = @ForeignKey(name = "fk_addresses_customer"))
-    private CustomerModel customerId;
+    private Customer customerId;
 
     @Column(name = "number", length = 50)
     private String number;

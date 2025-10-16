@@ -1,6 +1,6 @@
 package com.asm.ecommerce.customer.controller;
 
-import com.asm.ecommerce.customer.domain.CustomerModel;
+import com.asm.ecommerce.customer.domain.Customer;
 import com.asm.ecommerce.customer.dto.response.DisplayResponse;
 import com.asm.ecommerce.customer.service.CustomerService;
 import jakarta.validation.Valid;
@@ -35,7 +35,7 @@ public class CustomerController {
 
 
     @GetMapping("/{id}")
-    public ResponseEntity<CustomerModel> findById(@PathVariable UUID id){
+    public ResponseEntity<Customer> findById(@PathVariable UUID id){
         return service.findById(id)
                 .map(ResponseEntity::ok)
                 .orElse(ResponseEntity.notFound().build());
@@ -45,17 +45,17 @@ public class CustomerController {
     // POST: /api/customers
     // METHOD: create new customer
     @PostMapping
-    public ResponseEntity<CustomerModel> create(@Valid @RequestBody CustomerModel input) {
-        CustomerModel created = service.create(input);
+    public ResponseEntity<Customer> create(@Valid @RequestBody Customer input) {
+        Customer created = service.create(input);
         return ResponseEntity.status(HttpStatus.CREATED).body(created);
     }
 
     // PUT: /api/customers/{id}
     // METHOD: update customer
     @PutMapping("/{id}")
-    public ResponseEntity<CustomerModel> update(@PathVariable UUID id,
-                                                @Valid @RequestBody CustomerModel input) {
-        CustomerModel updated = service.update(id, input);
+    public ResponseEntity<Customer> update(@PathVariable UUID id,
+                                           @Valid @RequestBody Customer input) {
+        Customer updated = service.update(id, input);
         return ResponseEntity.ok(updated);
     }
 

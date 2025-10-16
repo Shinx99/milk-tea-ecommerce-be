@@ -13,6 +13,12 @@ public interface UserMapper {
             expression = "java(user.getRole() != null ? user.getRole().getRole() : null)")
     UserDto toDto(User user);
 
+/*    @Mapping(target = "role", ignore = true)
+    @Mapping(target = "createdAt", ignore = true)
+    @Mapping(target = "updatedAt", ignore = true)
+    @Mapping(target = "deletedAt", ignore = true)
+    User toEntity(UserDto userDto);*/
+
     @Mapping(target = "userId", source = "user.id")
     @Mapping(target = "tokenType", constant = "Bearer")
     @Mapping(target = "expiresIn", constant = "86400L")

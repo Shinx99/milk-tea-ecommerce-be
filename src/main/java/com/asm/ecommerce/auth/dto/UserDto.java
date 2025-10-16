@@ -3,7 +3,6 @@ package com.asm.ecommerce.auth.dto;
 import lombok.*;
 
 import java.time.Instant;
-import java.time.OffsetDateTime;
 import java.util.UUID;
 
 @Data
@@ -18,5 +17,4 @@ public class UserDto {
     private Instant createdAt;
     private UUID roleId;
     private String roleName;
-    private UUID customerId;
 }

@@ -15,6 +15,6 @@ public class AuthResponse {
     private String tokenType;
     private Long expiresIn;
     private UUID roleId;
-    private String roleName;
     private UUID customerId;
+    private String roleName;
 }

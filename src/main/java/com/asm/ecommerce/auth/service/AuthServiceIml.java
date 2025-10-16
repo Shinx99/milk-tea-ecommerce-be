@@ -1,5 +1,6 @@
 package com.asm.ecommerce.auth.service;
 
+import com.asm.ecommerce.auth.domain.Role;
 import com.asm.ecommerce.auth.domain.User;
 import com.asm.ecommerce.auth.repository.UserRepository;
 import com.asm.ecommerce.auth.repository.RoleRepository;
@@ -8,6 +9,8 @@ import com.asm.ecommerce.auth.dto.request.RegisterRequest;
 import com.asm.ecommerce.auth.dto.request.ChangePasswordRequest;
 import com.asm.ecommerce.auth.dto.response.AuthResponse;
 import com.asm.ecommerce.auth.mapper.UserMapper;
+import com.asm.ecommerce.customer.dto.CustomerDTO;
+import com.asm.ecommerce.customer.dto.request.CreateCustomerRequest;
 import com.asm.ecommerce.customer.service.CustomerService;
 import com.asm.ecommerce.shared.dto.ApiResponse;
 import com.asm.ecommerce.shared.exception.BadRequestException;
@@ -15,8 +18,7 @@ import com.asm.ecommerce.shared.exception.ResourceNotFoundException;
 import com.asm.ecommerce.shared.exception.UnauthorizedException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.context.ApplicationEventPublisher;
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -30,13 +32,10 @@ import java.util.UUID;
 @Transactional
 public class AuthServiceIml implements AuthService {
     private final UserRepository userRepository;
-    private final RoleRepository roleRepository;
     private final PasswordEncoder passwordEncoder;
+    private final RoleRepository roleRepository;
     private final UserMapper userMapper;
-    private final ApplicationEventPublisher eventPublisher;
-
-    @Autowired
-    CustomerService customerService;
+    private final CustomerService customerService;
 
 
     // TODO: Add JwtTokenProvider when implementing JWT
@@ -133,22 +132,74 @@ public class AuthServiceIml implements AuthService {
     }
 
 
-
-    // Đang xử lý   / còn ERROR
+    //Fixed Done
+    // auth/service/AuthServiceImpl.java
     @Override
     @Transactional
     public ApiResponse<AuthResponse> register(RegisterRequest request) {
         log.info("Starting user registration for email: {}", request.getEmail());
 
-        // 1. Validate email doesn't exist
-        if (userRepository.existsByEmail(request.getEmail())) {
-            log.warn("Registration failed: Email already exists - {}", request.getEmail());
-            throw new BadRequestException("Email already exists");
+        try {
+            // 1. Validate
+            if (userRepository.existsByEmail(request.getEmail())) {
+                throw new BadRequestException("Email already exists");
+            }
+
+            // 2. Get roleId
+            UUID userRoleId = roleRepository.findByRole("customer")
+                    .map(Role::getId)
+                    .orElseThrow(() -> new RuntimeException("Role CUSTOMER not found"));
+
+            // 3. Create User
+            User user = User.builder()
+                    .email(request.getEmail())
+                    .passwordHash(passwordEncoder.encode(request.getPassword()))
+                    .roleId(userRoleId)
+                    .isActive(true)
+                    .build();
+
+            User savedUser = userRepository.save(user);
+            log.info("User created successfully with ID: {}", savedUser.getId());
+
+            // 4. Create Customer
+            CreateCustomerRequest customerRequest = CreateCustomerRequest.builder()
+                    .userId(savedUser.getId())
+                    .fullName(request.getFullname())
+                    .phone(request.getPhone())
+                    .build();
+
+            CustomerDTO customer = customerService.createCustomer(customerRequest);
+
+            // 5. Generate token
+            String token = "Token-" + UUID.randomUUID();
+
+            // 6. Build response - ✅ SỬA ĐÚNG
+            AuthResponse response = AuthResponse.builder()
+                    .userId(savedUser.getId())
+                    .email(savedUser.getEmail())
+                    .roleId(savedUser.getRoleId())  // ✅ Sửa dòng này
+                    .token(token)
+                    .tokenType("Bearer")
+                    .expiresIn(86400L)
+                    .customerId(customer.getId())  // ✅ Sửa dòng này
+                    .build();
+
+            log.info("User registration completed successfully: {}", savedUser.getEmail());
+
+            return ApiResponse.<AuthResponse>builder()
+                    .success(true)
+                    .message("Registration successful")
+                    .data(response)
+                    .build();
+
+        } catch (DataIntegrityViolationException e) {
+            log.error("Database constraint violation during registration", e);
+            throw new BadRequestException("Registration failed: Data conflict");
+        } catch (BadRequestException | ResourceNotFoundException e) {
+            throw e;
         }
-
-        return null;
-
     }
+
 
 }
 

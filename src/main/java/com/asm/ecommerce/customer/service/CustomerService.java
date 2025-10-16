@@ -1,7 +1,9 @@
 package com.asm.ecommerce.customer.service;
 
-import com.asm.ecommerce.customer.domain.CustomerModel;
+import com.asm.ecommerce.customer.domain.Customer;
 import com.asm.ecommerce.customer.dto.response.DisplayResponse;
+import com.asm.ecommerce.customer.dto.CustomerDTO;
+import com.asm.ecommerce.customer.dto.request.CreateCustomerRequest;
 
 import java.util.List;
 import java.util.Optional;
@@ -13,11 +15,13 @@ public interface CustomerService {
 
     List<DisplayResponse> displayActive();
 
-    Optional<CustomerModel> findById(UUID id);
+    Optional<Customer> findById(UUID id);
 
-    CustomerModel create(CustomerModel input);
+    Customer create(Customer input);
 
-    CustomerModel update(UUID id, CustomerModel input);
+    Customer update(UUID id, Customer input);
 
     void softDelete(UUID id);
+
+    CustomerDTO createCustomer(CreateCustomerRequest request);
 }
