@@ -1,4 +1,4 @@
-/*
+
 package com.asm.ecommerce.auth.service;
 
 import com.asm.ecommerce.auth.domain.User;
@@ -22,27 +22,26 @@ public class UserContractServiceImpl implements UserContractService {
 
     @Override
     @Transactional(readOnly = true)
-    public Map<UUID, UserDto> findByCustomerIds(List<UUID> customerIds) {
-        if (customerIds == null || customerIds.isEmpty()) return Map.of();
+    public Map<UUID, UserDto> findByUserIds(List<UUID> userIds) {
+        if (userIds == null || userIds.isEmpty()) return Map.of();
 
-        List<UUID> ids = customerIds.stream()
+        List<UUID> ids = userIds.stream()
                 .filter(Objects::nonNull)
                 .distinct()
                 .toList();
 
         if (ids.isEmpty()) return Map.of();
 
-        List<User> users = repo.findByCustomerIdIn(ids);
+        List<User> users = repo.findByIdIn(ids);
 
         return users.stream()
                 .map(userMapper::toDto) // dùng instance mapper, không static [web:66][web:31]
-                .filter(dto -> dto.getCustomerId() != null) // tránh null key cho toMap [web:84]
                 .collect(Collectors.toMap(
-                        UserDto::getCustomerId,         // key: customerId
+                        UserDto::getId,                 // key: userId
                         Function.identity(),            // value: chính DTO
                         (a, b) -> a,    // khóa trùng: giữ a (hoặc đổi thành b) [web:84]
                         LinkedHashMap::new              // giữ thứ tự chèn nếu cần [web:90]
                 ));
     }
 }
-*/
+

@@ -27,5 +27,5 @@ public interface UserRepository extends JpaRepository<User, UUID> {
 
     //Vuong edit
     // Co the khong can nua
-    //List<User> findByCustomerIdIn(Collection<UUID> customerIds);
+    List<User> findByIdIn(Collection<UUID> userIds);
 }

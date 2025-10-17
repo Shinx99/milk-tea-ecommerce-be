@@ -7,5 +7,5 @@ import java.util.Map;
 import java.util.UUID;
 
 public interface UserContractService {
-    Map<UUID, UserDto>  findByCustomerIds(List<UUID> customerIds);
+    Map<UUID, UserDto>  findByUserIds(List<UUID> userIds);
 }

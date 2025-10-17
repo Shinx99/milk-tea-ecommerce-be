@@ -1,5 +1,6 @@
 package com.asm.ecommerce.customer.service;
 
+import com.asm.ecommerce.auth.domain.User;
 import com.asm.ecommerce.auth.dto.UserDto;
 import com.asm.ecommerce.customer.client.UserClient;
 import com.asm.ecommerce.customer.domain.Customer;
@@ -28,27 +29,55 @@ public class CustomerServiceImpl implements CustomerService {
     private final DisplayMapper displayMapper;
     private final CustomerMapper customerMapper;
 
-    //Display all
     @Override
     @Transactional(readOnly = true)
     public List<DisplayResponse> displayAll() {
         List<Customer> customers = repo.findAll();
-        List<UUID> ids = customers.stream().filter(Objects::nonNull).map(c -> c.getId()).toList();
-        Map<UUID, UserDto> usersByCustomerId = userClient.findByCustomerIds(ids); // batch
+
+        // 1. Lấy ra danh sách các userId từ list customer
+        List<UUID> userIds = customers.stream()
+                .map(Customer::getUserId) // Lấy ra trường UUID userId
+                .filter(Objects::nonNull)
+                .distinct() // Tránh gọi API với các ID trùng lặp
+                .toList();
+
+        // 2. Gọi sang user service để lấy thông tin user theo batch
+        Map<UUID, UserDto> usersByUserId = userClient.findByUserIds(userIds);
+
+        // 3. Map kết quả cuối cùng
         return customers.stream()
-                .map(c -> displayMapper.display(c, usersByCustomerId.get(c.getId())))
+                .map(c -> {
+                    // Tra cứu trong map bằng userId của customer
+                    UserDto userDto = usersByUserId.get(c.getUserId());
+                    return displayMapper.display(c, userDto);
+                })
                 .toList();
     }
+
 
     //Display with
     @Override
     @Transactional(readOnly = true)
     public List<DisplayResponse> displayActive() {
         List<Customer> customers = repo.findByIsActiveTrue();
-        List<UUID> ids = customers.stream().map(Customer::getId).toList();
-        Map<UUID, UserDto> usersByCustomerId = userClient.findByCustomerIds(ids);
+
+        // 1. Lấy ra danh sách các userId từ list customer
+        List<UUID> userIds = customers.stream()
+                .map(Customer::getUserId) // Lấy ra trường UUID userId
+                .filter(Objects::nonNull)
+                .distinct() // Tránh gọi API với các ID trùng lặp
+                .toList();
+
+        // 2. Gọi sang user service để lấy thông tin user theo batch
+        Map<UUID, UserDto> usersByUserId = userClient.findByUserIds(userIds);
+
+        // 3. Map kết quả cuối cùng
         return customers.stream()
-                .map(c -> displayMapper.display(c, usersByCustomerId.get(c.getId())))
+                .map(c -> {
+                    // Tra cứu trong map bằng userId của customer
+                    UserDto userDto = usersByUserId.get(c.getUserId());
+                    return displayMapper.display(c, userDto);
+                })
                 .toList();
     }
 
@@ -71,7 +100,11 @@ public class CustomerServiceImpl implements CustomerService {
                 .orElseThrow(() -> new EntityNotFoundException("Customer not found"));
         if(input.getPhone() != null) current.setPhone(input.getPhone());
         if(input.getFullname() != null) current.setFullname(input.getFullname());
-        return current;
+        if (input.getIsActive() != null) {
+            // Gán giá trị mới từ input cho đối tượng hiện tại
+            current.setIsActive(input.getIsActive());
+        }
+        return repo.save(current);
     }
 
     @Override
@@ -105,7 +138,7 @@ public class CustomerServiceImpl implements CustomerService {
                 .userId(saved.getUserId())
                 .phone(saved.getPhone())
                 .fullname(saved.getFullname())
-                .isActive(saved.isActive())
+                .isActive(saved.getIsActive())
                 .createdAt(saved.getCreatedAt())
                 .updatedAt(saved.getUpdatedAt())
                 // email sẽ được add sau nếu cần (từ User entity)
