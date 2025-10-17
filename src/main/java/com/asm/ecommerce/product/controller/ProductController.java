@@ -1,16 +1,68 @@
 package com.asm.ecommerce.product.controller;
 
-import org.springframework.stereotype.Controller;
-import org.springframework.ui.Model;
-import org.springframework.web.bind.annotation.RequestMapping;
+import com.asm.ecommerce.product.dto.request.ProductRequest;
+import com.asm.ecommerce.product.dto.response.ProductResponse;
+import com.asm.ecommerce.product.service.ProductService;
+import jakarta.validation.Valid;
+import lombok.RequiredArgsConstructor;
 
-@Controller
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.*;
+
+import java.net.URI;
+import java.util.List;
+import java.util.UUID;
+
+@RestController
+@RequestMapping("/api/products")
+@RequiredArgsConstructor
+@CrossOrigin(origins = "http://localhost:5173")
 public class ProductController {
+    private final ProductService service;
 
-    @RequestMapping("/hello/sayhi")
-    public String sayHi(Model model){
-        model.addAttribute("sayhy","hi hi hi heehehehihihihaahahahhaha hahahhahhahahah hihihihi!");
-        model.addAttribute("subject","Spring Boot MVC - test connection Acc");
-        return "hello";
+    @GetMapping
+    public List<ProductResponse> findAll() { return service.findAll(); }
+
+    @GetMapping("/by-category-name")
+    public List<ProductResponse> findByCategoryName(@RequestParam("name") String categoryName) {
+        return service.findByProductCategoryName(categoryName);
+    }
+
+    @GetMapping("/by-category/{categoryId}")
+    public List<ProductResponse> findByCategory(@PathVariable UUID categoryId) {
+        return service.findByProductCategoryId(categoryId);
+    }
+
+    @GetMapping("/{id}")
+    public ProductResponse findOne(@PathVariable UUID id) {
+        return service.findById(id);
+    }
+
+
+    // POST /api/products → tạo mới
+    @PostMapping
+    public ResponseEntity<ProductResponse> create(@Valid @RequestBody ProductRequest req) {
+        ProductResponse created = service.create(req);             // tạo
+        return ResponseEntity
+                .created(URI.create("/api/products/" + created.getId()))  // Location header
+                .body(created);
+    }
+
+    // ===== UPDATE =====
+
+    // PUT /api/products/{id} → cập nhật
+    @PutMapping("/{id}")
+    public ProductResponse update(@PathVariable UUID id, @Valid @RequestBody ProductRequest req) {
+        return service.update(id, req);
+    }
+
+    // ===== DELETE =====
+
+    // DELETE /api/products/{id} → xóa
+    @DeleteMapping("/{id}")
+    public ResponseEntity<Void> delete(@PathVariable UUID id) {
+        service.delete(id);
+        return ResponseEntity.noContent().build();                 // 204 No Content
     }
 }
+

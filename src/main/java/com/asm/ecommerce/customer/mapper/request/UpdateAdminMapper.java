@@ -14,3 +14,4 @@ public interface UpdateAdminMapper {
     @Mapping(target = "updatedAt", ignore = true) // Hibernate tự cập nhật @UpdateTimestamp
     void updateAdminCustomer(@MappingTarget Customer entity, UpdateAdminRequest dto);
 }
+
