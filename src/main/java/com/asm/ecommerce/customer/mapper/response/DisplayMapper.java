@@ -12,7 +12,7 @@ public interface DisplayMapper {
     @Mapping(target = "email",     source = "user.email")
     @Mapping(target = "phone",     source = "customer.phone")
     @Mapping(target = "fullname",  source = "customer.fullname")
-    @Mapping(target = "active",    source = "customer.active")
+    @Mapping(target = "active",    source = "customer.isActive")
     @Mapping(target = "createdAt",  source = "customer.createdAt")
     @Mapping(target = "updatedAt", source = "customer.updatedAt")
     DisplayResponse display(Customer customer, UserDto user);

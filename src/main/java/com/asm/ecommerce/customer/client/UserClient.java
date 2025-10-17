@@ -15,6 +15,6 @@ import java.util.UUID;
         path = "/internal/users"
 )
 public interface UserClient {
-    @PostMapping("/by-customer-ids")
-    Map<UUID, UserDto> findByCustomerIds(@RequestBody List<UUID> ids);
+    @PostMapping("/by-user-ids")
+    Map<UUID, UserDto> findByUserIds(@RequestBody List<UUID> ids);
 }
