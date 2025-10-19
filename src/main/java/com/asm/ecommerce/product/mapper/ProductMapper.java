@@ -11,10 +11,10 @@ import java.util.UUID;
 public class ProductMapper {
     private ProductMapper() {}
 
-    // Domain -> Response (Sửa để lấy ID từ Entity)
+    // Domain -> Response (ID từ Entity)
     public static ProductResponse toResponse (Product product) {
         if(product == null) return null;
-        // Lấy categoryId từ mối quan hệ Category Entity
+
         UUID categoryId = product.getCategory() != null ? product.getCategory().getId() : null;
         return ProductResponse.builder()
                 .id(product.getId())
@@ -44,7 +44,7 @@ public class ProductMapper {
     }
 
     // CREATE (Request -> Domain)
-    public static Product toEntiy(ProductRequest req) {
+    public static Product CreateEntity(ProductRequest req) {
         if(req == null) return null;
         return Product.builder()
                 .name(req.getName())
@@ -56,8 +56,9 @@ public class ProductMapper {
     }
 
     // UPDATE (Apply Request -> Domain)
-    public static void applyUpdate (Product entity, ProductRequest req) {
+    public static void UpdateEntity (Product entity, ProductRequest req) {
         if(entity == null || req == null) return;
+
         if(req.getName() != null) entity.setName(req.getName());
         if(req.getDescription() != null) entity.setDescription(req.getDescription());
         if(req.getQuantity() != null) entity.setQuantity(req.getQuantity());

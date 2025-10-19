@@ -35,6 +35,7 @@ public class ProductController {
 
     @GetMapping("/{id}")
     public ProductResponse findOne(@PathVariable UUID id) {
+
         return service.findById(id);
     }
 
@@ -49,20 +50,22 @@ public class ProductController {
     }
 
     // ===== UPDATE =====
-
-    // PUT /api/products/{id} → cập nhật
     @PutMapping("/{id}")
     public ProductResponse update(@PathVariable UUID id, @Valid @RequestBody ProductRequest req) {
         return service.update(id, req);
     }
 
     // ===== DELETE =====
-
-    // DELETE /api/products/{id} → xóa
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> delete(@PathVariable UUID id) {
         service.delete(id);
         return ResponseEntity.noContent().build();                 // 204 No Content
+    }
+
+    // ===== SEARRCH =====
+    @GetMapping("/search")
+    public List<ProductResponse> searchProducts(@RequestParam("name") String name) {
+        return service.searchProductsByName(name);
     }
 }
 
