@@ -21,9 +21,13 @@ public class ProductServiceImpl implements ProductService {
 
     @Override
     @Transactional(readOnly = true)
+    public List<ProductResponse> searchProductsByName(String name) {
+        return ProductMapper.toResponseList(repo.findByNameContainingIgnoreCase(name));    }
+
+    @Override
+    @Transactional(readOnly = true)
     public List<ProductResponse> findAll() {
-        List<Product> products = repo.findAll();
-        return ProductMapper.toResponseList(products);
+        return ProductMapper.toResponseList(repo.findAll());
     }
 
     @Override
@@ -48,17 +52,16 @@ public class ProductServiceImpl implements ProductService {
     }
 
     @Override
-    public ProductResponse create(ProductRequest request) {
-        Product entity = ProductMapper.toEntiy(request);
-        Product saved = repo.save(entity);
-        return ProductMapper.toResponse(saved);
+    public ProductResponse create(ProductRequest req) {
+        Product entity = ProductMapper.CreateEntity(req);
+        return ProductMapper.toResponse(repo.save(entity));
     }
 
     @Override
-    public ProductResponse update(UUID id, ProductRequest request) {
+    public ProductResponse update(UUID id, ProductRequest req) {
         Product entity = repo.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Id not found"));
-        ProductMapper.applyUpdate(entity, request);
+        ProductMapper.UpdateEntity(entity, req);
         Product saved = repo.save(entity);
         return ProductMapper.toResponse(saved);
     }
