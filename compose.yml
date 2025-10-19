@@ -58,6 +58,8 @@ services:
       - SPRING_DEVTOOLS_RESTART_ENABLED=true
       - SPRING_DEVTOOLS_LIVERELOAD_ENABLED=true
       - SPRING_DEVTOOLS_RESTART_ADDITIONAL_PATHS=src/main
+      - JWT_SECRET=${JWT_SECRET}
+      - JWT_EXPIRY=${JWT_EXPIRY}
     env_file: .env
     depends_on:
       postgres:

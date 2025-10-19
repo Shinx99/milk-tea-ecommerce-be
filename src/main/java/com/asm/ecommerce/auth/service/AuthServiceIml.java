@@ -1,7 +1,9 @@
 package com.asm.ecommerce.auth.service;
 
+import com.asm.ecommerce.auth.domain.PasswordResetToken;
 import com.asm.ecommerce.auth.domain.Role;
 import com.asm.ecommerce.auth.domain.User;
+import com.asm.ecommerce.auth.repository.PasswordResetTokenRepository;
 import com.asm.ecommerce.auth.repository.UserRepository;
 import com.asm.ecommerce.auth.repository.RoleRepository;
 import com.asm.ecommerce.auth.dto.request.LoginRequest;
@@ -16,13 +18,17 @@ import com.asm.ecommerce.shared.dto.ApiResponse;
 import com.asm.ecommerce.shared.exception.BadRequestException;
 import com.asm.ecommerce.shared.exception.ResourceNotFoundException;
 import com.asm.ecommerce.shared.exception.UnauthorizedException;
+import com.asm.ecommerce.shared.security.JwtUtil;
+import com.asm.ecommerce.shared.service.EmailService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.Duration;
 import java.time.Instant;
 import java.util.UUID;
 
@@ -36,6 +42,12 @@ public class AuthServiceIml implements AuthService {
     private final RoleRepository roleRepository;
     private final UserMapper userMapper;
     private final CustomerService customerService;
+    private final EmailService emailService;
+    private final PasswordResetTokenRepository passwordResetTokenRepository;
+
+    @Autowired
+    private JwtUtil jwtUtil;
+
 
 
     // TODO: Add JwtTokenProvider when implementing JWT
@@ -57,7 +69,16 @@ public class AuthServiceIml implements AuthService {
         }
 
         // TODO: Generate JWT token
-        String token = "Token-" + UUID.randomUUID();
+        //String token = "Token-" + UUID.randomUUID();
+
+        // Generate JWT
+        String token = jwtUtil.generateToken(
+                user.getId().toString(),
+                user.getEmail(),
+                user.getRole().getRole()
+        );
+
+
 
         AuthResponse response = userMapper.toAuthResponse(user, token);
 
@@ -105,33 +126,6 @@ public class AuthServiceIml implements AuthService {
                 .build();
     }
 
-
-    @Override
-    public ApiResponse<Void> forgotPassword(String email) {
-        User user = userRepository.findByEmail(email)
-                .orElseThrow(() -> new ResourceNotFoundException("Email not found"));
-
-        // TODO: Generate reset token and send email
-        log.info("Password reset requested for: {}", email);
-
-        return ApiResponse.<Void>builder()
-                .success(true)
-                .message("Password reset instructions sent to your email")
-                .build();
-    }
-
-    @Override
-    public ApiResponse<Void> resetPassword(String token, String newPassword) {
-        // TODO: Verify token and reset password
-        log.info("Password reset with token: {}", token);
-
-        return ApiResponse.<Void>builder()
-                .success(true)
-                .message("Password reset successful")
-                .build();
-    }
-
-
     //Fixed Done
     // auth/service/AuthServiceImpl.java
     @Override
@@ -151,12 +145,16 @@ public class AuthServiceIml implements AuthService {
                     .orElseThrow(() -> new RuntimeException("Role CUSTOMER not found"));
 
             // 3. Create User
-            User user = User.builder()
+            //Use Mapper ------> entity
+            String encodedPassword = passwordEncoder.encode(request.getPassword());
+            User user = userMapper.toEntity( request, userRoleId, encodedPassword);
+
+            /*User user = User.builder()
                     .email(request.getEmail())
                     .passwordHash(passwordEncoder.encode(request.getPassword()))
                     .roleId(userRoleId)
                     .isActive(true)
-                    .build();
+                    .build();*/
 
             User savedUser = userRepository.save(user);
             log.info("User created successfully with ID: {}", savedUser.getId());
@@ -173,16 +171,21 @@ public class AuthServiceIml implements AuthService {
             // 5. Generate token
             String token = "Token-" + UUID.randomUUID();
 
-            // 6. Build response - ✅ SỬA ĐÚNG
-            AuthResponse response = AuthResponse.builder()
+            // 6. Build response
+            AuthResponse response = userMapper.toAuthResponse(
+                    savedUser,
+                    token
+            );
+
+            /*AuthResponse response = AuthResponse.builder()
                     .userId(savedUser.getId())
                     .email(savedUser.getEmail())
-                    .roleId(savedUser.getRoleId())  // ✅ Sửa dòng này
+                    .roleId(savedUser.getRoleId())
                     .token(token)
                     .tokenType("Bearer")
                     .expiresIn(86400L)
-                    .customerId(customer.getId())  // ✅ Sửa dòng này
-                    .build();
+                    .customerId(customer.getId())
+                    .build();*/
 
             log.info("User registration completed successfully: {}", savedUser.getEmail());
 
@@ -198,6 +201,79 @@ public class AuthServiceIml implements AuthService {
         } catch (BadRequestException | ResourceNotFoundException e) {
             throw e;
         }
+    }
+
+
+
+
+    @Override
+    @Transactional
+    public ApiResponse<Void> forgotPassword(String email) {
+        // 1. Tìm user theo email
+        User user = userRepository.findByEmail(email)
+                .orElseThrow(() -> new ResourceNotFoundException("Email not found"));
+
+        // 2. Tạo token đặt lại mật khẩu (random secure token)
+        String resetToken = UUID.randomUUID().toString();
+
+        // 3. Lưu token và thời gian hết hạn vào DB
+        PasswordResetToken token = PasswordResetToken.builder()
+                .id(UUID.randomUUID())
+                .userId(user.getId())
+                .token(resetToken)
+                .expiryDate(Instant.now().plus(Duration.ofHours(1)))
+                .used(false)
+                .build();
+
+        passwordResetTokenRepository.save(token);
+
+        // 4. Gửi email chứa link reset (chứa token)
+        String resetLink = "https://yourapp.com/reset-password?token=" + resetToken;
+        emailService.sendPasswordResetEmail(user.getEmail(), resetLink);
+
+        // 5. Trả về response thành công
+        log.info("Password reset requested for: {}", email);
+
+        return ApiResponse.<Void>builder()
+                .success(true)
+                .message("Password reset instructions sent to your email")
+                .build();
+    }
+
+
+    @Override
+    public ApiResponse<Void> resetPassword(String token, String newPassword) {
+        // TODO: Verify token and reset password
+
+        //Tìm Token trong db
+        PasswordResetToken prt = passwordResetTokenRepository.findByToken(token)
+                .orElseThrow(() -> new BadRequestException("Invalid token"));
+
+        //Check date hsd
+        if(prt.getUsed() || prt.getExpiryDate().isBefore(Instant.now())){
+            throw new BadRequestException("Token expired or already used");
+        }
+
+        //Tìm user liên quan
+        User user = userRepository.findById(prt.getUserId())
+                .orElseThrow(() -> new BadRequestException("User not found"));
+
+
+        //Mã hóa new password
+        String encodedPassword = passwordEncoder.encode(newPassword);
+        user.setPasswordHash(encodedPassword);
+        userRepository.save(user);
+
+        //Đánh dấu token đã dùng
+        prt.setUsed(true);
+        passwordResetTokenRepository.save(prt);
+
+        log.info("Password reset with token: {}", token);
+
+        return ApiResponse.<Void>builder()
+                .success(true)
+                .message("Password reset successful")
+                .build();
     }
 
 
