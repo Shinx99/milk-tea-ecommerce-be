@@ -1,5 +1,5 @@
 package com.asm.ecommerce.product.domain;
-
+import com.asm.ecommerce.product.domain.Image;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.*;
 import lombok.*;
@@ -8,6 +8,7 @@ import org.hibernate.annotations.UpdateTimestamp;
 
 import java.math.BigDecimal;
 import java.time.OffsetDateTime;
+import java.util.List;
 import java.util.UUID;
 @Entity
 @Table(name = "products")
@@ -55,4 +56,9 @@ public class Product {
     @UpdateTimestamp
     @Column(name = "updated_at", nullable = false)
     private OffsetDateTime updatedAt;
+
+    //Hải thêm vào
+    @OneToMany(mappedBy = "product", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    private List<Image> images;
+
 }
