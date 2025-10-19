@@ -44,16 +44,15 @@ public class Customer {
     @JdbcTypeCode(SqlTypes.UUID)
     private UUID userId;
 
-    // 2. TRƯỜNG DÙNG ĐỂ ĐỌC (READ-ONLY RELATIONSHIP)
+/*    // 2. TRƯỜNG DÙNG ĐỂ ĐỌC (READ-ONLY RELATIONSHIP)
     // - Dùng để lấy thông tin đầy đủ của User khi cần.
     // - `insertable = false, updatable = false` là CỰC KỲ QUAN TRỌNG.
     //   Nó báo cho JPA biết rằng trường này không tham gia vào việc ghi dữ liệu,
     //   tránh lỗi "duplicate mapping".
     @OneToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "user_id", insertable = false, updatable = false)
-    private User user;
+    private User user;*/
 
-    // --- KẾT THÚC PHẦN THIẾT KẾ ĐÁNH ĐỔI ---
 
     @NotBlank
     @Column(name = "phone", nullable = false, length = 40)

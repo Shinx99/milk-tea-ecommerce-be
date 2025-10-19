@@ -9,6 +9,18 @@ server:
     max-threads: ${SERVER_TOMCAT_MAX_THREADS:200}
 
 spring:
+  mail:
+    host: ${MAIL_HOST}
+    port: ${MAIL_PORT}
+    username: ${MAIL_USERNAME}
+    password: ${MAIL_PASSWORD}
+    properties:
+      mail:
+        smtp:
+          auth: true
+          starttls:
+            enable: true
+
   application:
     name: ${APP_NAME:ecommerce-service}
   profiles:
@@ -134,3 +146,8 @@ app:
   features:
     cache-enabled: ${APP_FEATURES_CACHE_ENABLED:true}
     metrics-enabled: ${APP_FEATURES_METRICS_ENABLED:true}
+
+# ⭐ JWT
+jwt:
+  secret: ${JWT_SECRET}
+  expiry: ${JWT_EXPIRY}

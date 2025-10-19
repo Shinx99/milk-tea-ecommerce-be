@@ -16,8 +16,8 @@ import org.springframework.security.web.SecurityFilterChain;
 @EnableWebSecurity
 @EnableMethodSecurity
 public class SecurityConfig {
-//fixed
- /*
+
+    /*
      1. Public endpoints (permitAll)
      - /actuator*//**
      - /api/auth/**
@@ -43,10 +43,10 @@ public class SecurityConfig {
                 .csrf(AbstractHttpConfigurer::disable)
                 .cors(cors -> cors.configure(http))
                 .authorizeHttpRequests(auth -> auth
-                        // 1. ⭐ Actuator endpoints - Public
+                        // 1.  Actuator endpoints - Public
                         .requestMatchers("/actuator/**").permitAll()
 
-                        // 2. ⭐ Auth endpoints - Public
+                        // 2.  Auth endpoints - Public
                         .requestMatchers("/api/auth/**").permitAll()
 
                         // 2.1. Internal API - Public (for inter-service communication)
@@ -54,21 +54,21 @@ public class SecurityConfig {
 
                         .requestMatchers("/api/health", "/api/test/**").permitAll()
 
-                        // 3. ⭐ Product browsing - Public
+                        // 3.  Product browsing - Public
                         .requestMatchers("/api/products/**").permitAll()
                         .requestMatchers("/api/categories/**").permitAll()
                         // 3.1 ⭐ Home page API - Public
                         .requestMatchers("/api/home/**").permitAll()
 
-                        // 4. ⭐ Reviews - Public GET, authenticated POST/PUT/DELETE
+                        // 4.  Reviews - Public GET, authenticated POST/PUT/DELETE
                         .requestMatchers(HttpMethod.GET, "/api/reviews/**").permitAll()
                         .requestMatchers("/api/reviews/**").authenticated()
 
-                        // 5. ⭐ Admin endpoints - Require ADMIN role
+                        // 5.  Admin endpoints - Require ADMIN role
                         .requestMatchers("/api/admin/**").hasRole("ADMIN")
                         .requestMatchers("/api/statistics/**").hasRole("ADMIN")
 
-                        // 6. ⭐ Protected customer endpoints - Require authentication
+                        // 6.  Protected customer endpoints - Require authentication
                         .requestMatchers("/api/cart/**").authenticated()
                         .requestMatchers("/api/orders/**").authenticated()
                         .requestMatchers("/api/customers/**").permitAll()
@@ -79,7 +79,7 @@ public class SecurityConfig {
                         .requestMatchers("/internal/**").permitAll() // chỉ bật ở profile dev/local
 
 
-                        // 8. ⭐ Default - All other requests require authentication
+                        // 8.  Default - All other requests require authentication
                         .anyRequest().authenticated()
                 )
                 .sessionManagement(session -> session
