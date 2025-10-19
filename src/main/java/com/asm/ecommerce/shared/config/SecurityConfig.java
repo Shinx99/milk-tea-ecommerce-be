@@ -57,6 +57,8 @@ public class SecurityConfig {
                         // 3. ⭐ Product browsing - Public
                         .requestMatchers("/api/products/**").permitAll()
                         .requestMatchers("/api/categories/**").permitAll()
+                        // 3.1 ⭐ Home page API - Public
+                        .requestMatchers("/api/home/**").permitAll()
 
                         // 4. ⭐ Reviews - Public GET, authenticated POST/PUT/DELETE
                         .requestMatchers(HttpMethod.GET, "/api/reviews/**").permitAll()
