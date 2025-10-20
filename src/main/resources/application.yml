@@ -20,6 +20,8 @@ spring:
           auth: true
           starttls:
             enable: true
+            autoconfigure:
+              exclude: org.springframework.boot.autoconfigure.mail.MailSenderAutoConfiguration
 
   application:
     name: ${APP_NAME:ecommerce-service}

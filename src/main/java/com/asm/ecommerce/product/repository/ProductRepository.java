@@ -1,7 +1,6 @@
 package com.asm.ecommerce.product.repository;
 
 import com.asm.ecommerce.product.domain.Product;
-
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
@@ -9,27 +8,25 @@ import java.util.List;
 import java.util.UUID;
 
 public interface ProductRepository extends JpaRepository<Product, UUID> {
-    List<Product>findByCategoryId(UUID categoryId);
+
+    List<Product> findByCategoryId(UUID categoryId);
     List<Product> findByCategory_CategoryName(String categoryName);
     List<Product> findByNameContainingIgnoreCase(String name);
-    // --- Hải Mới thêm---
-    /** ✅ Best-sellers theo danh mục cha (VD: "Milk Tea", "Fruit Tea") */
+
+    // ✅ Best-sellers toàn shop (không phân loại theo danh mục)
+    // sắp theo tổng quantity bán được, nếu chưa bán gì thì fallback theo created_at
     @Query(value = """
         SELECT p.*
         FROM products p
-        JOIN categories c ON p.category_id = c.id
-        JOIN categories parent ON c.parent_id = parent.id
-        WHERE parent.category_name = :parentCategory
-          AND p.is_active = true
-        ORDER BY p.created_at DESC
+        LEFT JOIN order_items oi ON oi.product_id = p.id
+        WHERE p.is_active = true
+        GROUP BY p.id
+        ORDER BY COALESCE(SUM(oi.quantity), 0) DESC, p.created_at DESC
         LIMIT :limit
         """, nativeQuery = true)
-    List<Product> findBestSellersByParentCategory(
-            @Param("parentCategory") String parentCategory,
-            @Param("limit") int limit
-    );
+    List<Product> findBestSellersOverall(@Param("limit") int limit);
 
-    /** ✅ Sản phẩm mới nhất (new arrivals) */
+    // ✅ Sản phẩm mới nhất toàn shop
     @Query(value = """
         SELECT p.*
         FROM products p

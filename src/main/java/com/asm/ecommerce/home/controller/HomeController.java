@@ -16,16 +16,19 @@ public class HomeController {
 
     private final HomeService homeService;
 
+    /** ✅ Best Sellers toàn shop */
     @GetMapping("/best-sellers")
     public List<HomeProductResponse> getBestSellers(
-            @RequestParam(defaultValue = "Milk Tea") String parent,
             @RequestParam(defaultValue = "8") int limit
     ) {
-        return homeService.getBestSellers(parent, limit);
+        return homeService.getBestSellers(limit);
     }
 
+    /** ✅ Sản phẩm mới nhất toàn shop */
     @GetMapping("/newest")
-    public List<HomeProductResponse> getNewest(@RequestParam(defaultValue = "8") int limit) {
+    public List<HomeProductResponse> getNewest(
+            @RequestParam(defaultValue = "8") int limit
+    ) {
         return homeService.getNewestProducts(limit);
     }
 }
