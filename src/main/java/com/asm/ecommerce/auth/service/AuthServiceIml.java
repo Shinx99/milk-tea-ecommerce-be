@@ -23,6 +23,7 @@ import com.asm.ecommerce.shared.service.EmailService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
@@ -44,6 +45,8 @@ public class AuthServiceIml implements AuthService {
     private final CustomerService customerService;
     private final EmailService emailService;
     private final PasswordResetTokenRepository passwordResetTokenRepository;
+    @Value("${app.frontend.base-url}")
+    private String frontendBaseUrl;
 
     @Autowired
     private JwtUtil jwtUtil;
@@ -228,7 +231,7 @@ public class AuthServiceIml implements AuthService {
         passwordResetTokenRepository.save(token);
 
         // 4. Gửi email chứa link reset (chứa token)
-        String resetLink = "https://yourapp.com/reset-password?token=" + resetToken;
+        String resetLink = frontendBaseUrl + "/reset-password?token=" + resetToken;
         emailService.sendPasswordResetEmail(user.getEmail(), resetLink);
 
         // 5. Trả về response thành công
