@@ -7,6 +7,7 @@ import lombok.NoArgsConstructor;
 
 import java.math.BigDecimal;
 import java.time.OffsetDateTime;
+import java.util.List;
 import java.util.UUID;
 @Data
 @NoArgsConstructor
@@ -18,9 +19,7 @@ public class ProductResponse {
     private UUID categoryId;
     private String name;
     private String description;
-    private Integer quantity;
     private BigDecimal price;
-    private Boolean isActive;
-    private OffsetDateTime createdAt;
-    private OffsetDateTime updatedAt;
+    private String imageUrl;
+
 }

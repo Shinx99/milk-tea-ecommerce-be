@@ -1,7 +1,9 @@
 package com.asm.ecommerce.product.mapper;
 
+import com.asm.ecommerce.product.domain.Image;
 import com.asm.ecommerce.product.domain.Product;
 import com.asm.ecommerce.product.dto.request.ProductRequest;
+import com.asm.ecommerce.product.dto.response.ImageResponse;
 import com.asm.ecommerce.product.dto.response.ProductResponse;
 
 import java.util.ArrayList;
@@ -14,18 +16,26 @@ public class ProductMapper {
     // Domain -> Response (ID từ Entity)
     public static ProductResponse toResponse (Product product) {
         if(product == null) return null;
-
         UUID categoryId = product.getCategory() != null ? product.getCategory().getId() : null;
+
+        // Trong ProductMapper.java
+        String imageUrl = null;
+        if (product.getImages() != null && !product.getImages().isEmpty()) {
+            imageUrl = product.getImages().stream()
+                    // 1. TÌM ẢNH CHÍNH (isPrimary = TRUE)
+                    .filter(img -> Boolean.TRUE.equals(img.getIsPrimary()))
+                    .findFirst()
+                    .map(Image::getSecureUrl)
+                    // 2. NẾU KHÔNG CÓ ẢNH CHÍNH, LẤY ẢNH ĐẦU TIÊN CỦA DANH SÁCH
+                    .orElse(product.getImages().get(0).getSecureUrl());
+        }
         return ProductResponse.builder()
                 .id(product.getId())
                 .categoryId(categoryId)
                 .name(product.getName())
                 .description(product.getDescription())
-                .quantity(product.getQuantity())
                 .price(product.getPrice())
-                .isActive(product.getIsActive())
-                .createdAt(product.getCreatedAt())
-                .updatedAt(product.getUpdatedAt())
+                .imageUrl(imageUrl)
                 .build();
     }
 
