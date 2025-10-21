@@ -1,6 +1,6 @@
 package com.asm.ecommerce.shared.config;
 
-import com.asm.ecommerce.shared.constant.AppConstants;
+import org.springframework.beans.factory.annotation.Value; // <<< 1. Thêm import
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.web.cors.CorsConfiguration;
@@ -13,28 +13,26 @@ import java.util.Arrays;
 @Configuration
 public class WebConfig implements WebMvcConfigurer {
 
+    // <<< 2. Tiêm (inject) giá trị từ file .properties
+    @Value("${app.cors.allowed-origins}")
+    private String allowedOrigins;
+
     @Bean
     public CorsFilter corsFilter() {
         UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
         CorsConfiguration config = new CorsConfiguration();
 
-        // Allow credentials (cookies, authorization headers)
         config.setAllowCredentials(true);
 
-        // Allowed origins (Frontend URLs)
-        config.setAllowedOriginPatterns(Arrays.asList(
-                "http://localhost:5173",      // Vite dev server
-                "http://localhost:3000",      // Vue CLI / React
-                "http://localhost:8081",      // Alternative port
-                "https://yourdomain.com"      // Production domain
-        ));
+        // <<< 3. Sửa lại dòng này
+        // Tách chuỗi origins (phân cách bằng dấu phẩy) và đưa vào list
+        config.setAllowedOriginPatterns(Arrays.asList(allowedOrigins.split(",")));
 
-        // Allowed HTTP methods
+        // --- Giữ nguyên các cấu hình còn lại ---
         config.setAllowedMethods(Arrays.asList(
                 "GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"
         ));
 
-        // Allowed headers
         config.setAllowedHeaders(Arrays.asList(
                 "Origin",
                 "Content-Type",
@@ -45,13 +43,11 @@ public class WebConfig implements WebMvcConfigurer {
                 "Access-Control-Request-Headers"
         ));
 
-        // Exposed headers (client có thể đọc)
         config.setExposedHeaders(Arrays.asList(
                 "Authorization",
                 "Content-Disposition"
         ));
 
-        // Max age (cache preflight request)
         config.setMaxAge(3600L);
 
         source.registerCorsConfiguration("/api/**", config);
