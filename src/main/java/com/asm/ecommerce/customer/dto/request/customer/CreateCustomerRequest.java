@@ -1,5 +1,5 @@
 // customer/dto/CreateCustomerRequest.java (Public API của customer feature)
-package com.asm.ecommerce.customer.dto.request;
+package com.asm.ecommerce.customer.dto.request.customer;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;

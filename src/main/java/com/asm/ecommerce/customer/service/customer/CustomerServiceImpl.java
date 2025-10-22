@@ -1,20 +1,20 @@
-package com.asm.ecommerce.customer.service;
+package com.asm.ecommerce.customer.service.customer;
 
-import com.asm.ecommerce.auth.domain.User;
 import com.asm.ecommerce.auth.dto.UserDto;
 import com.asm.ecommerce.customer.client.UserClient;
 import com.asm.ecommerce.customer.domain.Customer;
-import com.asm.ecommerce.customer.dto.response.DisplayResponse;
+import com.asm.ecommerce.customer.dto.request.customer.UpdateAdminCustomerRequest;
+import com.asm.ecommerce.customer.dto.response.customer.DisplayAdminCustomerResponse;
 import com.asm.ecommerce.customer.mapper.CustomerMapper;
-import com.asm.ecommerce.customer.mapper.response.DisplayMapper;
+import com.asm.ecommerce.customer.mapper.request.customer.UpdateAdminCustomerMapper;
+import com.asm.ecommerce.customer.mapper.response.customer.DisplayCustomerMapper;
 import com.asm.ecommerce.customer.dto.CustomerDTO;
-import com.asm.ecommerce.customer.dto.request.CreateCustomerRequest;
+import com.asm.ecommerce.customer.dto.request.customer.CreateCustomerRequest;
 import com.asm.ecommerce.customer.repository.CustomerRepository;
 import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.Instant;
@@ -26,12 +26,13 @@ import java.util.*;
 public class CustomerServiceImpl implements CustomerService {
     private final CustomerRepository repo;
     private final UserClient userClient; // hoặc UserRepository nếu cùng DB
-    private final DisplayMapper displayMapper;
+    private final UpdateAdminCustomerMapper updateAdminCustomerMapper;
+    private final DisplayCustomerMapper displayCustomerMapper;
     private final CustomerMapper customerMapper;
 
     @Override
     @Transactional(readOnly = true)
-    public List<DisplayResponse> displayAll() {
+    public List<DisplayAdminCustomerResponse> displayAll() {
         List<Customer> customers = repo.findAll();
 
         // 1. Lấy ra danh sách các userId từ list customer
@@ -49,17 +50,17 @@ public class CustomerServiceImpl implements CustomerService {
                 .map(c -> {
                     // Tra cứu trong map bằng userId của customer
                     UserDto userDto = usersByUserId.get(c.getUserId());
-                    return displayMapper.display(c, userDto);
+                    return displayCustomerMapper.display(c, userDto);
                 })
                 .toList();
     }
 
 
-    //Display with
+    //Display active customer
     @Override
     @Transactional(readOnly = true)
-    public List<DisplayResponse> displayActive() {
-        List<Customer> customers = repo.findByIsActiveTrue();
+    public List<DisplayAdminCustomerResponse> displayActive() {
+        List<Customer> customers = repo.findByActiveTrue();
 
         // 1. Lấy ra danh sách các userId từ list customer
         List<UUID> userIds = customers.stream()
@@ -76,16 +77,27 @@ public class CustomerServiceImpl implements CustomerService {
                 .map(c -> {
                     // Tra cứu trong map bằng userId của customer
                     UserDto userDto = usersByUserId.get(c.getUserId());
-                    return displayMapper.display(c, userDto);
+                    return displayCustomerMapper.display(c, userDto);
                 })
                 .toList();
     }
 
-    @Override
+    //Find by Id
+//    @Override
+//    @Transactional(readOnly = true)
+//    public Optional<Customer> findById(UUID id){
+//        return repo.findById(id);
+//    }
+
+    //Find by Phone
     @Transactional(readOnly = true)
-    public Optional<Customer> findById(UUID id){
-        return repo.findById(id);
-    }
+    @Override
+    public Optional<Customer> findByPhone(String phone){return repo.findByPhone(phone);}
+
+    //Find by Email
+    @Transactional(readOnly = true)
+    @Override
+    public Optional<Customer> findByFullname(String fullname){return repo.findByFullname(fullname);}
 
     @Override
     @Transactional
@@ -93,19 +105,23 @@ public class CustomerServiceImpl implements CustomerService {
         return repo.save(input);
     }
 
+
+    //Update Admin
     @Override
     @Transactional
-    public Customer update(UUID id, Customer input) {
-        Customer current = repo.findById(id)
+// Trả về void vì không cần trả dữ liệu về
+    public void update(UUID id, UpdateAdminCustomerRequest input) {
+        // 1. Tìm Entity
+        Customer currentCustomer = repo.findById(id)
                 .orElseThrow(() -> new EntityNotFoundException("Customer not found"));
-        if(input.getPhone() != null) current.setPhone(input.getPhone());
-        if(input.getFullname() != null) current.setFullname(input.getFullname());
-        if (input.getIsActive() != null) {
-            // Gán giá trị mới từ input cho đối tượng hiện tại
-            current.setIsActive(input.getIsActive());
-        }
-        return repo.save(current);
+
+        // 2. Dùng Mapper để áp dụng thay đổi từ DTO
+        updateAdminCustomerMapper.updateAdminCustomer(currentCustomer, input);
+
+        // 3. Lưu lại. Không cần gán vào biến mới vì `save` sẽ cập nhật `currentCustomer`
+        repo.save(currentCustomer);
     }
+
 
     @Override
     @Transactional
@@ -126,7 +142,6 @@ public class CustomerServiceImpl implements CustomerService {
     public CustomerDTO createCustomer(CreateCustomerRequest request) {
         log.info("Creating customer for userId: {}", request.getUserId());
 
-
         // Create Customer entity
         Customer customer = customerMapper.toEntity(request.getUserId(),request.getFullName(),request.getPhone());
 
@@ -138,7 +153,7 @@ public class CustomerServiceImpl implements CustomerService {
                 .userId(saved.getUserId())
                 .phone(saved.getPhone())
                 .fullname(saved.getFullname())
-                .isActive(saved.getIsActive())
+                .isActive(saved.getActive())
                 .createdAt(saved.getCreatedAt())
                 .updatedAt(saved.getUpdatedAt())
                 // email sẽ được add sau nếu cần (từ User entity)
