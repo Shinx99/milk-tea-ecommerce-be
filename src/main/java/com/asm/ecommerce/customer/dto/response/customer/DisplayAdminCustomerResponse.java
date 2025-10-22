@@ -1,4 +1,4 @@
-package com.asm.ecommerce.customer.dto.response;
+package com.asm.ecommerce.customer.dto.response.customer;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
 import lombok.*;
@@ -12,7 +12,7 @@ import java.util.UUID;
 @AllArgsConstructor
 @Builder
 @JsonInclude(JsonInclude.Include.NON_NULL) //Loai cac truong null ra khoi JSON response -> reponse nhe hon
-public class DisplayResponse {
+public class DisplayAdminCustomerResponse {
     private UUID id;
     private String email; //Nay la cua feature auth: domain -> user
     private String phone;

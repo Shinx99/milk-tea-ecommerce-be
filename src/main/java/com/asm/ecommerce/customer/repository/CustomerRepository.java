@@ -30,7 +30,7 @@ public interface CustomerRepository extends JpaRepository<Customer, UUID> {
     List<Customer> findAll();
 
     //Hien len danh sach customer con hoat dong - READ
-    List<Customer> findByIsActiveTrue();
+    List<Customer> findByActiveTrue();
 
     //Create or Update record
     <S extends Customer> S save(S entity);
@@ -39,9 +39,9 @@ public interface CustomerRepository extends JpaRepository<Customer, UUID> {
     @Modifying
     @Query("""
             update Customer c
-            set c.isActive = false,
+            set c.active = false,
                 c.updatedAt = :now
-            where c.id = :id and c.isActive = true
+            where c.id = :id and c.active = true
             """)
     int softDeleteById(@Param("id") UUID id, @Param("now")Instant now);
 }

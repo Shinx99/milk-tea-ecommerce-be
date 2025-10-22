@@ -43,7 +43,7 @@ CREATE INDEX IF NOT EXISTS idx_customers_users ON customers(user_id);
 
 -- 3) ADDRESSES (sau customers)
 CREATE TABLE IF NOT EXISTS addresses (
-                                         id uuid PRIMARY KEY DEFAULT gen_random_uuid(),
+    id uuid PRIMARY KEY DEFAULT gen_random_uuid(),
     customer_id uuid NOT NULL REFERENCES customers(id),
     number varchar(50),
     street varchar(100),

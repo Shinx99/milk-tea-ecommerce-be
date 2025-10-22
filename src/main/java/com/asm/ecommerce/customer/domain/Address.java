@@ -32,7 +32,7 @@ public class Address {
     @ManyToOne(fetch = FetchType.LAZY, optional = false)
     @JoinColumn(name = "customer_id", nullable = false,
             foreignKey = @ForeignKey(name = "fk_addresses_customer"))
-    private Customer customerId;
+    private Customer customer;
 
     @Column(name = "number", length = 50)
     private String number;
@@ -47,18 +47,23 @@ public class Address {
     private String district;
 
     @Column(name = "city", length = 100)
-    private String city;
+    @Builder.Default
+    private String city = "Ho Chi Minh City";
 
     @Column(name = "province", length = 100)
-    private String province;
+    @Builder.Default
+    private String province = "HCM";
 
     @Column(name = "country", length = 100)
-    private String country = "VN"; // mặc định ứng dụng, khớp DEFAULT 'VN' trong DB
+    @Builder.Default
+    private String country = "VN";
 
     @Column(name = "is_default", nullable = false)
-    private boolean isDefault = true; // NOT NULL DEFAULT true
+    @Builder.Default
+    private Boolean isDefault = true; // NOT NULL DEFAULT true
 
     @Column(name = "is_active", nullable = false)
-    private boolean isActive = true; // NOT NULL DEFAULT true
+    @Builder.Default
+    private Boolean active = true; // NOT NULL DEFAULT true
 
 }
