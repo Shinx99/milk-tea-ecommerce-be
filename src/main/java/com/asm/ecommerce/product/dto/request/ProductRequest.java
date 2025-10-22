@@ -34,4 +34,7 @@ public class ProductRequest {
     @NotNull
     private Boolean isActive;
 
+
+
+
 }
