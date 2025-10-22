@@ -6,6 +6,9 @@ import com.asm.ecommerce.product.service.ProductService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
+import org.springframework.data.web.PageableDefault;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -21,7 +24,9 @@ public class ProductController {
     private final ProductService service;
 
     @GetMapping
-    public List<ProductResponse> findAll() { return service.findAll(); }
+    public List<ProductResponse> findAll(@PageableDefault(sort = "id", direction = Sort.Direction.DESC, size = 1000)
+                                         Pageable pageable) {
+        return service.findAll(); }
 
     @GetMapping("/by-category-name")
     public List<ProductResponse> findByCategoryName(@RequestParam("name") String categoryName) {

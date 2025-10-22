@@ -18,14 +18,6 @@ public interface ProductRepository extends JpaRepository<Product, UUID> {
 
     // ✅ Best-sellers toàn shop (không phân loại theo danh mục)
     // sắp theo tổng quantity bán được, nếu chưa bán gì thì fallback theo created_at
-
-    @Override
-    @EntityGraph(attributePaths = {"category", "images"})
-    List<Product> findAll();
-
-    @Override
-    @EntityGraph(attributePaths = {"category", "images"})
-    Optional<Product> findById(UUID uuid);
     // --- Hải Mới thêm---
     /** ✅ Best-sellers theo danh mục cha (VD: "Milk Tea", "Fruit Tea") */
     @Query(value = """
