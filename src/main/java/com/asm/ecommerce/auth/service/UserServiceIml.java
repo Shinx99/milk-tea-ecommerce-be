@@ -11,6 +11,8 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -102,5 +104,13 @@ public class UserServiceIml implements UserService{
         userRepository.save(user);
 
         log.info("Successfully updated customer_id {} for user {}", customerId, userId);
+    }
+
+    @Override
+    @Transactional(readOnly = true) // (Thêm @Transactional nếu có)
+    public UserDetails loadUserByUsername(String email) throws UsernameNotFoundException {
+        // Dùng phương thức bạn đã có trong UserRepository
+        return (UserDetails) userRepository.findByEmailWithRole(email)
+                .orElseThrow(() -> new UsernameNotFoundException("User not found with email: " + email));
     }
 }

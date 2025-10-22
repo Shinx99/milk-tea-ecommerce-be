@@ -1,5 +1,10 @@
 package com.asm.ecommerce.shared.config;
 
+import com.asm.ecommerce.auth.repository.UserRepository;
+import com.asm.ecommerce.auth.service.UserDetailsService;
+import com.asm.ecommerce.shared.security.JwtUtil;
+import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.HttpMethod;
@@ -11,10 +16,14 @@ import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
+import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
+
+import static org.springframework.security.config.Customizer.withDefaults;
 
 @Configuration
 @EnableWebSecurity
 @EnableMethodSecurity
+@RequiredArgsConstructor
 public class SecurityConfig {
 
     /*
@@ -37,17 +46,42 @@ public class SecurityConfig {
      5. Default rule (CUỐI CÙNG)
      - anyRequest() → authenticated
 */
+
+//    private final JwtAuthenticationFilter jwtAuthFilter; // <<< Inject Filter
+
     @Bean
-    public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
+    public org.springframework.security.core.userdetails.UserDetailsService springSecurityUserDetailsService(UserDetailsService userDetailsService) {
+        // Adapter, dùng UserDetailsService custom của bạn
+        return email -> userDetailsService.loadUserByUsername(email);
+    }
+
+    @Bean
+    public JwtAuthenticationFilter jwtAuthFilter(
+            org.springframework.security.core.userdetails.UserDetailsService userDetailsService,
+            JwtUtil jwtUtil
+    ) {
+        return new JwtAuthenticationFilter(jwtUtil, userDetailsService);
+    }
+
+
+
+    @Bean
+    public SecurityFilterChain securityFilterChain(HttpSecurity http, JwtAuthenticationFilter jwtAuthFilter) throws Exception {
         http
                 .csrf(AbstractHttpConfigurer::disable)
-                .cors(cors -> cors.configure(http))
+                .cors(withDefaults())
+                //.cors(cors -> cors.configure(http))
                 .authorizeHttpRequests(auth -> auth
                         // 1.  Actuator endpoints - Public
                         .requestMatchers("/actuator/**").permitAll()
 
                         // 2.  Auth endpoints - Public
-                        .requestMatchers("/api/auth/**").permitAll()
+                        .requestMatchers(
+                                "/api/auth/login",
+                                "/api/auth/register",
+                                "/api/auth/forgot-password",
+                                "/api/auth/reset-password"
+                        ).permitAll()
 
                         // 2.1. Internal API - Public (for inter-service communication)
                         .requestMatchers("/api/internal/**").permitAll()
@@ -72,7 +106,7 @@ public class SecurityConfig {
                         .requestMatchers("/api/cart/**").authenticated()
                         .requestMatchers("/api/orders/**").authenticated()
                         .requestMatchers("/api/customers/**").permitAll()
-                        .requestMatchers("api/addresses/**").permitAll()
+                        .requestMatchers("/api/addresses/**").permitAll()
                         .requestMatchers("/api/payments/**").authenticated()
                         .requestMatchers("/api/vouchers/apply").authenticated()
 
@@ -85,7 +119,9 @@ public class SecurityConfig {
                 )
                 .sessionManagement(session -> session
                         .sessionCreationPolicy(SessionCreationPolicy.STATELESS)
-                );
+                )
+
+                .addFilterBefore(jwtAuthFilter, UsernamePasswordAuthenticationFilter.class);
 
         return http.build();
     }

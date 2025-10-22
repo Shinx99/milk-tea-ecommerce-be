@@ -13,7 +13,7 @@ import java.util.UUID;
  * @author Team
  * @version 1.0
  */
-public interface UserService {
+public interface UserService extends UserDetailsService{
 
     /**
      * Get user by ID
