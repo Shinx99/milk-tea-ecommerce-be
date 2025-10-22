@@ -5,6 +5,7 @@ WORKDIR /app
 # Copy pom.xml và cache dependencies
 COPY pom.xml ./
 RUN mvn dependency:go-offline
+#COPY . .
 
 # Expose app port và debug port
 EXPOSE 8080 5005

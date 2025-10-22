@@ -31,6 +31,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.time.Duration;
 import java.time.Instant;
+import java.util.List;
 import java.util.UUID;
 
 @Slf4j
@@ -72,7 +73,6 @@ public class AuthServiceIml implements AuthService {
         }
 
         // TODO: Generate JWT token
-        //String token = "Token-" + UUID.randomUUID();
 
         // Generate JWT
         String token = jwtUtil.generateToken(
@@ -215,6 +215,17 @@ public class AuthServiceIml implements AuthService {
         // 1. Tìm user theo email
         User user = userRepository.findByEmail(email)
                 .orElseThrow(() -> new ResourceNotFoundException("Email not found"));
+
+        // Tìm tất cả các token của user đã tạo mà chưa sử dụng
+        List<PasswordResetToken> oldTokens = passwordResetTokenRepository.findAllActiveTokensByUserId(user.getId(), Instant.now());
+
+        if(!oldTokens.isEmpty()){
+            log.info("Vô hiệu hóa {} token cũ của user: {}", oldTokens.size(), email);
+            for(PasswordResetToken oldToken : oldTokens){
+                oldToken.setUsed(true);                 // đánh dấu là true thể hiện việc đã sử dụng token để tránh bị tái sử dụng token cũ
+            }
+            passwordResetTokenRepository.saveAll(oldTokens);
+        }
 
         // 2. Tạo token đặt lại mật khẩu (random secure token)
         String resetToken = UUID.randomUUID().toString();
