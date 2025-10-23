@@ -32,32 +32,31 @@ public class CustomerAdminController {
         return service.displayActive();
     }
 
+    //GET: /api/customers/{id}
+    // METHOD: Display profile
+    // ---> Profile
+    // Request -> userId
+    @GetMapping("/{id}")
+    public ResponseEntity<DisplayAdminCustomerResponse> getCustomerById(@PathVariable UUID id) {
 
-//    @GetMapping("/{id}")
-//    public ResponseEntity<Customer> findById(@PathVariable UUID id){
-//        return service.findById(id)
-//                .map(ResponseEntity::ok)
-//                .orElse(ResponseEntity.notFound().build());
-//    }
+        // Gọi service đã viết trước đó để tìm thông tin
+        DisplayAdminCustomerResponse customerProfile = service.displayByUserId(id);
 
-
-
-    // POST: /api/customers
-    // METHOD: create new customer
-//    @PostMapping
-//    public ResponseEntity<Customer> create(@Valid @RequestBody Customer input) {
-//        Customer created = service.create(input);
-//        return ResponseEntity.status(HttpStatus.CREATED).body(created);
-//    }
+        // Trả về dữ liệu
+        return ResponseEntity.ok(customerProfile);
+    }
 
     // PUT: /api/customers/{id}
     // METHOD: update customer
+    // ---> Cap nhat dia chi (Address)
+    // Request -> userId
     @PutMapping("/{id}")
-    public ResponseEntity<Void> update(@PathVariable UUID id, @Valid @RequestBody UpdateAdminCustomerRequest input) {
-        service.update(id, input);
-        return ResponseEntity.noContent().build();
+    public ResponseEntity<DisplayAdminCustomerResponse> update(
+            @PathVariable UUID id,
+            @Valid @RequestBody UpdateAdminCustomerRequest input) {
+        DisplayAdminCustomerResponse updatedCustomer = service.update(id, input);
+        return ResponseEntity.ok(updatedCustomer);
     }
-
 
     // DELETE (soft): /api/customers/{id}
     // METHOD: Soft delete customer

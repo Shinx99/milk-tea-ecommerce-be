@@ -54,4 +54,9 @@ public class AddressAdminController {
         service.softDelete(id);
         return ResponseEntity.noContent().build();
     }
+
+    //GET: /api/customers/{id}
+    // METHOD: Display profile
+    // ---> Profile
+    // Request -> userId
 }
