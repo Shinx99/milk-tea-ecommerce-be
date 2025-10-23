@@ -1,5 +1,4 @@
 package com.asm.ecommerce.product.domain;
-import com.asm.ecommerce.product.domain.Image;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.*;
 import lombok.*;
@@ -21,8 +20,6 @@ public class Product {
     @org.hibernate.annotations.UuidGenerator
     private UUID id;
 
-    // ĐÃ XÓA: @Column(name = "category_id", columnDefinition = "uuid") private UUID categoryId;
-    // THAY THẾ BẰNG MỐI QUAN HỆ MANY-TO-ONE
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "category_id", nullable = false)
     private ProductCategory category;
@@ -57,8 +54,7 @@ public class Product {
     @Column(name = "updated_at", nullable = false)
     private OffsetDateTime updatedAt;
 
-    //Hải thêm vào
-    @OneToMany(mappedBy = "product", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    // Đảm bảo orphanRemoval = true
+    @OneToMany(mappedBy = "product", cascade = CascadeType.ALL, fetch = FetchType.LAZY, orphanRemoval = true)
     private List<Image> images;
-
 }

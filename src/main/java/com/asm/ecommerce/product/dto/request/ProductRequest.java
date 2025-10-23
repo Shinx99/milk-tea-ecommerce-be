@@ -7,10 +7,9 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import java.math.BigDecimal;
-import java.time.OffsetDateTime;
+import java.util.List;
 import java.util.UUID;
 
-//DỮ LIỆU FE GỬI CHO BE
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
@@ -34,7 +33,5 @@ public class ProductRequest {
     @NotNull
     private Boolean isActive;
 
-
-
-
+    private List<String> imageUrl; // Tên trường khớp với FE
 }
