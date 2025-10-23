@@ -26,6 +26,9 @@ public interface CustomerService {
     //Find by Id
 //    Optional<Customer> findById(UUID id);
 
+    @Transactional(readOnly = true)
+    DisplayAdminCustomerResponse displayByUserId(UUID userId);
+
     //Find by Phone
     @Transactional(readOnly = true)
     Optional<Customer> findByPhone(String phone);
@@ -40,7 +43,7 @@ public interface CustomerService {
     Customer create(Customer input);
 
     //Update
-    void update(UUID id, UpdateAdminCustomerRequest input);
+    DisplayAdminCustomerResponse update(UUID id, UpdateAdminCustomerRequest input);
 
     //Soft delete
     void softDelete(UUID id);

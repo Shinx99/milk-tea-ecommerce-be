@@ -24,6 +24,10 @@ public interface CustomerRepository extends JpaRepository<Customer, UUID> {
     //Tra cuu theo id -> thich hop cho ham update
     Optional<Customer> findById(UUID uuid);
 
+    //Cho Profile
+    Optional<Customer> findByUserIdAndActiveTrue(UUID userId);
+
+
     //--------------------------------CRUD------------------------------------------------
 
     //Hien thi tat ca - READ

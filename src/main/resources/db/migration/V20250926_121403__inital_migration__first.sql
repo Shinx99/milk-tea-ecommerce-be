@@ -140,7 +140,7 @@ END$$;
 
 -- 9) CARTS
 CREATE TABLE IF NOT EXISTS carts (
-                                     id uuid PRIMARY KEY DEFAULT gen_random_uuid(),
+    id uuid PRIMARY KEY DEFAULT gen_random_uuid(),
     customer_id uuid NOT NULL REFERENCES customers(id),
     product_id uuid NOT NULL REFERENCES products(id),
     quantity int NOT NULL CHECK (quantity > 0),

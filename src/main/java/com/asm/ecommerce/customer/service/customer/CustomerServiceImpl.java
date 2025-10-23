@@ -82,6 +82,34 @@ public class CustomerServiceImpl implements CustomerService {
                 .toList();
     }
 
+    /**
+     * Tìm và hiển thị thông tin chi tiết của một khách hàng duy nhất dựa trên userId.
+     *
+     * @param userId ID của user liên kết với khách hàng cần tìm.
+     * @return Một đối tượng DisplayAdminCustomerResponse chứa thông tin khách hàng và người dùng.
+     * @throws EntityNotFoundException nếu không tìm thấy khách hàng nào với userId tương ứng.
+     */
+    @Transactional(readOnly = true)
+    @Override
+    public DisplayAdminCustomerResponse displayByUserId(UUID userId) {
+
+        // 1. Tìm một customer duy nhất trong DB bằng userId.
+        // Sử dụng orElseThrow để xử lý ngay trường hợp không tìm thấy và trả về lỗi 404.
+        Customer customer = repo.findByUserIdAndActiveTrue(userId)
+                .orElseThrow(() -> new EntityNotFoundException("Không tìm thấy khách hàng với userId: " + userId));
+
+        // 2. Gọi sang user service để lấy thông tin của user đó.
+        // Chúng ta có thể tận dụng lại hàm gọi batch với danh sách chỉ có một phần tử.
+        UserDto userDto = null;
+        try {
+            Map<UUID, UserDto> usersMap = userClient.findByUserIds(List.of(userId));
+            userDto = usersMap.get(userId);
+        } catch (Exception e) {
+        }
+        return displayCustomerMapper.display(customer, userDto);
+    }
+
+
     //Find by Id
 //    @Override
 //    @Transactional(readOnly = true)
@@ -99,6 +127,8 @@ public class CustomerServiceImpl implements CustomerService {
     @Override
     public Optional<Customer> findByFullname(String fullname){return repo.findByFullname(fullname);}
 
+
+
     @Override
     @Transactional
     public Customer create(Customer input){
@@ -106,20 +136,25 @@ public class CustomerServiceImpl implements CustomerService {
     }
 
 
-    //Update Admin
-    @Override
+    // Update Admin
     @Transactional
-// Trả về void vì không cần trả dữ liệu về
-    public void update(UUID id, UpdateAdminCustomerRequest input) {
-        // 1. Tìm Entity
-        Customer currentCustomer = repo.findById(id)
+    public DisplayAdminCustomerResponse update(UUID id, UpdateAdminCustomerRequest input) {
+        Customer current = repo.findByUserIdAndActiveTrue(id)
                 .orElseThrow(() -> new EntityNotFoundException("Customer not found"));
+        updateAdminCustomerMapper.updateAdminCustomer(current, input);
 
-        // 2. Dùng Mapper để áp dụng thay đổi từ DTO
-        updateAdminCustomerMapper.updateAdminCustomer(currentCustomer, input);
-
-        // 3. Lưu lại. Không cần gán vào biến mới vì `save` sẽ cập nhật `currentCustomer`
-        repo.save(currentCustomer);
+        Customer saved = repo.save(current); // save trả về entity đã được persist/merge
+        UserDto userDto = null;
+        try {
+            UUID userId = saved.getUserId();
+            if (userId != null) {
+                Map<UUID, UserDto> usersMap = userClient.findByUserIds(List.of(userId));
+                userDto = usersMap.get(userId);
+            }
+        } catch (Exception e) {
+            // log và bỏ qua để không rollback giao dịch vì lỗi dịch vụ ngoài
+        }
+        return displayCustomerMapper.display(saved, userDto);
     }
 
 
