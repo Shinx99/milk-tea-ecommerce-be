@@ -13,13 +13,13 @@ import java.util.UUID;
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-// DỮ LIỆU BE GỬI LÊN FE
 public class ProductResponse {
     private UUID id;
     private UUID categoryId;
     private String name;
     private String description;
+    private Integer quantity;
+    private Boolean isActive;
     private BigDecimal price;
-    private String imageUrl;
-
+    private List<String> imageUrl;
 }
