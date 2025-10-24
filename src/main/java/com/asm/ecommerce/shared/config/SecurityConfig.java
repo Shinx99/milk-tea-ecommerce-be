@@ -100,7 +100,9 @@ public class SecurityConfig {
 
                         // 5.  Admin endpoints - Require ADMIN role
                         .requestMatchers("/api/admin/**").hasRole("ADMIN")
-                        .requestMatchers("/api/statistics/**").hasRole("ADMIN")
+                        //.requestMatchers("/api/statistics/**").hasRole("ADMIN")
+                        .requestMatchers("/api/statistics/**").permitAll()
+
 
                         // 6.  Protected customer endpoints - Require authentication
                         .requestMatchers("/api/cart/**").authenticated()
