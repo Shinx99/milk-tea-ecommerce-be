@@ -62,7 +62,7 @@ public class AuthController {
             // AN TOÀN HƠN: Nếu UserDetails có thể là String (ít khả năng với jwt filter)
             // userId = UUID.fromString(principal.toString());
 
-            // CÁCH TỐT NHẤT LÀ ÉP KIỂU VỀ LỚP USER CỤ THỂ CỦA BẠN
+            // CÁCH TỐT NHẤT LÀ ÉP KIỂU VỀ LỚP UprincipalSER CỤ THỂ CỦA BẠN
             throw new IllegalStateException("Authentication principal không phải là instance của User entity");
 
         } else {
