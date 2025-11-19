@@ -10,6 +10,9 @@ public final class SecurityUtil {
     /**
      * Get current authenticated user ID from security context
      */
+    //Vuong
+    //Method nay dang hoi co nhieu Bugs
+    //Lop Util nay co the duoc
     public static UUID getCurrentUserId() {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
 

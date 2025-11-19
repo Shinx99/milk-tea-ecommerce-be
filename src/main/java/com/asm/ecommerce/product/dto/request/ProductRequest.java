@@ -31,7 +31,7 @@ public class ProductRequest {
     private BigDecimal price;
 
     @NotNull
-    private Boolean isActive;
+    private Boolean active;
 
     private List<String> imageUrl; // Tên trường khớp với FE
 }

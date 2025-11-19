@@ -4,6 +4,7 @@ import com.asm.ecommerce.auth.dto.UserDto;
 import com.asm.ecommerce.shared.dto.ApiResponse;
 import com.asm.ecommerce.shared.dto.PageResponse;
 import org.springframework.data.domain.Pageable;
+import org.springframework.security.core.userdetails.UserDetailsService;
 
 import java.util.UUID;
 

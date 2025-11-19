@@ -4,12 +4,17 @@ import com.asm.ecommerce.product.domain.Image;
 import com.asm.ecommerce.product.domain.Product;
 import com.asm.ecommerce.product.domain.ProductCategory;
 import com.asm.ecommerce.product.dto.request.ProductRequest;
+import com.asm.ecommerce.product.dto.response.CategoryResponse;
 import com.asm.ecommerce.product.dto.response.ProductResponse;
 import com.asm.ecommerce.product.mapper.ProductMapper;
 import com.asm.ecommerce.product.repository.ProductCategoryRepository;
 import com.asm.ecommerce.product.repository.ProductRepository;
+import com.asm.ecommerce.shared.dto.ApiResponse;
+import com.asm.ecommerce.shared.dto.PageResponse;
 import com.asm.ecommerce.shared.exception.ResourceNotFoundException;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -24,36 +29,137 @@ public class ProductServiceImpl implements ProductService {
     private final ProductRepository repo;
     private final ProductCategoryRepository categoryRepo;
 
-    // --- Phương thức READ/DELETE giữ nguyên ---
+    // Method: Search
 
-    @Override
     @Transactional(readOnly = true)
-    public List<ProductResponse> searchProductsByName(String name) {
-        return ProductMapper.toResponseList(repo.findByNameContainingIgnoreCase(name));    }
+    @Override
+    public ApiResponse<PageResponse<ProductResponse>> searchProductsByName(String name, Pageable pageable) {
+        Page<Product> products = repo.findByNameContainingIgnoreCaseAndActiveTrue(name, pageable);
 
-    @Override
+        PageResponse<ProductResponse> pageResponse = PageResponse.<ProductResponse>builder()
+                .content(products.getContent().stream()
+                        .map(ProductMapper::toResponse)
+                        .toList())
+                .pageNumber(products.getNumber())
+                .pageSize(products.getSize())
+                .totalPages(products.getTotalPages())
+                .totalElements(products.getTotalElements())
+                .last(products.isLast())
+                .build();
+
+        return ApiResponse.<PageResponse<ProductResponse>>builder()
+                .success(true)
+                .message("Products retrieved successfully!")
+                .data(pageResponse)
+                .build();
+    }
+
     @Transactional(readOnly = true)
-    public List<ProductResponse> findAll() {
-        return ProductMapper.toResponseList(repo.findAll());
+    @Override
+    public ApiResponse<PageResponse<ProductResponse>> findByProductCategoryName(String categoryName, Pageable pageable) {
+        Page<Product> products = repo.findByCategory_CategoryNameAndActiveTrue(categoryName, pageable);
+
+        PageResponse<ProductResponse> pageResponse = PageResponse.<ProductResponse>builder()
+                .content(products.getContent().stream()
+                        .map(ProductMapper::toResponse)
+                        .toList())
+                .pageNumber(products.getNumber())
+                .pageSize(products.getSize())
+                .totalPages(products.getTotalPages())
+                .totalElements(products.getTotalElements())
+                .last(products.isLast())
+                .build();
+
+        return ApiResponse.<PageResponse<ProductResponse>>builder()
+                .success(true)
+                .message("Products retrieved successfully!")
+                .data(pageResponse)
+                .build();
+    }
+
+    @Transactional(readOnly = true)
+    @Override
+    public ApiResponse<PageResponse<ProductResponse>> findByProductCategoryId(UUID categoryId, Pageable pageable) {
+        Page<Product> products = repo.findByCategoryId(categoryId, pageable);
+
+        PageResponse<ProductResponse> pageResponse = PageResponse.<ProductResponse>builder()
+                .content(products.getContent().stream()
+                        .map(ProductMapper::toResponse)
+                        .toList())
+                .pageNumber(products.getNumber())
+                .pageSize(products.getSize())
+                .totalPages(products.getTotalPages())
+                .totalElements(products.getTotalElements())
+                .last(products.isLast())
+                .build();
+
+        return ApiResponse.<PageResponse<ProductResponse>>builder()
+                .success(true)
+                .message("Products retrieved successfully!")
+                .data(pageResponse)
+                .build();
     }
 
     @Override
     @Transactional(readOnly = true)
-    public List<ProductResponse> findByProductCategoryName(String categoryName) {
-        return ProductMapper.toResponseList(repo.findByCategory_CategoryName(categoryName));
-    }
-
-    @Override
-    @Transactional(readOnly = true)
-    public List<ProductResponse> findByProductCategoryId(UUID categoryId) {
-        return ProductMapper.toResponseList(repo.findByCategoryId(categoryId));
-    }
-
-    @Override
-    @Transactional(readOnly = true)
-    public ProductResponse findById(UUID id) {
+    public ApiResponse<ProductResponse> findById(UUID id) {
         Product p = repo.findById(id).orElseThrow(() -> new ResourceNotFoundException("Id not found"));
-        return ProductMapper.toResponse(p);
+
+        ProductResponse dto = ProductMapper.toResponse(p);
+
+        return ApiResponse.<ProductResponse>builder()
+                .success(true)
+                .message("Product retrieved successfully!")
+                .data(dto)
+                .build();
+    }
+
+    // Display for ADMIN
+    @Transactional(readOnly = true)
+    @Override
+    public ApiResponse<PageResponse<ProductResponse>> findAll(Pageable pageable) {
+        Page<Product> products = repo.findAll(pageable);
+
+        PageResponse<ProductResponse> pageResponse = PageResponse.<ProductResponse>builder()
+                .content(products.getContent().stream()
+                        .map(ProductMapper::toResponse)
+                        .toList())
+                .pageNumber(products.getNumber())
+                .pageSize(products.getSize())
+                .totalPages(products.getTotalPages())
+                .totalElements(products.getTotalElements())
+                .last(products.isLast())
+                .build();
+
+        return ApiResponse.<PageResponse<ProductResponse>>builder()
+                .success(true)
+                .message("Products retrieved successfully!")
+                .data(pageResponse)
+                .build();
+    }
+
+    //Display for Both Customer and Admin
+    @Transactional(readOnly = true)
+    @Override
+    public ApiResponse<PageResponse<ProductResponse>> findAllByActiveTrue(Pageable pageable) {
+        Page<Product> products = repo.findAllByActiveTrue(pageable);
+
+        PageResponse<ProductResponse> pageResponse = PageResponse.<ProductResponse>builder()
+                .content(products.getContent().stream()
+                        .map(ProductMapper::toResponse)
+                        .toList())
+                .pageNumber(products.getNumber())
+                .pageSize(products.getSize())
+                .totalPages(products.getTotalPages())
+                .totalElements(products.getTotalElements())
+                .last(products.isLast())
+                .build();
+
+        return ApiResponse.<PageResponse<ProductResponse>>builder()
+                .success(true)
+                .message("Products retrieved successfully!")
+                .data(pageResponse)
+                .build();
     }
 
     // --- PHƯƠNG THỨC CREATE (Đã đồng bộ imageUrl và xử lý publicId) ---

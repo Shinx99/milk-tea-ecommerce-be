@@ -89,7 +89,6 @@ public class UserServiceIml implements UserService{
     // ... existing methods
 
     //Vuong
-    //Khong con customer_id nua -> check lai gium em phat
     @Override
     @Transactional
     public void updateCustomerId(UUID userId, UUID customerId) {

@@ -18,7 +18,7 @@ CREATE TABLE IF NOT EXISTS roles (
 
 -- 2) USERS
 CREATE TABLE IF NOT EXISTS users (
-                                     id uuid PRIMARY KEY DEFAULT gen_random_uuid(),
+    id uuid PRIMARY KEY DEFAULT gen_random_uuid(),
     email varchar(255) NOT NULL UNIQUE,
     password_hash varchar(255) NOT NULL,
     is_active boolean NOT NULL DEFAULT true,
@@ -31,7 +31,7 @@ CREATE INDEX IF NOT EXISTS idx_users_role ON users(role_id);
 
 -- 2) CUSTOMERS trước USERS (vì users references customers)
 CREATE TABLE IF NOT EXISTS customers(
-                                        id uuid PRIMARY KEY DEFAULT gen_random_uuid(),
+    id uuid PRIMARY KEY DEFAULT gen_random_uuid(),
     phone varchar(40) NOT NULL UNIQUE,
     fullname varchar(255) NOT NULL,
     created_at timestamptz NOT NULL DEFAULT now(),
@@ -90,7 +90,7 @@ CREATE INDEX IF NOT EXISTS idx_prod_active ON products(is_active);
 -- 7) IMAGES
 -- Bảng IMAGES tối ưu cho Cloudinary (không dùng bảng variants)
 CREATE TABLE IF NOT EXISTS images (
-                                      id uuid PRIMARY KEY DEFAULT gen_random_uuid(),
+    id uuid PRIMARY KEY DEFAULT gen_random_uuid(),
     product_id uuid NOT NULL REFERENCES products(id),
     sort_order int NOT NULL DEFAULT 0,
     is_primary boolean NOT NULL DEFAULT false,

@@ -28,7 +28,7 @@ public class ProductMapper {
                 .categoryId(categoryId)
                 .name(product.getName())
                 .quantity(product.getQuantity())
-                .isActive(product.getIsActive())
+                .active(product.getActive())
                 .description(product.getDescription())
                 .price(product.getPrice())
                 .imageUrl(images) // Dùng tên imageUrl
@@ -55,7 +55,7 @@ public class ProductMapper {
                 .description(req.getDescription())
                 .quantity(req.getQuantity())
                 .price(req.getPrice())
-                .isActive(req.getIsActive())
+                .active(req.getActive())
                 .build();
     }
 
@@ -66,6 +66,6 @@ public class ProductMapper {
         if(req.getDescription() != null) entity.setDescription(req.getDescription());
         if(req.getQuantity() != null) entity.setQuantity(req.getQuantity());
         if(req.getPrice() != null) entity.setPrice(req.getPrice());
-        if(req.getIsActive() != null) entity.setIsActive(req.getIsActive());
+        if(req.getActive() != null) entity.setActive(req.getActive());
     }
 }

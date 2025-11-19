@@ -1,10 +1,8 @@
 package com.asm.ecommerce.shared.config;
 
-import com.asm.ecommerce.auth.repository.UserRepository;
-import com.asm.ecommerce.auth.service.UserDetailsService;
 import com.asm.ecommerce.shared.security.JwtUtil;
 import lombok.RequiredArgsConstructor;
-import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.HttpMethod;
@@ -13,6 +11,7 @@ import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
 import org.springframework.security.config.http.SessionCreationPolicy;
+import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
@@ -50,14 +49,14 @@ public class SecurityConfig {
 //    private final JwtAuthenticationFilter jwtAuthFilter; // <<< Inject Filter
 
     @Bean
-    public org.springframework.security.core.userdetails.UserDetailsService springSecurityUserDetailsService(UserDetailsService userDetailsService) {
+    public UserDetailsService springSecurityUserDetailsService(@Qualifier("userDetailsServiceImpl") UserDetailsService userDetailsService) {
         // Adapter, dùng UserDetailsService custom của bạn
         return email -> userDetailsService.loadUserByUsername(email);
     }
 
     @Bean
     public JwtAuthenticationFilter jwtAuthFilter(
-            org.springframework.security.core.userdetails.UserDetailsService userDetailsService,
+            @Qualifier("userDetailsServiceImpl") UserDetailsService userDetailsService,
             JwtUtil jwtUtil
     ) {
         return new JwtAuthenticationFilter(jwtUtil, userDetailsService);
@@ -89,10 +88,17 @@ public class SecurityConfig {
                         .requestMatchers("/api/health", "/api/test/**").permitAll()
 
                         // 3.  Product browsing - Public
-                        .requestMatchers("/api/products/**").permitAll()
+                        .requestMatchers(HttpMethod.GET, "/api/products/active").permitAll()
+                        .requestMatchers(HttpMethod.GET, "/api/products/by-category-name").permitAll()
+                        .requestMatchers(HttpMethod.GET, "/api/products/search").permitAll()
+                        .requestMatchers(HttpMethod.GET,"/api/products/by-category/**").permitAll()
+                        .requestMatchers(HttpMethod.GET, "/api/products/detail/**").permitAll()
+
+                        .requestMatchers("/api/products/**").authenticated()
                         .requestMatchers("/api/categories/**").permitAll()
-                        // 3.1 ⭐ Home page API - Public
+
                         .requestMatchers("/api/home/**").permitAll()
+
 
                         // 4.  Reviews - Public GET, authenticated POST/PUT/DELETE
                         .requestMatchers(HttpMethod.GET, "/api/reviews/**").permitAll()
@@ -105,8 +111,8 @@ public class SecurityConfig {
                         // 6.  Protected customer endpoints - Require authentication
                         .requestMatchers("/api/cart/**").authenticated()
                         .requestMatchers("/api/orders/**").authenticated()
-                        .requestMatchers("/api/customers/**").permitAll()
-                        .requestMatchers("/api/addresses/**").permitAll()
+                        .requestMatchers("/api/customers/**").authenticated()
+                        .requestMatchers("/api/addresses/**").authenticated()
                         .requestMatchers("/api/payments/**").authenticated()
                         .requestMatchers("/api/vouchers/apply").authenticated()
 

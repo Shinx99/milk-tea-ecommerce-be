@@ -1,4 +1,4 @@
-package com.asm.ecommerce.category.dto.request;
+package com.asm.ecommerce.product.dto.request;
 
 import jakarta.validation.constraints.NotBlank;
 import lombok.AllArgsConstructor;

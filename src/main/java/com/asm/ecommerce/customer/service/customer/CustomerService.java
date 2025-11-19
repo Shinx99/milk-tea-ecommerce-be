@@ -5,9 +5,11 @@ import com.asm.ecommerce.customer.dto.request.customer.UpdateAdminCustomerReques
 import com.asm.ecommerce.customer.dto.response.customer.DisplayAdminCustomerResponse;
 import com.asm.ecommerce.customer.dto.CustomerDTO;
 import com.asm.ecommerce.customer.dto.request.customer.CreateCustomerRequest;
+import com.asm.ecommerce.shared.dto.ApiResponse;
+import com.asm.ecommerce.shared.dto.PageResponse;
+import org.springframework.data.domain.Pageable;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
@@ -16,18 +18,17 @@ public interface CustomerService {
     //Display
 
     //Display all
-    List<DisplayAdminCustomerResponse> displayAll();
+    ApiResponse<PageResponse<DisplayAdminCustomerResponse>> displayAll(Pageable pageable);
 
     //Display active customer
-    List<DisplayAdminCustomerResponse> displayActive();
+    ApiResponse<PageResponse<DisplayAdminCustomerResponse>> displayActive(Pageable pageable);
 
-    //Find
 
     //Find by Id
 //    Optional<Customer> findById(UUID id);
 
     @Transactional(readOnly = true)
-    DisplayAdminCustomerResponse displayByUserId(UUID userId);
+    ApiResponse<DisplayAdminCustomerResponse> displayByUserId(UUID userId);
 
     //Find by Phone
     @Transactional(readOnly = true)
@@ -43,7 +44,7 @@ public interface CustomerService {
     Customer create(Customer input);
 
     //Update
-    DisplayAdminCustomerResponse update(UUID id, UpdateAdminCustomerRequest input);
+    ApiResponse<DisplayAdminCustomerResponse> update(UUID id, UpdateAdminCustomerRequest input);
 
     //Soft delete
     void softDelete(UUID id);

@@ -1,4 +1,4 @@
-package com.asm.ecommerce.category.dto.response;
+package com.asm.ecommerce.product.dto.response;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;
