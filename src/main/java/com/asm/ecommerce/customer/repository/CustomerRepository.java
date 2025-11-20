@@ -1,6 +1,8 @@
 package com.asm.ecommerce.customer.repository;
 
 import com.asm.ecommerce.customer.domain.Customer;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
@@ -31,10 +33,10 @@ public interface CustomerRepository extends JpaRepository<Customer, UUID> {
     //--------------------------------CRUD------------------------------------------------
 
     //Hien thi tat ca - READ
-    List<Customer> findAll();
+    Page<Customer> findAll(Pageable pageable);
 
     //Hien len danh sach customer con hoat dong - READ
-    List<Customer> findByActiveTrue();
+    Page<Customer> findByActiveTrue(Pageable pageable);
 
     //Create or Update record
     <S extends Customer> S save(S entity);

@@ -44,7 +44,7 @@ public class Product {
 
     @NotNull
     @Column(name = "is_active", nullable = false)
-    private Boolean isActive = true;
+    private Boolean active = true;
 
     @CreationTimestamp
     @Column(name = "created_at", updatable = false, nullable = false)

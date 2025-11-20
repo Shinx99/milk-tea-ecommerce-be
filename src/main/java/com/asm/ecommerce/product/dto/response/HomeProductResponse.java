@@ -1,4 +1,4 @@
-package com.asm.ecommerce.home.dto.response;
+package com.asm.ecommerce.product.dto.response;
 
 import lombok.*;
 import java.math.BigDecimal;

@@ -1,14 +1,26 @@
 package com.asm.ecommerce.customer.controller;
 
+import com.asm.ecommerce.auth.domain.User;
 import com.asm.ecommerce.customer.dto.request.customer.UpdateAdminCustomerRequest;
 import com.asm.ecommerce.customer.dto.response.customer.DisplayAdminCustomerResponse;
 import com.asm.ecommerce.customer.service.customer.CustomerService;
+import com.asm.ecommerce.shared.dto.ApiResponse;
+import com.asm.ecommerce.shared.dto.PageResponse;
+import com.asm.ecommerce.shared.security.UserPrincipal;
+import com.asm.ecommerce.shared.util.SecurityUtil;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 
-import java.util.List;
 import java.util.UUID;
 
 @RestController
@@ -21,47 +33,107 @@ public class CustomerAdminController {
     // GET: /api/customers
     // METHOD: Display all
     @GetMapping
-    public List<DisplayAdminCustomerResponse> listAll(){
-        return service.displayAll();
+    @PreAuthorize("hasRole('ADMIN')")
+    public ResponseEntity<ApiResponse<PageResponse<DisplayAdminCustomerResponse>>> listAll(
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "10") int size,
+            @RequestParam(defaultValue = "createdAt") String sortby,
+            @RequestParam(defaultValue = "DESC") String direction){
+
+        // THÊM ĐOẠN DEBUG VÀO ĐÂY------------------------------------------------------------------
+        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+        if (auth != null && auth.isAuthenticated()) {
+            System.out.println("Authenticated User: " + auth.getName());
+            System.out.println("User's Authorities: " + auth.getAuthorities());
+        } else {
+            System.out.println("No authentication found.");
+        }
+        //-------------------------------------------------------------------------------------------
+
+        Sort.Direction sortDirection = direction.equalsIgnoreCase("DESC") ? Sort.Direction.DESC : Sort.Direction.ASC;
+        Pageable pageable = PageRequest.of(page, size, Sort.by(sortDirection, sortby));
+        ApiResponse<PageResponse<DisplayAdminCustomerResponse>> response =  service.displayAll(pageable);
+        return ResponseEntity.ok(response);
     }
 
     // GET: /api/customers/active
     // METHOD: Display active customers
     @GetMapping("/active")
-    public List<DisplayAdminCustomerResponse> listActive(){
-        return service.displayActive();
+    @PreAuthorize("hasRole('ADMIN')")
+    public ResponseEntity<ApiResponse<PageResponse<DisplayAdminCustomerResponse>>> listActive(
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "10") int size,
+            @RequestParam(defaultValue = "createdAt") String sortBy,
+            @RequestParam(defaultValue = "DESC") String direction){
+
+        // THÊM ĐOẠN DEBUG VÀO ĐÂY------------------------------------------------------------------
+        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+        if (auth != null && auth.isAuthenticated()) {
+            System.out.println("Authenticated User: " + auth.getPrincipal());
+            System.out.println("User's Authorities: " + auth.getAuthorities());
+        } else {
+            System.out.println("No authentication found.");
+        }
+        //-------------------------------------------------------------------------------------------
+
+        Sort.Direction sortDirection = direction.equalsIgnoreCase("DESC") ? Sort.Direction.DESC : Sort.Direction.ASC;
+
+        Pageable pageable = PageRequest.of(page, size, Sort.by(sortDirection, sortBy));
+
+        ApiResponse<PageResponse<DisplayAdminCustomerResponse>> response = service.displayActive(pageable);
+
+        return ResponseEntity.ok(response);
     }
 
     //GET: /api/customers/{id}
     // METHOD: Display profile
     // ---> Profile
     // Request -> userId
-    @GetMapping("/{id}")
-    public ResponseEntity<DisplayAdminCustomerResponse> getCustomerById(@PathVariable UUID id) {
+    @GetMapping("/user")
+    @PreAuthorize("hasAnyRole('CUSTOMER', 'ADMIN')")
+    public ResponseEntity<?> getCustomerById(@AuthenticationPrincipal UserPrincipal userPrincipal) {
 
-        // Gọi service đã viết trước đó để tìm thông tin
-        DisplayAdminCustomerResponse customerProfile = service.displayByUserId(id);
+        if (userPrincipal == null) {
+            return new ResponseEntity<>("Người dùng chưa được xác thực hoặc không tìm thấy thông tin.", HttpStatus.UNAUTHORIZED);
+        }
 
-        // Trả về dữ liệu
-        return ResponseEntity.ok(customerProfile);
+        UUID userId = userPrincipal.getId();
+
+        // BƯỚC 3: Gọi service như bình thường
+        ApiResponse<DisplayAdminCustomerResponse> response = service.displayByUserId(userId);
+        return ResponseEntity.ok(response);
     }
 
-    // PUT: /api/customers/{id}
+    // PUT: /api/customers
     // METHOD: update customer
     // ---> Cap nhat dia chi (Address)
     // Request -> userId
-    @PutMapping("/{id}")
-    public ResponseEntity<DisplayAdminCustomerResponse> update(
-            @PathVariable UUID id,
-            @Valid @RequestBody UpdateAdminCustomerRequest input) {
-        DisplayAdminCustomerResponse updatedCustomer = service.update(id, input);
+    @PutMapping()
+    @PreAuthorize("hasAnyRole('CUSTOMER', 'ADMIN')")
+    public ResponseEntity<?> update(@AuthenticationPrincipal UserPrincipal userPrincipal, @Valid @RequestBody UpdateAdminCustomerRequest input) {
+
+        if (userPrincipal == null) {
+            return new ResponseEntity<>("Người dùng chưa được xác thực hoặc không tìm thấy thông tin.", HttpStatus.UNAUTHORIZED);
+        }
+
+        UUID id = userPrincipal.getId();
+        ApiResponse<DisplayAdminCustomerResponse> updatedCustomer = service.update(id, input);
         return ResponseEntity.ok(updatedCustomer);
     }
 
-    // DELETE (soft): /api/customers/{id}
+    // DELETE (soft): /api/customers
     // METHOD: Soft delete customer
-    @DeleteMapping("/{id}")
-    public ResponseEntity<Void> softDelete(@PathVariable UUID id) {
+    // Request -> userId
+    //Con bugs o Service -> is_active of Customer async User
+    @DeleteMapping()
+    @PreAuthorize("hasAnyRole('ADMIN', 'CUSTOMER')")
+    public ResponseEntity<?> softDelete(@AuthenticationPrincipal UserPrincipal userPrincipal) {
+
+        if(userPrincipal == null){
+            return new ResponseEntity<>("Người dùng chưa được xác thực hoặc không tìm thấy thông tin.", HttpStatus.UNAUTHORIZED);
+        }
+
+        UUID id = userPrincipal.getId();
         service.softDelete(id);
         return ResponseEntity.noContent().build();
     }

@@ -19,7 +19,7 @@ public class ProductResponse {
     private String name;
     private String description;
     private Integer quantity;
-    private Boolean isActive;
+    private Boolean active;
     private BigDecimal price;
     private List<String> imageUrl;
 }

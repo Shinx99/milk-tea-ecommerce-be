@@ -8,16 +8,20 @@ import com.asm.ecommerce.customer.mapper.request.address.UpdateAdminAddressMappe
 import com.asm.ecommerce.customer.mapper.response.address.DisplayAddressMapper;
 import com.asm.ecommerce.customer.repository.AddressRepository;
 import com.asm.ecommerce.customer.repository.CustomerRepository;
+import com.asm.ecommerce.shared.dto.ApiResponse;
+import com.asm.ecommerce.shared.dto.PageResponse;
 import jakarta.persistence.EntityNotFoundException;
-import lombok.extern.slf4j.Slf4j;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 
 import java.util.List;
 import java.util.UUID;
-import java.util.stream.Collectors;
 
+@Slf4j
 @Service
 @RequiredArgsConstructor
 public class AddressServiceImpl implements AddressService {
@@ -27,33 +31,83 @@ public class AddressServiceImpl implements AddressService {
     private final UpdateAdminAddressMapper requestMapper;
     private final DisplayAddressMapper responseMapper;
 
-
     //display All
     @Override
     @Transactional(readOnly = true)
-    public List<DisplayAdminAddressResponse> displayAll(){
-        List<Address> addresses = repo.findAllWithCustomer();
-        return addresses.stream()
-                .map(address -> responseMapper.display(address.getCustomer(), address))
-                .collect(Collectors.toList());
+    public ApiResponse<PageResponse<DisplayAdminAddressResponse>> displayAll(Pageable pageable) {
+        Page<Address> addressPage = repo.findAllWithCustomer(pageable);
+        PageResponse<DisplayAdminAddressResponse> pageResponse = PageResponse.<DisplayAdminAddressResponse>builder()
+                .content(addressPage.getContent().stream()
+                        .map(address -> responseMapper.display(address.getCustomer(), address))
+                        .toList())
+                .pageNumber(addressPage.getNumber())
+                .pageSize(addressPage.getSize())
+                .totalPages(addressPage.getTotalPages())
+                .totalElements(addressPage.getTotalElements())
+                .last(addressPage.isLast())
+                .build();
+
+        return ApiResponse.<PageResponse<DisplayAdminAddressResponse>>builder()
+                .success(true)
+                .message("Addresses retrieved successfully")
+                .data(pageResponse)
+                .build();
     }
+
 
     //display Active
     @Override
     @Transactional(readOnly = true)
-    public List<DisplayAdminAddressResponse> displayActive(){
-        List<Address> addresses = repo.findAllWithCustomerByActiveTrue();
-        return addresses.stream()
-                .map(address -> responseMapper.display(address.getCustomer(), address))
-                .collect(Collectors.toList());
+    public ApiResponse<PageResponse<DisplayAdminAddressResponse>> displayActive(Pageable pageable){
+        Page<Address> addresses = repo.findAllWithCustomerByActiveTrue(pageable);
+        PageResponse<DisplayAdminAddressResponse> pageResponse = PageResponse.<DisplayAdminAddressResponse>builder()
+            .content(addresses.stream()
+                    .map(address -> responseMapper.display(address.getCustomer(), address))
+                    .toList())
+                .pageNumber(addresses.getNumber())
+                .pageSize(addresses.getSize())
+                .totalPages(addresses.getTotalPages())
+                .totalElements(addresses.getTotalElements())
+                .last(addresses.isLast())
+                .build();
+
+        return ApiResponse.<PageResponse<DisplayAdminAddressResponse>> builder()
+                .success(true)
+                .message("Active Addresses retrieved successfully")
+                .data(pageResponse)
+                .build();
+    }
+
+    @Transactional(readOnly = true)
+    @Override
+    public ApiResponse<List<DisplayAdminAddressResponse>> displayByUserId(UUID userId){
+        Customer customer = customerRepo.findByUserIdAndActiveTrue(userId)
+                .orElseThrow(() -> new EntityNotFoundException("Không tìm thấy khách hàng với userId: " + userId));
+
+        UUID customerId = customer.getId();
+
+        List<Address> addressList = repo.findAllWithCustomerByActiveTrue(customerId);
+
+        List<DisplayAdminAddressResponse> response = addressList.stream()
+                .map(address -> responseMapper.display(address.getCustomer(), address)).toList();
+
+
+        return ApiResponse.<List<DisplayAdminAddressResponse>> builder()
+                .success(true)
+                .message("Get Addresses List successfully")
+                .data(response)
+                .build();
     }
 
     // Su dung customerID truyen xuong de xu ly
     @Transactional
     @Override
-    public void create(UUID customerId, UpdateAdminAddressRequest input) {
-        Customer customer = customerRepo.findById(customerId)
-                .orElseThrow(() -> new EntityNotFoundException("CustomerId not found"));
+    public ApiResponse<DisplayAdminAddressResponse> create(UUID userId, UpdateAdminAddressRequest input) {
+
+        Customer customer = customerRepo.findByUserIdAndActiveTrue(userId)
+                .orElseThrow(() -> new EntityNotFoundException("Không tìm thấy khách hàng với userId: " + userId));
+
+        UUID customerId = customer.getId();
 
         if (Boolean.TRUE.equals(input.getIsDefault())) {
             repo.findDefaultAddressIdByCustomerId(customerId).ifPresent(oldId -> {
@@ -66,19 +120,28 @@ public class AddressServiceImpl implements AddressService {
         requestMapper.updateAdminAddress(newAddress, input);
         newAddress.setCustomer(customer);
         repo.save(newAddress);
+
+        DisplayAdminAddressResponse response =  responseMapper.display(customer, newAddress);
+
+        return ApiResponse.<DisplayAdminAddressResponse>builder()
+                .success(true)
+                .message("Address created successfully")
+                .data(response)
+                .build();
     }
 
 
     //Su dung id cua chinh bang Address de xu ly
     @Transactional
     @Override
-    public void update(UUID addressId, UpdateAdminAddressRequest input) {
+    public ApiResponse<DisplayAdminAddressResponse> update(UUID addressId, UpdateAdminAddressRequest input) {
         Address current = repo.findById(addressId)
                 .orElseThrow(() -> new EntityNotFoundException("AddressId not found"));
 
+        UUID customerId = repo.findCustomerIdByAddressId(addressId)
+                .orElseThrow(() -> new EntityNotFoundException("Customer not found for this address"));
+
         if (Boolean.TRUE.equals(input.getIsDefault())) {
-            UUID customerId = repo.findCustomerIdByAddressId(addressId)
-                    .orElseThrow(() -> new EntityNotFoundException("Customer not found for this address"));
 
             repo.findDefaultAddressIdByCustomerId(customerId).ifPresent(oldId -> {
                 if (!oldId.equals(addressId)) {
@@ -88,8 +151,19 @@ public class AddressServiceImpl implements AddressService {
             });
         }
 
+        Customer customer = customerRepo.findById(customerId)
+                .orElseThrow(() -> new EntityNotFoundException("CustomerId not found"));
+
         requestMapper.updateAdminAddress(current, input);
         repo.save(current);
+
+        DisplayAdminAddressResponse response = responseMapper.display(customer, current);
+
+        return ApiResponse.<DisplayAdminAddressResponse>builder()
+                .success(true)
+                .message("Addresses updated successfully")
+                .data(response)
+                .build();
     }
 
 
@@ -117,6 +191,4 @@ public class AddressServiceImpl implements AddressService {
             });
         }
     }
-
-
 }

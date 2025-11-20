@@ -11,9 +11,13 @@ import com.asm.ecommerce.customer.mapper.response.customer.DisplayCustomerMapper
 import com.asm.ecommerce.customer.dto.CustomerDTO;
 import com.asm.ecommerce.customer.dto.request.customer.CreateCustomerRequest;
 import com.asm.ecommerce.customer.repository.CustomerRepository;
+import com.asm.ecommerce.shared.dto.ApiResponse;
+import com.asm.ecommerce.shared.dto.PageResponse;
 import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -24,6 +28,7 @@ import java.util.*;
 @Service
 @RequiredArgsConstructor
 public class CustomerServiceImpl implements CustomerService {
+
     private final CustomerRepository repo;
     private final UserClient userClient; // hoặc UserRepository nếu cùng DB
     private final UpdateAdminCustomerMapper updateAdminCustomerMapper;
@@ -32,35 +37,53 @@ public class CustomerServiceImpl implements CustomerService {
 
     @Override
     @Transactional(readOnly = true)
-    public List<DisplayAdminCustomerResponse> displayAll() {
-        List<Customer> customers = repo.findAll();
+    public ApiResponse<PageResponse<DisplayAdminCustomerResponse>> displayAll(Pageable pageable) {
+        Page<Customer> customers = repo.findAll(pageable);
 
-        // 1. Lấy ra danh sách các userId từ list customer
+        // 1. Lấy ra danh sách userId không trùng
         List<UUID> userIds = customers.stream()
-                .map(Customer::getUserId) // Lấy ra trường UUID userId
+                .map(Customer::getUserId)
                 .filter(Objects::nonNull)
-                .distinct() // Tránh gọi API với các ID trùng lặp
+                .distinct()
                 .toList();
 
         // 2. Gọi sang user service để lấy thông tin user theo batch
         Map<UUID, UserDto> usersByUserId = userClient.findByUserIds(userIds);
 
-        // 3. Map kết quả cuối cùng
-        return customers.stream()
+        // 3. Map danh sách customer + user sang DisplayAdminCustomerResponse
+        List<DisplayAdminCustomerResponse> content = customers.stream()
                 .map(c -> {
-                    // Tra cứu trong map bằng userId của customer
                     UserDto userDto = usersByUserId.get(c.getUserId());
                     return displayCustomerMapper.display(c, userDto);
                 })
                 .toList();
+
+        // 4. Build PageResponse với dữ liệu đã map, giữ nguyên phân trang từ customers
+        PageResponse<DisplayAdminCustomerResponse> pageResponse = PageResponse.<DisplayAdminCustomerResponse>builder()
+                .content(content)
+                .pageNumber(customers.getNumber())
+                .pageSize(customers.getSize())
+                .totalPages(customers.getTotalPages())
+                .totalElements(customers.getTotalElements())
+                .last(customers.isLast())
+                .build();
+
+        // 5. Trả về ApiResponse bọc PageResponse
+        return ApiResponse.<PageResponse<DisplayAdminCustomerResponse>>builder()
+                .success(true)
+                .message("Customers retrieved successfully")
+                .data(pageResponse)
+                .build();
     }
+
 
 
     //Display active customer
     @Override
     @Transactional(readOnly = true)
-    public List<DisplayAdminCustomerResponse> displayActive() {
-        List<Customer> customers = repo.findByActiveTrue();
+    public ApiResponse<PageResponse<DisplayAdminCustomerResponse>> displayActive(Pageable pageable) {
+
+        Page<Customer> customers = repo.findByActiveTrue(pageable);
 
         // 1. Lấy ra danh sách các userId từ list customer
         List<UUID> userIds = customers.stream()
@@ -73,25 +96,34 @@ public class CustomerServiceImpl implements CustomerService {
         Map<UUID, UserDto> usersByUserId = userClient.findByUserIds(userIds);
 
         // 3. Map kết quả cuối cùng
-        return customers.stream()
+        List<DisplayAdminCustomerResponse> content = customers.stream()
                 .map(c -> {
                     // Tra cứu trong map bằng userId của customer
                     UserDto userDto = usersByUserId.get(c.getUserId());
                     return displayCustomerMapper.display(c, userDto);
                 })
                 .toList();
+
+        // 4. Build PageResponse voi du lieu da map, giu nguyen phan trang tu customers
+        PageResponse<DisplayAdminCustomerResponse> pageResponse = PageResponse.<DisplayAdminCustomerResponse>builder()
+                .content(content)
+                .pageNumber(customers.getNumber())
+                .pageSize(customers.getSize())
+                .totalPages(customers.getTotalPages())
+                .totalElements(customers.getTotalElements())
+                .last(customers.isLast())
+                .build();
+
+        return ApiResponse.<PageResponse<DisplayAdminCustomerResponse>>builder()
+                .success(true)
+                .message("Active Customers retrieved successfully")
+                .data(pageResponse)
+                .build();
     }
 
-    /**
-     * Tìm và hiển thị thông tin chi tiết của một khách hàng duy nhất dựa trên userId.
-     *
-     * @param userId ID của user liên kết với khách hàng cần tìm.
-     * @return Một đối tượng DisplayAdminCustomerResponse chứa thông tin khách hàng và người dùng.
-     * @throws EntityNotFoundException nếu không tìm thấy khách hàng nào với userId tương ứng.
-     */
     @Transactional(readOnly = true)
     @Override
-    public DisplayAdminCustomerResponse displayByUserId(UUID userId) {
+    public ApiResponse<DisplayAdminCustomerResponse> displayByUserId(UUID userId) {
 
         // 1. Tìm một customer duy nhất trong DB bằng userId.
         // Sử dụng orElseThrow để xử lý ngay trường hợp không tìm thấy và trả về lỗi 404.
@@ -106,7 +138,13 @@ public class CustomerServiceImpl implements CustomerService {
             userDto = usersMap.get(userId);
         } catch (Exception e) {
         }
-        return displayCustomerMapper.display(customer, userDto);
+        DisplayAdminCustomerResponse response = displayCustomerMapper.display(customer, userDto);
+
+        return ApiResponse.<DisplayAdminCustomerResponse>builder()
+                .success(true)
+                .message("Display By UserId successfully")
+                .data(response)
+                .build();
     }
 
 
@@ -138,7 +176,7 @@ public class CustomerServiceImpl implements CustomerService {
 
     // Update Admin
     @Transactional
-    public DisplayAdminCustomerResponse update(UUID id, UpdateAdminCustomerRequest input) {
+    public ApiResponse<DisplayAdminCustomerResponse> update(UUID id, UpdateAdminCustomerRequest input) {
         Customer current = repo.findByUserIdAndActiveTrue(id)
                 .orElseThrow(() -> new EntityNotFoundException("Customer not found"));
         updateAdminCustomerMapper.updateAdminCustomer(current, input);
@@ -152,16 +190,26 @@ public class CustomerServiceImpl implements CustomerService {
                 userDto = usersMap.get(userId);
             }
         } catch (Exception e) {
-            // log và bỏ qua để không rollback giao dịch vì lỗi dịch vụ ngoài
         }
-        return displayCustomerMapper.display(saved, userDto);
+        DisplayAdminCustomerResponse response = displayCustomerMapper.display(saved, userDto);
+
+        return ApiResponse.<DisplayAdminCustomerResponse>builder()
+                .success(true)
+                .message("Customers updated successfully")
+                .data(response)
+                .build();
     }
 
 
     @Override
     @Transactional
-    public void softDelete(UUID id){
-        int updated = repo.softDeleteById(id, Instant.now());
+    public void softDelete(UUID userId){
+        Customer user = repo.findByUserIdAndActiveTrue(userId)
+                .orElseThrow(() -> new EntityNotFoundException("Không tìm thấy khách hàng với userId: " + userId));
+
+        UUID customerId = user.getId();
+
+        int updated = repo.softDeleteById(customerId, Instant.now());
         if(updated == 0){
             throw new EntityNotFoundException("Customer not found or already inactive");
         }

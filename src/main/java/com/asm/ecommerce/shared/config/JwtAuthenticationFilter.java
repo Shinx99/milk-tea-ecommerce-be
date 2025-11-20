@@ -1,6 +1,8 @@
 package com.asm.ecommerce.shared.config; // Or .security
 
+import com.asm.ecommerce.auth.domain.User;
 import com.asm.ecommerce.shared.security.JwtUtil;
+import com.asm.ecommerce.shared.security.UserPrincipal;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
@@ -19,6 +21,7 @@ import org.springframework.stereotype.Component;
 import org.springframework.web.filter.OncePerRequestFilter;
 
 import java.io.IOException;
+import java.util.UUID;
 
 @RequiredArgsConstructor
 public class JwtAuthenticationFilter extends OncePerRequestFilter {
@@ -26,7 +29,6 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
     private final JwtUtil jwtUtil;
     private final UserDetailsService userDetailsService;
 
-    // <<< 2. Add SLF4J Logger instance
     private static final Logger filterLogger = LoggerFactory.getLogger(JwtAuthenticationFilter.class);
 
 
@@ -37,6 +39,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
             @NonNull FilterChain filterChain
     ) throws ServletException, IOException {
 
+        //Khi request di toi -> Filter Hoi xem ve moi cua khach(request) co phai la Authorization khong!
         final String authHeader = request.getHeader("Authorization");
         final String jwt;
         final String userEmail;
@@ -55,12 +58,16 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
                 UserDetails userDetails = this.userDetailsService.loadUserByUsername(userEmail);
 
                 if (jwtUtil.isTokenValid(jwt, userDetails)) { // Calls method from JwtUtil
+
+                    UserPrincipal userPrincipal = (UserPrincipal) userDetails;
+                    UUID userId = userPrincipal.getId();
+
                     UsernamePasswordAuthenticationToken authToken = new UsernamePasswordAuthenticationToken(
                             userDetails,
                             null,
                             userDetails.getAuthorities()
                     );
-                    authToken.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
+                    authToken.setDetails(new WebAuthenticationDetailsSource().buildDetails(request)); //bo sung them thong tin vi du nhu IP cho authentication --> Logs, chong hacker
                     SecurityContextHolder.getContext().setAuthentication(authToken);
                 }
             }

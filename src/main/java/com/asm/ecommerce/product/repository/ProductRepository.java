@@ -2,42 +2,55 @@ package com.asm.ecommerce.product.repository;
 
 import com.asm.ecommerce.product.domain.Product;
 
+import org.springframework.data.domain.Page;
 import org.springframework.data.jpa.repository.EntityGraph;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
+
+import org.springframework.data.domain.Pageable;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
 public interface ProductRepository extends JpaRepository<Product, UUID> {
 
-    List<Product> findByCategoryId(UUID categoryId);
-    List<Product> findByCategory_CategoryName(String categoryName);
-    List<Product> findByNameContainingIgnoreCase(String name);
+    //Find by Category
+    @Query("""
+    SELECT p
+    FROM Product p
+    WHERE p.category.id = :categoryId
+      AND p.category.active = true
+      AND p.category.parent IS NULL
+""")
+    Page<Product> findByCategoryId(@Param("categoryId") UUID categoryId, Pageable pageable);
 
-    // ✅ Best-sellers toàn shop (không phân loại theo danh mục)
-    // sắp theo tổng quantity bán được, nếu chưa bán gì thì fallback theo created_at
-    // --- Hải Mới thêm---
-    /** ✅ Best-sellers theo danh mục cha (VD: "Milk Tea", "Fruit Tea") */
-    @Query(value = """
-        SELECT p.*
-        FROM products p
-        LEFT JOIN order_items oi ON oi.product_id = p.id
-        WHERE p.is_active = true
-        GROUP BY p.id
-        ORDER BY COALESCE(SUM(oi.quantity), 0) DESC, p.created_at DESC
-        LIMIT :limit
-        """, nativeQuery = true)
-    List<Product> findBestSellersOverall(@Param("limit") int limit);
 
-    // ✅ Sản phẩm mới nhất toàn shop
+    Page<Product> findByCategory_CategoryNameAndActiveTrue(String categoryName, Pageable pageable);
+
+    //Product
+    //FindByProductName
+    Page<Product> findByNameContainingIgnoreCaseAndActiveTrue(String name, Pageable pageable);
+
+
     @Query(value = """
-        SELECT p.*
-        FROM products p
-        WHERE p.is_active = true
-        ORDER BY p.created_at DESC
-        LIMIT :limit
-        """, nativeQuery = true)
-    List<Product> findTopByNewest(@Param("limit") int limit);
+    SELECT p.*
+    FROM products p
+    LEFT JOIN order_items oi ON oi.product_id = p.id
+    WHERE p.is_active = true
+    GROUP BY p.id
+    ORDER BY COALESCE(SUM(oi.quantity), 0) DESC, p.created_at DESC
+    """, nativeQuery = true)
+    Page<Product> findBestSellersOverall(Pageable pageable);
+
+    @Query(value = """
+    SELECT p.*
+    FROM products p
+    WHERE p.is_active = true
+    ORDER BY p.created_at DESC
+    """, nativeQuery = true)
+    Page<Product> findTopByNewest(Pageable pageable);
+
+
+    Page<Product> findAllByActiveTrue(Pageable pageable);
 }

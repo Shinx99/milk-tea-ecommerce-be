@@ -1,7 +1,7 @@
-package com.asm.ecommerce.home.mapper;
+package com.asm.ecommerce.product.mapper;
 
 import com.asm.ecommerce.product.domain.Product;
-import com.asm.ecommerce.home.dto.response.HomeProductResponse;
+import com.asm.ecommerce.product.dto.response.HomeProductResponse;
 import org.springframework.stereotype.Component;
 
 @Component
