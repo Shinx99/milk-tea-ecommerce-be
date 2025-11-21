@@ -4,41 +4,41 @@
 
 -- Add your SQL statements below:
 
--- Grandfather: Tra sua
+-- Grandfather: Trà sữa
 insert into categories (parent_id, category_name, sort_order, is_active)
-select null, 'Tra sua', 10, true
+select null, 'Trà sữa', 10, true
 where not exists(
-    select 1 from categories where parent_id is null and lower(category_name) = lower('Tra sua')
+    select 1 from categories where parent_id is null and lower(category_name) = lower('Trà sữa')
 );
 
--- Child: Size, Da, Duong
+-- Child: Size, Đá, Đường
 -- Size
 insert into categories (parent_id, category_name, sort_order, is_active)
-    select (select id from categories where parent_id is null and lower(category_name)=lower('Tra sua')),
+    select (select id from categories where parent_id is null and lower(category_name)=lower('Trà sữa')),
     'Size', 1, true
 where not exists(
     select 1 from categories
     where lower(category_name)=lower('Size') and
-    parent_id = (select id from categories where parent_id is null and lower(category_name)=lower('Tra sua'))
+    parent_id = (select id from categories where parent_id is null and lower(category_name)=lower('Trà sữa'))
 );
 
--- Da
+-- Đá
 insert into categories (parent_id, category_name, sort_order, is_active)
-    select (select id from categories where parent_id is null and lower(category_name)=lower('Tra sua')),
-    'Da', 2, true
+    select (select id from categories where parent_id is null and lower(category_name)=lower('Trà sữa')),
+    'Đá', 2, true
 where not exists(
 select 1 from categories
-where lower(category_name)=lower('Da') and
-parent_id = (select id from categories where parent_id is null and lower(category_name) = lower('Tra sua')));
+where lower(category_name)=lower('Đá') and
+parent_id = (select id from categories where parent_id is null and lower(category_name) = lower('Trà sữa')));
 
--- Duong
+-- Đường
 insert into categories (parent_id, category_name, sort_order, is_active)
-    select (select id from categories where parent_id is null and lower(category_name)=lower('Tra sua')),
-    'Duong', 3, true
+    select (select id from categories where parent_id is null and lower(category_name)=lower('Trà sữa')),
+    'Đường', 3, true
 where not exists(
     select 1 from categories
-    where lower(category_name)=lower('Duong') and
-    parent_id = (select id from categories where parent_id is null and lower(category_name)=lower('Tra sua'))
+    where lower(category_name)=lower('Đường') and
+    parent_id = (select id from categories where parent_id is null and lower(category_name)=lower('Trà sữa'))
 );
 
 
@@ -61,7 +61,7 @@ where not exists(
     parent_id = (select id from categories where lower(category_name)=lower('Size'))
 );
 
---XL
+-- XL
 insert into categories(parent_id, category_name, sort_order, is_active)
 select (select id from categories where lower(category_name)=lower('Size')),
 'XL', 3, true
@@ -70,69 +70,69 @@ where not exists(
     parent_id = (select id from categories where lower(category_name)=lower('Size'))
 );
 
--- GrandChild of Da
--- Nhieu da
+-- GrandChild of Đá
+-- Nhiều đá
 insert into categories(parent_id, category_name, sort_order, is_active)
-select (select id from categories where lower(category_name)=lower('Da')),
-'Nhieu da', 1, true
+select (select id from categories where lower(category_name)=lower('Đá')),
+'Nhiều đá', 1, true
 where not exists(
-    select 1 from categories where lower(category_name)=lower('Nhieu da') and
-    parent_id = (select id from categories where lower(category_name)=lower('Da'))
+    select 1 from categories where lower(category_name)=lower('Nhiều đá') and
+    parent_id = (select id from categories where lower(category_name)=lower('Đá'))
 );
 
--- It da
+-- Ít đá
 insert into categories(parent_id, category_name, sort_order, is_active)
-select (select id from categories where lower(category_name)=lower('Da')),
-'It da', 2, true
+select (select id from categories where lower(category_name)=lower('Đá')),
+'Ít đá', 2, true
 where not exists(
-    select 1 from categories where lower(category_name)=lower('It da') and
-    parent_id = (select id from categories where lower(category_name)=lower('Da'))
+    select 1 from categories where lower(category_name)=lower('Ít đá') and
+    parent_id = (select id from categories where lower(category_name)=lower('Đá'))
 );
 
--- Khong da
+-- Không đá
 insert into categories(parent_id, category_name, sort_order, is_active)
-select (select id from categories where lower(category_name)=lower('Da')),
-'Khong da', 3, true
+select (select id from categories where lower(category_name)=lower('Đá')),
+'Không đá', 3, true
 where not exists(
-    select 1 from categories where lower(category_name)=lower('Khong da') and
-    parent_id = (select id from categories where lower(category_name)=lower('Da'))
+    select 1 from categories where lower(category_name)=lower('Không đá') and
+    parent_id = (select id from categories where lower(category_name)=lower('Đá'))
 );
 
--- GrandChild of Duong
--- Nhieu duong
+-- GrandChild of Đường
+-- Nhiều đường
 insert into categories(parent_id, category_name, sort_order, is_active)
-select (select id from categories where lower(category_name)=lower('Duong')),
-'Nhieu duong', 1, true
+select (select id from categories where lower(category_name)=lower('Đường')),
+'Nhiều đường', 1, true
 where not exists(
-    select 1 from categories where lower(category_name)=lower('Nhieu Duong') and
-    parent_id = (select id from categories where lower(category_name)=lower('Duong'))
+    select 1 from categories where lower(category_name)=lower('Nhiều đường') and
+    parent_id = (select id from categories where lower(category_name)=lower('Đường'))
 );
 
--- Trung binh
+-- Trung bình
 insert into categories(parent_id, category_name, sort_order, is_active)
-select (select id from categories where lower(category_name)=lower('Duong')),
-'Trung binh', 2, true
+select (select id from categories where lower(category_name)=lower('Đường')),
+'Trung bình', 2, true
 where not exists(
-    select 1 from categories where lower(category_name)=lower('Trung binh') and
-    parent_id = (select id from categories where lower(category_name)=lower('Duong'))
+    select 1 from categories where lower(category_name)=lower('Trung bình') and
+    parent_id = (select id from categories where lower(category_name)=lower('Đường'))
 );
 
--- It duong
+-- Ít đường
 insert into categories(parent_id, category_name, sort_order, is_active)
-select (select id from categories where lower(category_name)=lower('Duong')),
-'It duong', 3, true
+select (select id from categories where lower(category_name)=lower('Đường')),
+'Ít đường', 3, true
 where not exists(
-    select 1 from categories where lower(category_name)=lower('It duong') and
-    parent_id = (select id from categories where lower(category_name)=lower('Duong'))
+    select 1 from categories where lower(category_name)=lower('Ít đường') and
+    parent_id = (select id from categories where lower(category_name)=lower('Đường'))
 );
 
--- Khong duong
+-- Không đường
 insert into categories(parent_id, category_name, sort_order, is_active)
-select (select id from categories where lower(category_name)=lower('Duong')),
-'Khong duong', 4, true
+select (select id from categories where lower(category_name)=lower('Đường')),
+'Không đường', 4, true
 where not exists(
-    select 1 from categories where lower(category_name)=lower('Khong duong') and
-    parent_id = (select id from categories where lower(category_name)=lower('Duong'))
+    select 1 from categories where lower(category_name)=lower('Không đường') and
+    parent_id = (select id from categories where lower(category_name)=lower('Đường'))
 );
 
 
