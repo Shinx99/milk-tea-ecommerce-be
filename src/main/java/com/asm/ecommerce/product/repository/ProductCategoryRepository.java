@@ -11,4 +11,6 @@ import java.util.UUID;
 
 public interface ProductCategoryRepository extends JpaRepository<ProductCategory, UUID> {
     List<ProductCategory> findAllByParentNull();
+
+    List<ProductCategory> findAllByActiveTrue();
 }

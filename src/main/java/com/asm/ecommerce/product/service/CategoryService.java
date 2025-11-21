@@ -118,4 +118,6 @@ public interface CategoryService {
 //    }
 
     ApiResponse<List<CategoryResponse>> loadCategoryForCombobox();
+
+    ApiResponse<List<CategoryResponse>> loadCategoryForDetail();
 }

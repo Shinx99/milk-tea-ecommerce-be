@@ -27,4 +27,16 @@ public class CategoryServiceImpl implements CategoryService{
                 .data(dto)
                 .build();
     }
+
+    public ApiResponse<List<CategoryResponse>> loadCategoryForDetail(){
+        List<ProductCategory> categories = repo.findAllByActiveTrue();
+
+        List<CategoryResponse> dto = CategoryMapper.toResponse(categories);
+
+        return ApiResponse.<List<CategoryResponse>>builder()
+                .success(true)
+                .message("Category for Product Detail retrieved successfully!")
+                .data(dto)
+                .build();
+    }
 }

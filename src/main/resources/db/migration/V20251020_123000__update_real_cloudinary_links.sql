@@ -13,64 +13,48 @@
 
 BEGIN;
 
--- 🧋 Classic Milk Tea
 UPDATE images
 SET secure_url = 'https://res.cloudinary.com/drri2uxvy/image/upload/v1760866451/tra-sua-matcha_vrbgkk.jpg'
-WHERE public_id = 'menu/classic_milk_tea';
+WHERE public_id = 'menu/che_buoi';
 
--- 🌸 Jasmine Milk Tea
 UPDATE images
 SET secure_url = 'https://res.cloudinary.com/drri2uxvy/image/upload/v1760866451/tra-sua-matcha_vrbgkk.jpg'
-WHERE public_id = 'menu/jasmine_milk_tea';
+WHERE public_id = 'menu/che_dau_den';
 
--- 🍃 Oolong Milk Tea
 UPDATE images
 SET secure_url = 'https://res.cloudinary.com/drri2uxvy/image/upload/v1760866449/hong-tra-sua_kcndu4.jpg'
-WHERE public_id = 'menu/oolong_milk_tea';
+WHERE public_id = 'menu/che_dau_do';
 
--- 🍯 Brown Sugar Milk Tea
 UPDATE images
 SET secure_url = 'https://res.cloudinary.com/drri2uxvy/image/upload/v1760866450/tra-dao-cam-sa_rz9w3f.jpg'
-WHERE public_id = 'menu/brown_sugar_milk_tea';
+WHERE public_id = 'menu/che_dau_xanh';
 
--- 🥛 Brown Sugar Fresh Milk
 UPDATE images
 SET secure_url = 'https://res.cloudinary.com/drri2uxvy/image/upload/v1760866452/tra-vai_vebbfh.jpg'
-WHERE public_id = 'menu/brown_sugar_fresh_milk';
+WHERE public_id = 'menu/che_dau_xanh_nuoc_cot_dua';
 
--- 🧋 Brown Sugar Pearl Milk Tea
 UPDATE images
 SET secure_url = 'https://res.cloudinary.com/drri2uxvy/image/upload/v1760866449/hong-tra-sua_kcndu4.jpg'
-WHERE public_id = 'menu/brown_sugar_pearl_milk_tea';
+WHERE public_id = 'menu/che_dau_do_nuoc_cot_dua';
 
--- 🧀 Cheese Foam Green Tea
 UPDATE images
 SET secure_url = 'https://res.cloudinary.com/drri2uxvy/image/upload/v1760866451/tra-sua-matcha_vrbgkk.jpg'
-WHERE public_id = 'menu/cheese_foam_green_tea';
+WHERE public_id = 'menu/tra_bap_kem_cheese';
 
 -- 🧀 Cheese Foam Black Tea
 UPDATE images
 SET secure_url = 'https://res.cloudinary.com/drri2uxvy/image/upload/v1760866452/tra-vai_vebbfh.jpg'
-WHERE public_id = 'menu/cheese_foam_black_tea';
+WHERE public_id = 'menu/hong_tra_kem_cheese';
 
 -- 🍑 Peach Tea
 UPDATE images
 SET secure_url = 'https://res.cloudinary.com/drri2uxvy/image/upload/v1760881121/f5d56406-a0cf-4f62-9f94-20072cf703a6.png'
-WHERE public_id = 'menu/peach_tea';
+WHERE public_id = 'menu/tra_dao';
 
 -- 🍇 Lychee Tea
 UPDATE images
 SET secure_url = 'https://res.cloudinary.com/drri2uxvy/image/upload/v1760881206/9df47813-8589-463b-8f56-87e7a9970acb.png'
-WHERE public_id = 'menu/lychee_tea';
-
--- 🧋 Các ảnh góc phụ (side view) nếu có
-UPDATE images
-SET secure_url = 'https://res.cloudinary.com/drri2uxvy/image/upload/v1760881236/a5ed86b5-df2c-4b0f-99fa-066c270565c3.png'
-WHERE public_id = 'menu/classic_milk_tea_side';
-
-UPDATE images
-SET secure_url = 'https://res.cloudinary.com/drri2uxvy/image/upload/v1760881272/1e164150-79e1-48cd-9a3b-62938f1e6056.png'
-WHERE public_id = 'menu/brown_sugar_milk_tea_side';
+WHERE public_id = 'menu/tra_vai';
 
 COMMIT;
 

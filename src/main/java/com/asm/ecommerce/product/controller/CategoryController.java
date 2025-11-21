@@ -52,10 +52,20 @@ public class CategoryController {
 //        return ResponseEntity.noContent().build(); // 204 No Content
 //    }
 
+    // url: .../api/categories
     @GetMapping
     public ResponseEntity<ApiResponse<List<CategoryResponse>>> loadCategoryForCombobox(){
         ApiResponse<List<CategoryResponse>> response = service.loadCategoryForCombobox();
 
         return ResponseEntity.ok(response);
     }
+
+    // url: .../api/categories/productdetail
+    @GetMapping("/productdetail")
+    public ResponseEntity<ApiResponse<List<CategoryResponse>>> loadCategoryForProductDetail(){
+        ApiResponse<List<CategoryResponse>> response = service.loadCategoryForDetail();
+        return ResponseEntity.ok(response);
+    }
+
+
 }
