@@ -43,6 +43,7 @@ public class ProductController {
         return ResponseEntity.ok(response);
     }
 
+    //Ham fetch product len trang chu + day qua detail
     @GetMapping("/active")
     public ResponseEntity<ApiResponse<PageResponse<ProductResponse>>> findAllByActivetrue(
             @RequestParam(defaultValue = "0") int page,
@@ -130,7 +131,5 @@ public class ProductController {
         service.delete(id);
         return ResponseEntity.noContent().build();                 // 204 No Content
     }
-
-
 }
 

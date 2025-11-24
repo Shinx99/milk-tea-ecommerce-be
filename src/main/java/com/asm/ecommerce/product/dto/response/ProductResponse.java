@@ -1,5 +1,6 @@
 package com.asm.ecommerce.product.dto.response;
 
+import com.asm.ecommerce.product.domain.ProductCategory;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -7,6 +8,7 @@ import lombok.NoArgsConstructor;
 
 import java.math.BigDecimal;
 import java.time.OffsetDateTime;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 @Data
@@ -22,4 +24,10 @@ public class ProductResponse {
     private Boolean active;
     private BigDecimal price;
     private List<String> imageUrl;
+
+    // Day la cai list chua [Tra sua, Banh, Kem,...]
+    private CategoryResponse category;
+
+    // Đây là cái list chứa [Size, Đá, Đường...]
+    private List<OptionGroupDTO> options;
 }

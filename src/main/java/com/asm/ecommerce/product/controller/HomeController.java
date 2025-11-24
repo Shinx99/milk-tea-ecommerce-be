@@ -2,6 +2,7 @@
 package com.asm.ecommerce.product.controller;
 
 import com.asm.ecommerce.product.dto.response.HomeProductResponse;
+import com.asm.ecommerce.product.dto.response.ProductResponse;
 import com.asm.ecommerce.product.service.HomeService;
 import com.asm.ecommerce.shared.dto.ApiResponse;
 import com.asm.ecommerce.shared.dto.PageResponse;
@@ -25,7 +26,7 @@ public class HomeController {
     private final HomeService homeService;
 
     @GetMapping("/best-sellers")
-    public ResponseEntity<ApiResponse<PageResponse<HomeProductResponse>>> getBestSellers(
+    public ResponseEntity<ApiResponse<PageResponse<ProductResponse>>> getBestSellers(
             @RequestParam(defaultValue = "0") int page,
             @RequestParam(defaultValue = "10") int size,
             @RequestParam(defaultValue = "createdAt") String sortBy,
@@ -33,13 +34,13 @@ public class HomeController {
 
         Sort.Direction sortDirection = direction.equalsIgnoreCase("DESC") ? Sort.Direction.DESC : Sort.Direction.ASC;
         Pageable pageable = PageRequest.of(page, size);
-        ApiResponse<PageResponse<HomeProductResponse>> response = homeService.getBestSellers(pageable);
+        ApiResponse<PageResponse<ProductResponse>> response = homeService.getBestSellers(pageable);
 
         return ResponseEntity.ok(response);
     }
 
     @GetMapping("/newest")
-    public ResponseEntity<ApiResponse<PageResponse<HomeProductResponse>>> getNewest(
+    public ResponseEntity<ApiResponse<PageResponse<ProductResponse>>> getNewest(
             @RequestParam(defaultValue = "0") int page,
             @RequestParam(defaultValue = "10") int size,
             @RequestParam(defaultValue = "createdAt") String sortBy,
@@ -47,7 +48,7 @@ public class HomeController {
 
         Sort.Direction sortDirection = direction.equalsIgnoreCase("DESC") ? Sort.Direction.DESC : Sort.Direction.ASC;
         Pageable pageable = PageRequest.of(page, size);
-        ApiResponse<PageResponse<HomeProductResponse>> response = homeService.getNewestProducts(pageable);
+        ApiResponse<PageResponse<ProductResponse>> response = homeService.getNewestProducts(pageable);
 
         return ResponseEntity.ok(response);
     }
