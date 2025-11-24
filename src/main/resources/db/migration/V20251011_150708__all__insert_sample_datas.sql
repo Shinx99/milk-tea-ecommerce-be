@@ -119,27 +119,6 @@ WHERE NOT EXISTS (
     SELECT 1 FROM categories WHERE parent_id IS NULL AND lower(category_name)=lower('Trà trái cây')
 );
 
--- =============================================
--- 4b) CATEGORIES (Danh mục con)
--- =============================================
-INSERT INTO categories (parent_id, category_name, sort_order, is_active)
-SELECT (SELECT id FROM categories WHERE parent_id IS NULL AND lower(category_name)=lower('Chè')),
-       'Chè Nóng', 1, true
-WHERE NOT EXISTS (
-    SELECT 1 FROM categories
-    WHERE lower(category_name)=lower('Chè Nóng')
-      AND parent_id = (SELECT id FROM categories WHERE parent_id IS NULL AND lower(category_name)=lower('Chè'))
-);
-
-INSERT INTO categories (parent_id, category_name, sort_order, is_active)
-SELECT (SELECT id FROM categories WHERE parent_id IS NULL AND lower(category_name)=lower('Chè')),
-       'Chè Lạnh', 2, true
-WHERE NOT EXISTS (
-    SELECT 1 FROM categories
-    WHERE lower(category_name)=lower('Chè Lạnh')
-      AND parent_id = (SELECT id FROM categories WHERE parent_id IS NULL AND lower(category_name)=lower('Chè'))
-);
-
 INSERT INTO categories (parent_id, category_name, sort_order, is_active)
 SELECT (SELECT id FROM categories WHERE parent_id IS NULL AND lower(category_name)=lower('Trà trái cây')),
        'Trà trái cây nhiệt đới', 1, true
