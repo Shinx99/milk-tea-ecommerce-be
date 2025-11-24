@@ -100,19 +100,27 @@ public class ProductServiceImpl implements ProductService {
                 .build();
     }
 
+    // Cho Product Details
     @Override
-    @Transactional(readOnly = true)
+    @Transactional(readOnly = true) // Giữ Transaction để Mapper load Lazy
     public ApiResponse<ProductResponse> findById(UUID id) {
-        Product p = repo.findById(id).orElseThrow(() -> new ResourceNotFoundException("Id not found"));
 
+        // BƯỚC 1: Tìm sản phẩm (Entity Graph đã fetch sẵn Category & Images rồi)
+        Product p = repo.findByIdAndActiveTrue(id)
+                .orElseThrow(() -> new ResourceNotFoundException("Id not found"));
+
+        // BƯỚC 2: Chỉ cần gọi Mapper thần thánh
+        // Mapper sẽ tự động chui vào rootCat -> children -> children... để map hết
         ProductResponse dto = ProductMapper.toResponse(p);
 
+        // BƯỚC 3: Trả về
         return ApiResponse.<ProductResponse>builder()
                 .success(true)
                 .message("Product retrieved successfully!")
                 .data(dto)
                 .build();
     }
+
 
     // Display for ADMIN
     @Transactional(readOnly = true)

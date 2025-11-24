@@ -6,9 +6,9 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import java.time.OffsetDateTime;
+import java.util.List; // Nhớ import List
 import java.util.UUID;
 
-// Ghi chú: DỮ LIỆU BE GỬI CHO FE
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
@@ -21,4 +21,8 @@ public class CategoryResponse {
     private Integer sortOrder;
     private OffsetDateTime createdAt;
     private OffsetDateTime updatedAt;
+
+    // --- ĐÂY LÀ DÒNG QUAN TRỌNG NHẤT BẠN CẦN THÊM ---
+    // Biến này dùng để chứa danh sách con của nó (Đệ quy)
+    private List<CategoryResponse> children;
 }
