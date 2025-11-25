@@ -1,20 +1,101 @@
 package com.asm.ecommerce.product.service;
 
 import com.asm.ecommerce.product.domain.ProductCategory;
+import com.asm.ecommerce.product.dto.request.CategoryRequest;
 import com.asm.ecommerce.product.dto.response.CategoryResponse;
 import com.asm.ecommerce.product.mapper.CategoryMapper;
 import com.asm.ecommerce.product.repository.ProductCategoryRepository;
 import com.asm.ecommerce.shared.dto.ApiResponse;
+import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.Optional;
+import java.util.UUID;
 
 @Service
 @RequiredArgsConstructor
 public class CategoryServiceImpl implements CategoryService{
 
     private final ProductCategoryRepository repo;
+
+        //     TÌM KIẾM CATEGORYTHEO ID
+    private ProductCategory findCategoryById(UUID id)   {
+        return repo.findById(id).orElseThrow(() ->
+                new RuntimeException("Category not found with id " + id));
+    }
+
+        //     TÌM VÀ KIỂM TRA PARENT CATEGORY
+    private ProductCategory getParentCategory(UUID parentId){
+        if(parentId == null){
+            return null;
+        }else {
+            return findCategoryById(parentId);
+        }
+    }
+
+        //      KIỂM TRA TRÙNG LẶP VỚI DỰA CẤP CHA
+    private Optional<ProductCategory> findDuplicateCategory(String name, UUID parentId){
+        if (parentId == null){
+            return repo.findByCategoryNameAndParentIsNull(name);
+        }else {
+            return  repo.findByCategoryNameAndParentId(name,parentId);
+        }
+    }
+
+    // CREATE
+    @Override
+    public CategoryResponse createCategory(CategoryRequest request) {
+        ProductCategory parent = getParentCategory(request.getParentId());
+        Optional<ProductCategory> duplicate = findDuplicateCategory(request.getCategoryName(), request.getParentId());
+        if (duplicate.isPresent()) {
+            throw new RuntimeException("Category already exists");
+        }
+        ProductCategory newCategory = CategoryMapper.createEntity(request, parent);
+
+        return CategoryMapper.toResponse(repo.save(newCategory));
+    }
+    //  UPDATE
+    @Override
+    public CategoryResponse updateCategory(UUID id, CategoryRequest request) {
+        ProductCategory existingCategory = findCategoryById(id);
+        ProductCategory newParent = getParentCategory(request.getParentId());
+        if(newParent != null && newParent.getId().equals(id)){
+            throw new RuntimeException("A category cannot duplicate");
+        }
+        Optional<ProductCategory> duplicate = findDuplicateCategory(request.getCategoryName(), request.getParentId());
+        duplicate.ifPresent(c -> {
+            if (!c.getId().equals(id)) {
+                throw new RuntimeException("Error");
+            }
+        });
+        CategoryMapper.UpdateEntity(existingCategory, request, newParent);
+        return CategoryMapper.toResponse(repo.save(existingCategory));
+    }
+
+    @Override
+    public CategoryResponse getCategoryById(UUID id) {
+        ProductCategory category = findCategoryById(id);
+        return CategoryMapper.toResponse(category);
+    }
+
+
+    @Override
+    @Transactional
+    public void deleteCategoryById(UUID id) {
+        ProductCategory categoryToDelete = findCategoryById(id);
+
+        if (!categoryToDelete.getChildren().isEmpty()) {
+            throw new RuntimeException("Cannot delete category: It has " + categoryToDelete.getChildren().size() + " child categories.");
+        }
+        if (!categoryToDelete.getProducts().isEmpty()) {
+            throw new RuntimeException("Cannot delete category: It has " + categoryToDelete.getProducts().size() + " associated products.");
+        }
+
+        // Ghi chú: 3. Thực hiện xóa.
+        repo.delete(categoryToDelete);
+    }
 
     public ApiResponse<List<CategoryResponse>> loadCategoryForCombobox(){
         List<ProductCategory> categories = repo.findAllByParentNull();
@@ -39,4 +120,6 @@ public class CategoryServiceImpl implements CategoryService{
                 .data(dto)
                 .build();
     }
+
+
 }

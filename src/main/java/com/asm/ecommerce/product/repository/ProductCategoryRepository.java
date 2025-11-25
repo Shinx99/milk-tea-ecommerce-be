@@ -15,5 +15,9 @@ public interface ProductCategoryRepository extends JpaRepository<ProductCategory
     List<ProductCategory> findAllByParentNull();
 
     List<ProductCategory> findAllByActiveTrue();
+    // Kiểm tra không cho categoryName trùng tên UNIQUE
+    Optional<ProductCategory> findByCategoryNameAndParentIsNull(String name);
+    // Kiểm tra không cho categoryName vaf parent_id trùng nhau
+    Optional<ProductCategory> findByCategoryNameAndParentId(String name, UUID parentId);
 
 }
