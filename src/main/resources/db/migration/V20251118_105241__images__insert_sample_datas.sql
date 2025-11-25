@@ -38,7 +38,7 @@ INSERT INTO images
 (product_id, sort_order, is_primary, asset_id, public_id, resource_type, delivery_type, version, format, width, height, bytes, secure_url, alt_text)
 SELECT (SELECT id FROM products WHERE lower(name)=lower('Trà sữa Trân Châu Đường Đen')), 0, true,
        'mt16', 'menu/trasua_tranchauduongden', 'image', 'upload', 1700100016, 'jpg', 800, 800, 120000,
-       'https://res.cloudinary.com/drri2uxvy/image/upload/v1760867124/125d4407-d144-479f-94ee-8705202f1e3b.png', 'Trà sữa Trân Châu Đường Đen'
+       'https://res.cloudinary.com/drri2uxvy/image/upload/v1763737957/6589cc26-d797-46f7-939a-2797325ec36a.png', 'Trà sữa Trân Châu Đường Đen'
 WHERE NOT EXISTS (
     SELECT 1 FROM images WHERE public_id='menu/trasua_tranchauduongden' AND resource_type='image' AND delivery_type='upload'
 );
