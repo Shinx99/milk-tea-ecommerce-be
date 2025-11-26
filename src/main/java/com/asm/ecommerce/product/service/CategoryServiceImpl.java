@@ -100,7 +100,7 @@ public class CategoryServiceImpl implements CategoryService{
 
 
     public ApiResponse<List<CategoryResponse>> loadCategoryForCombobox(){
-        List<ProductCategory> categories = repo.findAllByParentNull();
+        List<ProductCategory> categories = repo.findAllByParentIsNullAndActiveTrue();
 
         List<CategoryResponse> dto = CategoryMapper.toResponse(categories);
 
