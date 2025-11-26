@@ -124,7 +124,7 @@ public class CategoryServiceImpl implements CategoryService{
     }
 
 
-    @Override // Ghi chú: Triển khai hàm getAllCategories() từ CategoryService
+    @Override
     public ApiResponse<List<CategoryResponse>> getAllCategories() {
         // Ghi chú: Sửa lỗi! Gọi hàm Repository đã định nghĩa (@Query) để lấy TẤT CẢ (active=true/false)
         List<ProductCategory> categories = repo.findAllForAdmin();
