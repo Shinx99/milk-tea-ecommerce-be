@@ -12,11 +12,14 @@ import java.util.Optional;
 import java.util.UUID;
 
 public interface ProductCategoryRepository extends JpaRepository<ProductCategory, UUID> {
-    List<ProductCategory> findAllByParentNull();
+
+    List<ProductCategory> findAllByParentIsNullAndActiveTrue();
 
     List<ProductCategory> findAllByActiveTrue();
+
     // Kiểm tra không cho categoryName trùng tên UNIQUE
     Optional<ProductCategory> findByCategoryNameAndParentIsNull(String name);
+
     // Kiểm tra không cho categoryName vaf parent_id trùng nhau
     Optional<ProductCategory> findByCategoryNameAndParentId(String name, UUID parentId);
 
