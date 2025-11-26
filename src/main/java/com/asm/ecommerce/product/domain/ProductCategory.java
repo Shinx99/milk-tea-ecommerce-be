@@ -4,6 +4,7 @@ import jakarta.persistence.*;
 import lombok.*;
 import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UpdateTimestamp;
+import org.hibernate.annotations.Where;
 
 import java.time.OffsetDateTime;
 import java.util.ArrayList;
@@ -14,6 +15,7 @@ import java.util.UUID;
 @Table(name = "categories")
 @Data
 @NoArgsConstructor @AllArgsConstructor @Builder
+@Where(clause = "is_active = true")
 public class ProductCategory {
 
     @Id

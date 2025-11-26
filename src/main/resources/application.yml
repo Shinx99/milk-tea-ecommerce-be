@@ -126,9 +126,9 @@ management:
         liveness:
           include: ${MANAGEMENT_ENDPOINT_HEALTH_GROUP_LIVENESS_INCLUDE:ping}
   # ⭐ Metrics export
-  metrics:
-    export:
-      simple:
+  simple:
+    metrics:
+      export:
         enabled: ${MANAGEMENT_METRICS_EXPORT_SIMPLE_ENABLED:true}
 
 logging:

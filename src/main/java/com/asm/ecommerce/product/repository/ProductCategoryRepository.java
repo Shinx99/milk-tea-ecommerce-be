@@ -20,4 +20,6 @@ public interface ProductCategoryRepository extends JpaRepository<ProductCategory
     // Kiểm tra không cho categoryName vaf parent_id trùng nhau
     Optional<ProductCategory> findByCategoryNameAndParentId(String name, UUID parentId);
 
+    @Query(value = "SELECT c FROM ProductCategory c")
+    List<ProductCategory> findAllForAdmin();
 }

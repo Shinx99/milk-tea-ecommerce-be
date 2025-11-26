@@ -92,10 +92,12 @@ public class CategoryServiceImpl implements CategoryService{
         if (!categoryToDelete.getProducts().isEmpty()) {
             throw new RuntimeException("Cannot delete category: It has " + categoryToDelete.getProducts().size() + " associated products.");
         }
-
-        // Ghi chú: 3. Thực hiện xóa.
-        repo.delete(categoryToDelete);
+        categoryToDelete.setActive(false);
+        repo.save(categoryToDelete);
     }
+
+
+
 
     public ApiResponse<List<CategoryResponse>> loadCategoryForCombobox(){
         List<ProductCategory> categories = repo.findAllByParentNull();
@@ -117,6 +119,21 @@ public class CategoryServiceImpl implements CategoryService{
         return ApiResponse.<List<CategoryResponse>>builder()
                 .success(true)
                 .message("Category for Product Detail retrieved successfully!")
+                .data(dto)
+                .build();
+    }
+
+
+    @Override // Ghi chú: Triển khai hàm getAllCategories() từ CategoryService
+    public ApiResponse<List<CategoryResponse>> getAllCategories() {
+        // Ghi chú: Sửa lỗi! Gọi hàm Repository đã định nghĩa (@Query) để lấy TẤT CẢ (active=true/false)
+        List<ProductCategory> categories = repo.findAllForAdmin();
+
+        List<CategoryResponse> dto = CategoryMapper.toResponse(categories);
+
+        return ApiResponse.<List<CategoryResponse>>builder()
+                .success(true)
+                .message("All categories retrieved for Admin Panel.")
                 .data(dto)
                 .build();
     }
