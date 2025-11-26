@@ -25,15 +25,24 @@ public interface ProductRepository extends JpaRepository<Product, UUID> {
 """)
     Page<Product> findByCategoryId(@Param("categoryId") UUID categoryId, Pageable pageable);
 
-    @EntityGraph(attributePaths = {"category", "images"})
-    Page<Product> findByCategory_CategoryNameAndActiveTrue(String categoryName, Pageable pageable);
 
+    //Find By CategoryIdExceptItself
     @EntityGraph(attributePaths = {"category", "images"})
-    Page<Product> findByNameContainingIgnoreCaseAndActiveTrue(String name, Pageable pageable);
+    Page<Product> findByCategory_IdAndIdNot(UUID categoryId, UUID excludeId, Pageable pageable);
 
+
+    //load Product + findByName + findByCategory
+    @EntityGraph(attributePaths = {"category", "images"})
+    @Query("SELECT p FROM Product p WHERE p.active = true " +
+            "AND (:name IS NULL OR :name = '' OR lower(p.name) LIKE lower(concat('%', :name, '%'))) " +
+            "AND (:categoryName IS NULL OR :categoryName = '' OR p.category.categoryName = :categoryName)")
+    Page<Product> searchProducts(
+            @Param("name") String name,
+            @Param("categoryName") String categoryName,
+            Pageable pageable
+    );
 
     // 1. Hàm tìm ID sản phẩm bán chạy (SQL thuần)
-    // Trả về List<UUID> thay vì Page<Product> để nhẹ gánh
     @Query(value = """
         SELECT p.id
         FROM products p
@@ -65,9 +74,6 @@ public interface ProductRepository extends JpaRepository<Product, UUID> {
     @EntityGraph(attributePaths = {"category", "images"})
     Optional<Product> findByIdAndActiveTrue(UUID id);
 
-    //Product
-    //FindByProductName
-    // Nó báo cho Hibernate: "Khi chạy hàm dưới, hãy JOIN luôn bảng category và images vào ngay lập tức"
-    @EntityGraph(attributePaths = {"category", "images"})
-    Page<Product> findAllByActiveTrue(Pageable pageable);
+
+
 }
