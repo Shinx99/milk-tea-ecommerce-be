@@ -11,9 +11,8 @@ import java.util.UUID;
 
 public interface ProductService {
 
-    ApiResponse<PageResponse<ProductResponse>> searchProductsByName(String name, Pageable pageable);
-
-    ApiResponse<PageResponse<ProductResponse>> findByProductCategoryName(String categoryName, Pageable pageable);
+    @Transactional(readOnly = true)
+    ApiResponse<PageResponse<ProductResponse>> findAllByActiveTrueAndFilter(String keyword, String categoryName, Pageable pageable);
 
     @Transactional(readOnly = true)
     ApiResponse<PageResponse<ProductResponse>> findByProductCategoryId(UUID categoryId, Pageable pageable);
@@ -24,10 +23,12 @@ public interface ProductService {
     @Transactional(readOnly = true)
     ApiResponse<PageResponse<ProductResponse>> findAll(Pageable pageable);
 
-    @Transactional(readOnly = true)
-    ApiResponse<PageResponse<ProductResponse>> findAllByActiveTrue(Pageable pageable);
+    //Cho method relatedProduct
+    @Transactional
+    ApiResponse<PageResponse<ProductResponse>> findByCategoryIdAndIdNot(UUID excludeId, Pageable pageable);
 
     ProductResponse create(ProductRequest request);
+
     ProductResponse update(UUID id, ProductRequest request);
     void delete(UUID id);
 

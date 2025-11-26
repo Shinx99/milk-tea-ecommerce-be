@@ -43,47 +43,21 @@ public class ProductController {
         return ResponseEntity.ok(response);
     }
 
-    //Ham fetch product len trang chu + day qua detail
+    //Ham fetch product len trang Product + findByName + findByCategory
     @GetMapping("/active")
-    public ResponseEntity<ApiResponse<PageResponse<ProductResponse>>> findAllByActivetrue(
+    public ResponseEntity<ApiResponse<PageResponse<ProductResponse>>> findAllByActiveTrue(
             @RequestParam(defaultValue = "0") int page,
-            @RequestParam(defaultValue = "10") int size,
+            @RequestParam(defaultValue = "8") int size,
             @RequestParam(defaultValue = "createdAt") String sortBy,
-            @RequestParam(defaultValue = "DESC") String direction) {
+            @RequestParam(defaultValue = "DESC") String direction,
+            @RequestParam(required = false) String keyword,
+            @RequestParam(required = false) String category
+            ) {
 
         Sort.Direction sortDirection = direction.equalsIgnoreCase("DESC") ? Sort.Direction.DESC : Sort.Direction.ASC;
         Pageable pageable = PageRequest.of(page, size, Sort.by(sortDirection, sortBy));
-        ApiResponse<PageResponse<ProductResponse>> response = service.findAllByActiveTrue(pageable);
-        return ResponseEntity.ok(response);
-    }
 
-    // Find by category name
-    @GetMapping("/by-category-name")
-    public ResponseEntity<ApiResponse<PageResponse<ProductResponse>>> findByCategoryName(
-            @RequestParam("name") String categoryName,
-            @RequestParam(defaultValue = "0") int page,
-            @RequestParam(defaultValue = "10") int size,
-            @RequestParam(defaultValue = "createdAt") String sortBy,
-            @RequestParam(defaultValue = "DESC") String direction) {
-
-        Sort.Direction sortDirection = direction.equalsIgnoreCase("DESC") ? Sort.Direction.DESC : Sort.Direction.ASC;
-        Pageable pageable = PageRequest.of(page,size,Sort.by(sortDirection, sortBy));
-        ApiResponse<PageResponse<ProductResponse>> response = service.findByProductCategoryName(categoryName, pageable);
-        return ResponseEntity.ok(response);
-    }
-
-    // Search by Product Name
-    @GetMapping("/search")
-    public ResponseEntity<ApiResponse<PageResponse<ProductResponse>>> searchProducts(
-            @RequestParam("name") String name,
-            @RequestParam(defaultValue = "0") int page,
-            @RequestParam(defaultValue = "10") int size,
-            @RequestParam(defaultValue = "createdAt") String sortBy,
-            @RequestParam(defaultValue = "DESC") String direction) {
-
-        Sort.Direction sortDirection = direction.equalsIgnoreCase("DESC") ? Sort.Direction.DESC : Sort.Direction.ASC;
-        Pageable pageable = PageRequest.of(page,size,Sort.by(sortDirection, sortBy));
-        ApiResponse<PageResponse<ProductResponse>> response = service.searchProductsByName(name, pageable);
+        ApiResponse<PageResponse<ProductResponse>> response = service.findAllByActiveTrueAndFilter(keyword, category, pageable);
         return ResponseEntity.ok(response);
     }
 
@@ -106,6 +80,22 @@ public class ProductController {
     @GetMapping("/detail/{id}")
     public ResponseEntity<ApiResponse<ProductResponse>> findOne(@PathVariable UUID id) {
         ApiResponse<ProductResponse> response = service.findById(id);
+        return ResponseEntity.ok(response);
+    }
+
+    //Cho relate product
+    @GetMapping("/relate/{id}")
+    public ResponseEntity<ApiResponse<PageResponse<ProductResponse>>> findRelateProduct(
+            @PathVariable("id") UUID id,
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "10") int size,
+            @RequestParam(defaultValue = "createdAt") String sortBy,
+            @RequestParam(defaultValue = "DESC") String direction)
+    {
+        Sort.Direction sortDirection = direction.equalsIgnoreCase("DESC") ? Sort.Direction.DESC : Sort.Direction.ASC;
+        Pageable pageable = PageRequest.of(page, size, Sort.by(sortDirection, sortBy));
+
+        ApiResponse<PageResponse<ProductResponse>> response = service.findByCategoryIdAndIdNot(id, pageable);
         return ResponseEntity.ok(response);
     }
 

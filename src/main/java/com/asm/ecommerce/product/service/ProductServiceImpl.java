@@ -4,7 +4,6 @@ import com.asm.ecommerce.product.domain.Image;
 import com.asm.ecommerce.product.domain.Product;
 import com.asm.ecommerce.product.domain.ProductCategory;
 import com.asm.ecommerce.product.dto.request.ProductRequest;
-import com.asm.ecommerce.product.dto.response.CategoryResponse;
 import com.asm.ecommerce.product.dto.response.ProductResponse;
 import com.asm.ecommerce.product.mapper.ProductMapper;
 import com.asm.ecommerce.product.repository.ProductCategoryRepository;
@@ -29,12 +28,12 @@ public class ProductServiceImpl implements ProductService {
     private final ProductRepository repo;
     private final ProductCategoryRepository categoryRepo;
 
-    // Method: Search
-
+    // Method: Hien thi cho ca trang Product
+    //Display for Both Customer and Admin
     @Transactional(readOnly = true)
     @Override
-    public ApiResponse<PageResponse<ProductResponse>> searchProductsByName(String name, Pageable pageable) {
-        Page<Product> products = repo.findByNameContainingIgnoreCaseAndActiveTrue(name, pageable);
+    public ApiResponse<PageResponse<ProductResponse>> findAllByActiveTrueAndFilter(String keyword, String categoryName, Pageable pageable) {
+        Page<Product> products = repo.searchProducts(keyword, categoryName, pageable);
 
         PageResponse<ProductResponse> pageResponse = PageResponse.<ProductResponse>builder()
                 .content(products.getContent().stream()
@@ -54,28 +53,7 @@ public class ProductServiceImpl implements ProductService {
                 .build();
     }
 
-    @Transactional(readOnly = true)
-    @Override
-    public ApiResponse<PageResponse<ProductResponse>> findByProductCategoryName(String categoryName, Pageable pageable) {
-        Page<Product> products = repo.findByCategory_CategoryNameAndActiveTrue(categoryName, pageable);
 
-        PageResponse<ProductResponse> pageResponse = PageResponse.<ProductResponse>builder()
-                .content(products.getContent().stream()
-                        .map(ProductMapper::toResponse)
-                        .toList())
-                .pageNumber(products.getNumber())
-                .pageSize(products.getSize())
-                .totalPages(products.getTotalPages())
-                .totalElements(products.getTotalElements())
-                .last(products.isLast())
-                .build();
-
-        return ApiResponse.<PageResponse<ProductResponse>>builder()
-                .success(true)
-                .message("Products retrieved successfully!")
-                .data(pageResponse)
-                .build();
-    }
 
     @Transactional(readOnly = true)
     @Override
@@ -146,11 +124,16 @@ public class ProductServiceImpl implements ProductService {
                 .build();
     }
 
-    //Display for Both Customer and Admin
+
+    //Cho method relatedProduct
     @Transactional(readOnly = true)
     @Override
-    public ApiResponse<PageResponse<ProductResponse>> findAllByActiveTrue(Pageable pageable) {
-        Page<Product> products = repo.findAllByActiveTrue(pageable);
+    public ApiResponse<PageResponse<ProductResponse>> findByCategoryIdAndIdNot(UUID id, Pageable pageable){
+
+        Product current = repo.findByIdAndActiveTrue(id).orElseThrow(() -> new ResourceNotFoundException("Id not found"));
+        UUID categoryId = current.getCategory().getId();
+
+        Page<Product> products = repo.findByCategory_IdAndIdNot(categoryId, id, pageable);
 
         PageResponse<ProductResponse> pageResponse = PageResponse.<ProductResponse>builder()
                 .content(products.getContent().stream()
@@ -200,6 +183,7 @@ public class ProductServiceImpl implements ProductService {
         Product savedProduct = repo.save(entity);
         return ProductMapper.toResponse(savedProduct);
     }
+
 
     // --- PHƯƠNG THỨC UPDATE (Đã đồng bộ imageUrl và xử lý publicId) ---
 
