@@ -30,4 +30,17 @@ public class ProductResponse {
 
     // Đây là cái list chứa [Size, Đá, Đường...]
     private List<OptionGroupDTO> options;
+
+    //todo: ====== Cart ========
+    public String getPrimaryImage(){
+        return (imageUrl != null && !imageUrl.isEmpty()) ? imageUrl.get(0) : null;
+    }
+
+    public Boolean isInStock(){
+        return quantity != null && quantity >0;
+    }
+
+    public Boolean  isLowStock(){
+        return quantity != null && quantity > 0 && quantity < 10;
+    }
 }

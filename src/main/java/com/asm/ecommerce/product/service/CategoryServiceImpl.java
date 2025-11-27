@@ -138,5 +138,13 @@ public class CategoryServiceImpl implements CategoryService{
                 .build();
     }
 
+    //todo: ============= Cart ===================
+    @Override
+    public String getCategoryNameById(UUID categoryId) {
+        ProductCategory category = repo.findById(categoryId)
+                .orElse(null);
+        return category != null ? category.getCategoryName() : null;
+    }
+
 
 }

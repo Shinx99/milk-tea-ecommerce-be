@@ -7,6 +7,7 @@ import com.asm.ecommerce.shared.dto.PageResponse;
 import org.springframework.data.domain.Pageable;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.List;
 import java.util.UUID;
 
 public interface ProductService {
@@ -31,6 +32,11 @@ public interface ProductService {
 
     ProductResponse update(UUID id, ProductRequest request);
     void delete(UUID id);
+
+    //todo: === Cart =====
+    List<ProductResponse> searchProductsByName(String name);
+    ProductResponse getProductInfoForCart(UUID productId);
+
 
 
 }

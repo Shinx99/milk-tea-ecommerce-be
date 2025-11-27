@@ -6,12 +6,14 @@ import com.asm.ecommerce.product.domain.ProductCategory;
 import com.asm.ecommerce.product.dto.request.ProductRequest;
 import com.asm.ecommerce.product.dto.response.ProductResponse;
 import com.asm.ecommerce.product.mapper.ProductMapper;
+import com.asm.ecommerce.product.mapper.ProductMapperForCart;
 import com.asm.ecommerce.product.repository.ProductCategoryRepository;
 import com.asm.ecommerce.product.repository.ProductRepository;
 import com.asm.ecommerce.shared.dto.ApiResponse;
 import com.asm.ecommerce.shared.dto.PageResponse;
 import com.asm.ecommerce.shared.exception.ResourceNotFoundException;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
@@ -21,12 +23,16 @@ import java.util.List;
 import java.util.UUID;
 import java.util.stream.Collectors;
 
+@Slf4j
 @Service
 @RequiredArgsConstructor
 public class ProductServiceImpl implements ProductService {
 
     private final ProductRepository repo;
     private final ProductCategoryRepository categoryRepo;
+
+    private final ProductMapperForCart productMapperForCart;
+
 
     // Method: Hien thi cho ca trang Product
     //Display for Both Customer and Admin
@@ -241,5 +247,25 @@ public class ProductServiceImpl implements ProductService {
             throw new ResourceNotFoundException("Product not found ");
         }
         repo.deleteById(id);
+    }
+
+    @Override
+    public List<ProductResponse> searchProductsByName(String name) {
+        return List.of();
+    }
+
+    //todo: ============= Cart ===================
+    @Override
+    @Transactional(readOnly = true)
+    public ProductResponse getProductInfoForCart(UUID productId) {
+        log.debug("Getting product by id: {}", productId);
+
+        //  Dùng query fetch images luôn
+        Product product = repo.findByIdWithImages(productId)
+                .orElseThrow(() -> new ResourceNotFoundException(
+                        "Product not found with id: " + productId
+                ));
+
+        return productMapperForCart.toDto(product);
     }
 }

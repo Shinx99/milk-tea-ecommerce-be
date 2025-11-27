@@ -74,6 +74,13 @@ public interface ProductRepository extends JpaRepository<Product, UUID> {
     @EntityGraph(attributePaths = {"category", "images"})
     Optional<Product> findByIdAndActiveTrue(UUID id);
 
+    /**
+     * Use for Cart
+     * Fetch product với images để tránh lazy loading
+     */
+    //todo: ===== Cart =======
+    @Query("SELECT p FROM Product p LEFT JOIN FETCH p.images WHERE p.id = :id")
+    Optional<Product> findByIdWithImages(@Param("id") UUID id);
 
 
 }
