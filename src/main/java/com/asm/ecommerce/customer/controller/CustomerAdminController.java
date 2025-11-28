@@ -35,10 +35,12 @@ public class CustomerAdminController {
     @GetMapping
     @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<ApiResponse<PageResponse<DisplayAdminCustomerResponse>>> listAll(
+            @RequestParam(required = false) String keyword,
             @RequestParam(defaultValue = "0") int page,
-            @RequestParam(defaultValue = "10") int size,
+            @RequestParam(defaultValue = "20") int size,
             @RequestParam(defaultValue = "createdAt") String sortby,
-            @RequestParam(defaultValue = "DESC") String direction){
+            @RequestParam(defaultValue = "DESC") String direction
+            ){
 
         // THÊM ĐOẠN DEBUG VÀO ĐÂY------------------------------------------------------------------
         Authentication auth = SecurityContextHolder.getContext().getAuthentication();
@@ -52,7 +54,7 @@ public class CustomerAdminController {
 
         Sort.Direction sortDirection = direction.equalsIgnoreCase("DESC") ? Sort.Direction.DESC : Sort.Direction.ASC;
         Pageable pageable = PageRequest.of(page, size, Sort.by(sortDirection, sortby));
-        ApiResponse<PageResponse<DisplayAdminCustomerResponse>> response =  service.displayAll(pageable);
+        ApiResponse<PageResponse<DisplayAdminCustomerResponse>> response =  service.displayAll(keyword, pageable);
         return ResponseEntity.ok(response);
     }
 

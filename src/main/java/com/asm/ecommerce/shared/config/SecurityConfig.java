@@ -96,6 +96,7 @@ public class SecurityConfig {
                         .requestMatchers(HttpMethod.GET, "/api/products/relate/**").permitAll()
 
                         .requestMatchers("/api/products/**").authenticated()
+                        .requestMatchers("/api/categories/admin").authenticated()
                         .requestMatchers("/api/categories/**").permitAll()
 
                         .requestMatchers("/api/home/**").permitAll()

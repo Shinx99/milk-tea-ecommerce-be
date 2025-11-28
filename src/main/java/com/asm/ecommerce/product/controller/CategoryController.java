@@ -4,10 +4,15 @@ import com.asm.ecommerce.product.dto.request.CategoryRequest;
 import com.asm.ecommerce.product.dto.response.CategoryResponse;
 import com.asm.ecommerce.product.service.CategoryService;
 import com.asm.ecommerce.shared.dto.ApiResponse;
+import com.asm.ecommerce.shared.dto.PageResponse;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -66,6 +71,23 @@ public class CategoryController {
     @GetMapping("/productdetail")
     public ResponseEntity<ApiResponse<List<CategoryResponse>>> loadCategoryForProductDetail(){
         ApiResponse<List<CategoryResponse>> response = service.loadCategoryForDetail();
+        return ResponseEntity.ok(response);
+    }
+
+
+    @GetMapping("/admin")
+    @PreAuthorize("hasRole('ADMIN')")
+    public ResponseEntity<ApiResponse<PageResponse<CategoryResponse>>> getAllCategoriesForAdmin(
+        @RequestParam(required = false) String keyword,
+        @RequestParam(defaultValue = "0") int page,
+        @RequestParam(defaultValue = "20") int size,
+        @RequestParam(defaultValue = "createdAt") String sortBy,
+        @RequestParam(defaultValue = "DESC") String direction
+    ){
+        Sort.Direction sortDirection = direction.equalsIgnoreCase("DESC") ? Sort.Direction.DESC : Sort.Direction.ASC;
+        Pageable pageable = PageRequest.of(page, size, Sort.by(sortDirection, sortBy));
+
+        ApiResponse<PageResponse<CategoryResponse>> response = service.getAllCategories(keyword, pageable);
         return ResponseEntity.ok(response);
     }
 

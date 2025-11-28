@@ -32,8 +32,21 @@ public interface CustomerRepository extends JpaRepository<Customer, UUID> {
 
     //--------------------------------CRUD------------------------------------------------
 
-    //Hien thi tat ca - READ
-    Page<Customer> findAll(Pageable pageable);
+    //Hien thi tat ca - READ + Search + Pagination
+    @Query("""
+       SELECT c FROM Customer c
+       WHERE c.active = true
+       AND (
+            :keyword IS NULL OR :keyword = '' 
+            OR lower(c.fullname) LIKE lower(concat('%', :keyword, '%'))
+            OR lower(c.phone)    LIKE lower(concat('%', :keyword, '%'))
+            OR lower(c.user.email)    LIKE lower(concat('%', :keyword, '%'))
+       )
+       """)
+    Page<Customer> findAll(@Param("keyword") String keyword, Pageable pageable);
+
+
+
 
     //Hien len danh sach customer con hoat dong - READ
     Page<Customer> findByActiveTrue(Pageable pageable);

@@ -15,10 +15,9 @@ import java.util.UUID;
 
 public interface CustomerService {
 
-    //Display
-
     //Display all
-    ApiResponse<PageResponse<DisplayAdminCustomerResponse>> displayAll(Pageable pageable);
+    @Transactional(readOnly = true)
+    ApiResponse<PageResponse<DisplayAdminCustomerResponse>> displayAll(String keyword, Pageable pageable);
 
     //Display active customer
     ApiResponse<PageResponse<DisplayAdminCustomerResponse>> displayActive(Pageable pageable);

@@ -23,6 +23,12 @@ public interface ProductCategoryRepository extends JpaRepository<ProductCategory
     // Kiểm tra không cho categoryName vaf parent_id trùng nhau
     Optional<ProductCategory> findByCategoryNameAndParentId(String name, UUID parentId);
 
-    @Query(value = "SELECT c FROM ProductCategory c")
-    List<ProductCategory> findAllForAdmin();
+    @Query("""
+    SELECT c
+    FROM ProductCategory c
+    WHERE (:keyword IS NULL OR :keyword = '')
+      OR lower(c.categoryName) LIKE lower(CONCAT('%', :keyword, '%'))
+""")
+    Page<ProductCategory> findAll(@Param("keyword") String keyword, Pageable pageable);
+
 }
