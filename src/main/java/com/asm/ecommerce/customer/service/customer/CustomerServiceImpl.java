@@ -13,6 +13,7 @@ import com.asm.ecommerce.customer.dto.request.customer.CreateCustomerRequest;
 import com.asm.ecommerce.customer.repository.CustomerRepository;
 import com.asm.ecommerce.shared.dto.ApiResponse;
 import com.asm.ecommerce.shared.dto.PageResponse;
+import com.asm.ecommerce.shared.exception.ResourceNotFoundException;
 import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -243,5 +244,12 @@ public class CustomerServiceImpl implements CustomerService {
                 .build();
     }
 
+    //=========== Cart ============
+    @Override
+    public UUID getCustomerIdByUserId(UUID userId) {
+        return repo.findByUserId(userId)
+                .orElseThrow(() -> new ResourceNotFoundException("No customer found for userId: "+userId))
+                .getId();
+    }
 
 }

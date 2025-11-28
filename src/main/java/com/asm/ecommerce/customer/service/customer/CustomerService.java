@@ -51,4 +51,7 @@ public interface CustomerService {
 
     //Create <- register
     CustomerDTO createCustomer(CreateCustomerRequest request);
+
+    // --- Cart ---
+    UUID getCustomerIdByUserId(UUID userId);
 }

@@ -19,4 +19,8 @@ public interface CategoryService {
     CategoryResponse createCategory(CategoryRequest request);
     CategoryResponse updateCategory (UUID id, CategoryRequest request);
     void deleteCategoryById(UUID id);
+
+    //todo: ==== Cart =====
+    String getCategoryNameById(UUID categoryId);
+
 }
