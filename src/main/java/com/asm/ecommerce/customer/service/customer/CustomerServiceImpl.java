@@ -36,10 +36,10 @@ public class CustomerServiceImpl implements CustomerService {
     private final DisplayCustomerMapper displayCustomerMapper;
     private final CustomerMapper customerMapper;
 
-    @Override
     @Transactional(readOnly = true)
-    public ApiResponse<PageResponse<DisplayAdminCustomerResponse>> displayAll(Pageable pageable) {
-        Page<Customer> customers = repo.findAll(pageable);
+    @Override
+    public ApiResponse<PageResponse<DisplayAdminCustomerResponse>> displayAll(String keyword, Pageable pageable) {
+        Page<Customer> customers = repo.findAll(keyword, pageable);
 
         // 1. Lấy ra danh sách userId không trùng
         List<UUID> userIds = customers.stream()

@@ -6,8 +6,11 @@ import com.asm.ecommerce.product.dto.response.CategoryResponse;
 import com.asm.ecommerce.product.mapper.CategoryMapper;
 import com.asm.ecommerce.product.repository.ProductCategoryRepository;
 import com.asm.ecommerce.shared.dto.ApiResponse;
+import com.asm.ecommerce.shared.dto.PageResponse;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -97,8 +100,6 @@ public class CategoryServiceImpl implements CategoryService{
     }
 
 
-
-
     public ApiResponse<List<CategoryResponse>> loadCategoryForCombobox(){
         List<ProductCategory> categories = repo.findAllByParentIsNullAndActiveTrue();
 
@@ -125,16 +126,25 @@ public class CategoryServiceImpl implements CategoryService{
 
 
     @Override
-    public ApiResponse<List<CategoryResponse>> getAllCategories() {
+    public ApiResponse<PageResponse<CategoryResponse>> getAllCategories(String keyword, Pageable pageable) {
         // Ghi chú: Sửa lỗi! Gọi hàm Repository đã định nghĩa (@Query) để lấy TẤT CẢ (active=true/false)
-        List<ProductCategory> categories = repo.findAllForAdmin();
+        Page<ProductCategory> categories = repo.findAll(keyword, pageable);
 
-        List<CategoryResponse> dto = CategoryMapper.toResponse(categories);
+        PageResponse<CategoryResponse> pageResponse = PageResponse.<CategoryResponse>builder()
+                .content(categories.getContent().stream()
+                        .map(CategoryMapper::toResponse)
+                        .toList())
+                .pageNumber(categories.getNumber())
+                .pageSize(categories.getSize())
+                .totalPages(categories.getTotalPages())
+                .totalElements(categories.getTotalElements())
+                .last(categories.isLast())
+                .build();
 
-        return ApiResponse.<List<CategoryResponse>>builder()
+        return ApiResponse.<PageResponse<CategoryResponse>>builder()
                 .success(true)
                 .message("All categories retrieved for Admin Panel.")
-                .data(dto)
+                .data(pageResponse)
                 .build();
     }
 
