@@ -46,7 +46,10 @@ public class CartServiceImpl implements CartService{
 
     @Override
     @Transactional
-    public CartItemResponseDto addToCart(UUID customerId, AddToCartRequestDto requestDto) {
+    public CartItemResponseDto addToCart(UUID userId, AddToCartRequestDto requestDto) {
+
+        UUID customerId = customerService.getCustomerIdByUserId(userId);
+
         log.info("Adding product {} to cart for customer {}",
                 requestDto.getProductId(), customerId);
 
@@ -72,7 +75,7 @@ public class CartServiceImpl implements CartService{
                 requestDto.getSugarCategoryId(),
                 requestDto.getIceCategoryId(),
                 requestDto.getTemperatureCategoryId(),
-                Cart.CartStatus.ACTIVE.getValue()
+                "active"
         ).orElse(null);
 
 
@@ -96,6 +99,7 @@ public class CartServiceImpl implements CartService{
             cart = cartItemMapper.toEntity(requestDto, customerId);
             cart.setPrice(product.getPrice());
             cart.setExpiresAt(Instant.now().plus(7, ChronoUnit.DAYS));
+            cart.setStatus("active");
             cart = cartRepository.save(cart);
             log.info("Created new cart item with id: {}", cart.getId());
         }
@@ -121,7 +125,7 @@ public class CartServiceImpl implements CartService{
 
 
         List<CartItemResponseDto> activeItems = allItems.stream()
-                .filter(cart -> Cart.CartStatus.ACTIVE.getValue().equalsIgnoreCase(cart.getStatus()))
+                .filter(cart -> "active".equals(cart.getStatus()))
                 .map(cart -> {
                     CartItemResponseDto dto = cartItemMapper.toResponseDto(cart);
                     try {
@@ -138,7 +142,7 @@ public class CartServiceImpl implements CartService{
                 .collect(Collectors.toList());
 
         List<CartItemResponseDto> savedItems = allItems.stream()
-                .filter(cart -> Cart.CartStatus.SAVED_FOR_LATER.getValue().equalsIgnoreCase(cart.getStatus()))
+                .filter(cart -> "abandoned".equals(cart.getStatus()))
                 .map(cart -> {
                     CartItemResponseDto dto = cartItemMapper.toResponseDto(cart);
                     enrichOptionNames(dto);
@@ -151,10 +155,18 @@ public class CartServiceImpl implements CartService{
                 .map(CartItemResponseDto::getTotalPrice)
                 .reduce(BigDecimal.ZERO, BigDecimal::add);
 
-        BigDecimal tax = subTotal.multiply(BigDecimal.valueOf(0.1));
+        //Không tính thuế
+        BigDecimal tax = BigDecimal.ZERO;
+        //BigDecimal tax = subTotal.multiply(BigDecimal.valueOf(0.1));
+
+        // TODO: sau này tích hợp Grab/đối tác ship thì thay đổi logic sau
+        BigDecimal shippingFee = BigDecimal.ZERO;
+    /*
         BigDecimal shippingFee = subTotal.compareTo(BigDecimal.valueOf(500000)) > 0
                 ? BigDecimal.ZERO
                 : BigDecimal.valueOf(30000);
+    */
+
         BigDecimal total = subTotal.add(tax).add(shippingFee);
 
         return new CartSummaryResponseDto(
@@ -205,7 +217,7 @@ public class CartServiceImpl implements CartService{
             Cart cart = cartRepository.findById(cartItemId)
                     .orElseThrow(() -> new RuntimeException("Cart item not found with id: " + cartItemId));
 
-            cart.setStatus(Cart.CartStatus.REMOVED.getValue());
+            cart.setStatus("abandoned");
             cartRepository.save(cart);
         });
 
@@ -219,11 +231,11 @@ public class CartServiceImpl implements CartService{
 
         List<Cart> carts = cartRepository.findByCustomerIdAndStatus(
                 customerId,
-                Cart.CartStatus.ACTIVE.getValue()
+                "active"
         );
 
         carts.forEach(cart -> {
-            cart.setStatus(Cart.CartStatus.REMOVED.getValue());
+            cart.setStatus("abandoned");
             cartRepository.save(cart);
         });
 
@@ -238,7 +250,7 @@ public class CartServiceImpl implements CartService{
         Cart cart = cartRepository.findById(cartItemId)
                 .orElseThrow(() -> new RuntimeException("Cart item not found with id: " + cartItemId));
 
-        cart.setStatus(Cart.CartStatus.SAVED_FOR_LATER.getValue());
+        cart.setStatus("abandoned");
         Cart updated = cartRepository.save(cart);
 
         CartItemResponseDto response = cartItemMapper.toResponseDto(updated);
@@ -256,7 +268,7 @@ public class CartServiceImpl implements CartService{
         Cart cart = cartRepository.findById(cartItemId)
                 .orElseThrow(() -> new RuntimeException("Cart item not found with id: " + cartItemId));
 
-        cart.setStatus(Cart.CartStatus.ACTIVE.getValue());
+        cart.setStatus("active");
         Cart updated = cartRepository.save(cart);
 
         CartItemResponseDto response = cartItemMapper.toResponseDto(updated);
@@ -335,11 +347,12 @@ public class CartServiceImpl implements CartService{
      * Validate sản phẩm có thể thêm vào giỏ
      */
     private void validateProductForCart(ProductInfoDto product, Integer requestedQuantity) {
-        if (!product.getIsActive()) {
+        // null hoặc false đều xem như không active
+        if (!Boolean.TRUE.equals(product.getIsActive())) {
             throw new BusinessException("Sản phẩm này hiện không còn bán");
         }
 
-        if (product.getIsOutOfStock()) {
+        if (product.getIsOutOfStock()) { // method này đã null-safe
             throw new BusinessException("Sản phẩm đã hết hàng");
         }
 

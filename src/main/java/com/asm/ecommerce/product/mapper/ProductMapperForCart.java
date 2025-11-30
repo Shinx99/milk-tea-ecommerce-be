@@ -17,6 +17,7 @@ public interface ProductMapperForCart {
 
     @Mapping(target = "categoryId", source = "category.id")
     @Mapping(target = "imageUrl",  source = "images", qualifiedByName = "mapImages")
+    @Mapping(target = "active",    source = "active")
     ProductResponse toDto(Product product);
 
 

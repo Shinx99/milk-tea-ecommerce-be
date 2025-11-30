@@ -12,6 +12,7 @@ import java.util.List;
 @Mapper(componentModel = "spring")
 public interface ProductInfoMapper {
     @Mapping(target = "imageUrl", source = "imageUrl", qualifiedByName = "getPrimaryImage")
+    @Mapping(target = "isActive", source = "active")
     ProductInfoDto fromProductResponse(ProductResponse productResponse);
 
     @Named("getPrimaryImage")
