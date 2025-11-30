@@ -20,7 +20,7 @@ public interface CartItemMapper {
     @Mapping(target = "customerId", source = "customerId")
     @Mapping(target = "productId", source = "dto.productId")
     @Mapping(target = "quantity", source = "dto.quantity")
-    @Mapping(target = "status", constant = "ACTIVE")
+    @Mapping(target = "status", constant = "active")
     @Mapping(target = "price", ignore = true) // Sẽ set trong service từ Product
     @Mapping(target = "createdAt", ignore = true) // Auto-generated
     @Mapping(target = "updatedAt", ignore = true) // Auto-generated

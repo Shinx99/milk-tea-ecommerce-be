@@ -1,9 +1,6 @@
 package com.asm.ecommerce.cart.domain;
 
-import jakarta.persistence.Column;
-import jakarta.persistence.Entity;
-import jakarta.persistence.Id;
-import jakarta.persistence.Table;
+import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -40,6 +37,10 @@ public class Cart {
     @Column(name = "status", nullable = false)
     private String status;
 
+  /*  @Column(name = "status", nullable = false)
+    @Enumerated(EnumType.STRING)
+    private CartStatus status;*/
+
     @Column(name = "created_at", updatable = false)
     @CreationTimestamp
     private Instant createdAt;
@@ -67,15 +68,12 @@ public class Cart {
 
     // Enum cho các trạng thái giỏ hàng
     public enum CartStatus {
-        ACTIVE,
-        SAVED_FOR_LATER,
-        ORDERED,
-        REMOVED,
-        EXPIRED;
+        active,
+        merged,
+        abandoned,
+        checked_out,
+        expired;
 
-        public String getValue(){
-            return this.name();
-        }
     }
 }
 

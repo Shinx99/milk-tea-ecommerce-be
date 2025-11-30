@@ -52,7 +52,6 @@ public class CartController {
     public ResponseEntity<ApiResponse<CartSummaryResponseDto>> getCart(
             @AuthenticationPrincipal UserPrincipal userPrincipal
     ){
-
         UUID userId = userPrincipal.getId();
         log.info("Getting cart for userId: {}", userId);
 
