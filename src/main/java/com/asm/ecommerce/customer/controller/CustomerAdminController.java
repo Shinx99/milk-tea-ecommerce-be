@@ -125,7 +125,6 @@ public class CustomerAdminController {
 
     // PUT: /api/customers/admin
     // METHOD: update customer for Admin page
-    // ---> Cap nhat dia chi (Address)
     // Request -> customerId
     @PutMapping("/admin/{id}")
     @PreAuthorize("hasRole('ADMIN')")
@@ -139,19 +138,16 @@ public class CustomerAdminController {
     }
 
 
-    // DELETE (soft): /api/customers
-    // METHOD: Soft delete customer
-    // Request -> userId
-    //Con bugs o Service -> is_active of Customer async User
-    @DeleteMapping()
-    @PreAuthorize("hasAnyRole('ADMIN', 'CUSTOMER')")
-    public ResponseEntity<?> softDelete(@AuthenticationPrincipal UserPrincipal userPrincipal) {
-
-        if(userPrincipal == null){
+    // PUT: /api/customers
+    // METHOD: soft delete customer for Admin page
+    // Request -> customerId
+    @DeleteMapping("/{id}")
+    @PreAuthorize("hasRole('ADMIN')")
+    public ResponseEntity<?> softDelete(@PathVariable UUID id) {
+        if(id == null){
             return new ResponseEntity<>("Người dùng chưa được xác thực hoặc không tìm thấy thông tin.", HttpStatus.UNAUTHORIZED);
         }
 
-        UUID id = userPrincipal.getId();
         service.softDelete(id);
         return ResponseEntity.noContent().build();
     }
