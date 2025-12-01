@@ -123,6 +123,22 @@ public class CustomerAdminController {
         return ResponseEntity.ok(updatedCustomer);
     }
 
+    // PUT: /api/customers/admin
+    // METHOD: update customer for Admin page
+    // ---> Cap nhat dia chi (Address)
+    // Request -> customerId
+    @PutMapping("/admin/{id}")
+    @PreAuthorize("hasRole('ADMIN')")
+    public ResponseEntity<?> updateForAdmin(@PathVariable UUID id, @Valid @RequestBody UpdateAdminCustomerRequest input){
+        if(id == null){
+            return new ResponseEntity<>("Người dùng chưa được xác thực hoặc không tìm thấy thông tin.", HttpStatus.UNAUTHORIZED);
+        }
+
+        ApiResponse<DisplayAdminCustomerResponse> updatedCustomer = service.updateAdmin(id, input);
+        return ResponseEntity.ok(updatedCustomer);
+    }
+
+
     // DELETE (soft): /api/customers
     // METHOD: Soft delete customer
     // Request -> userId

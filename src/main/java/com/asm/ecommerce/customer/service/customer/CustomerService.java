@@ -42,8 +42,12 @@ public interface CustomerService {
     //Create
     Customer create(Customer input);
 
-    //Update
+    //Update for customer page
     ApiResponse<DisplayAdminCustomerResponse> update(UUID id, UpdateAdminCustomerRequest input);
+
+    //Update for customer for admin page
+    ApiResponse<DisplayAdminCustomerResponse> updateAdmin(UUID customerId,
+                                                                 UpdateAdminCustomerRequest input);
 
     //Soft delete
     void softDelete(UUID id);
