@@ -236,15 +236,10 @@ public class CustomerServiceImpl implements CustomerService {
                 .build();
     }
 
-
-
+    // Soft delete cho Admin
     @Override
     @Transactional
-    public void softDelete(UUID userId){
-        Customer user = repo.findByUserIdAndActiveTrue(userId)
-                .orElseThrow(() -> new EntityNotFoundException("Không tìm thấy khách hàng với userId: " + userId));
-
-        UUID customerId = user.getId();
+    public void softDelete(UUID customerId){
 
         int updated = repo.softDeleteById(customerId, Instant.now());
         if(updated == 0){
@@ -254,9 +249,7 @@ public class CustomerServiceImpl implements CustomerService {
 
 
     //Register
-
     // customer/service/CustomerServiceImpl.java
-
     @Override
     @Transactional
     public CustomerDTO createCustomer(CreateCustomerRequest request) {

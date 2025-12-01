@@ -64,6 +64,7 @@ public interface CustomerRepository extends JpaRepository<Customer, UUID> {
             """)
     int softDeleteById(@Param("id") UUID id, @Param("now")Instant now);
 
+
     //----------- Cart --------------------------
     Optional<Customer> findByUserId(UUID userId);
 }
