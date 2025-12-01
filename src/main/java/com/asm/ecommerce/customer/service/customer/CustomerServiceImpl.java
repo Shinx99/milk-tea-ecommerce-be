@@ -175,7 +175,7 @@ public class CustomerServiceImpl implements CustomerService {
     }
 
 
-    // Update Admin
+    // Update customer --> Customer Page
     @Transactional
     public ApiResponse<DisplayAdminCustomerResponse> update(UUID id, UpdateAdminCustomerRequest input) {
         Customer current = repo.findByUserIdAndActiveTrue(id)
@@ -200,6 +200,42 @@ public class CustomerServiceImpl implements CustomerService {
                 .data(response)
                 .build();
     }
+
+    // Update customer --> Admin Page
+    @Transactional
+    public ApiResponse<DisplayAdminCustomerResponse> updateAdmin(UUID customerId,
+                                                                 UpdateAdminCustomerRequest input) {
+        // 1. Tìm customer theo customerId
+        Customer current = repo.findById(customerId)
+                .orElseThrow(() -> new EntityNotFoundException("Customer not found"));
+
+        // 2. Map dữ liệu update từ DTO vào entity hiện tại
+        updateAdminCustomerMapper.updateAdminCustomer(current, input);
+
+        // 3. Lưu lại
+        Customer saved = repo.save(current);
+
+        // 4. Lấy thêm thông tin user từ service user (như method trên)
+        UserDto userDto = null;
+        try {
+            UUID userId = saved.getUserId();
+            if (userId != null) {
+                Map<UUID, UserDto> usersMap = userClient.findByUserIds(List.of(userId));
+                userDto = usersMap.get(userId);
+            }
+        } catch (Exception e) {
+        }
+
+        // 5. Map sang response cho admin
+        DisplayAdminCustomerResponse response = displayCustomerMapper.display(saved, userDto);
+
+        return ApiResponse.<DisplayAdminCustomerResponse>builder()
+                .success(true)
+                .message("Customer updated successfully")
+                .data(response)
+                .build();
+    }
+
 
 
     @Override
