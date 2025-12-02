@@ -86,6 +86,7 @@ public class SecurityConfig {
                         .requestMatchers("/api/internal/**").permitAll()
 
                         .requestMatchers("/api/health", "/api/test/**").permitAll()
+                        .requestMatchers("/api/chat").permitAll()
 
                         // 3.  Product browsing - Public
                         .requestMatchers(HttpMethod.GET, "/api/products/active").permitAll()
