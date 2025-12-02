@@ -110,4 +110,30 @@ public class AddressAdminController {
     // METHOD: Display profile
     // ---> Profile
     // Request -> userId
+
+    //Hải làm ADMIN ADDRESS
+// Admin: List addresses of a customer
+    @GetMapping("/customer/{customerId}")
+    @PreAuthorize("hasRole('ADMIN')")
+    public ResponseEntity<?> adminListByCustomer(@PathVariable UUID customerId){
+        return ResponseEntity.ok(service.adminListByCustomerId(customerId));
+    }
+
+    // Admin: Create address for a customer
+    @PostMapping("/customer/{customerId}")
+    @PreAuthorize("hasRole('ADMIN')")
+    public ResponseEntity<?> adminCreate(@PathVariable UUID customerId,
+                                         @Valid @RequestBody UpdateAdminAddressRequest input){
+        return ResponseEntity.status(HttpStatus.CREATED)
+                .body(service.adminCreateByCustomerId(customerId, input));
+    }
+
+    // Admin: Set default address
+    @PatchMapping("/{addressId}/set-default")
+    @PreAuthorize("hasRole('ADMIN')")
+    public ResponseEntity<?> adminSetDefault(@PathVariable UUID addressId){
+        return ResponseEntity.ok(service.adminSetDefault(addressId));
+    }
+
+
 }

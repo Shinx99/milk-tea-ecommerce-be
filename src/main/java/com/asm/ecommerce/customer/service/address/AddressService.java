@@ -35,4 +35,18 @@ public interface AddressService {
 
     //Soft delete
     void softDelete(UUID id);
+
+    //Hải làm cho admin
+    // Admin: List all addresses of a specific customer
+    @Transactional(readOnly = true)
+    ApiResponse<List<DisplayAdminAddressResponse>> adminListByCustomerId(UUID customerId);
+
+    // Admin: Create address for a specific customer
+    @Transactional
+    ApiResponse<DisplayAdminAddressResponse> adminCreateByCustomerId(UUID customerId, UpdateAdminAddressRequest input);
+
+    // Admin: Set default address for a customer
+    @Transactional
+    ApiResponse<DisplayAdminAddressResponse> adminSetDefault(UUID addressId);
+
 }

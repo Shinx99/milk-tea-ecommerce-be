@@ -191,4 +191,78 @@ public class AddressServiceImpl implements AddressService {
             });
         }
     }
+
+//=============Hải làm cho admin =============
+    // Admin: List addresses by customerId
+    @Override
+    @Transactional(readOnly = true)
+    public ApiResponse<List<DisplayAdminAddressResponse>> adminListByCustomerId(UUID customerId) {
+        List<Address> addressList = repo.findAllWithCustomerByActiveTrue(customerId);
+
+        List<DisplayAdminAddressResponse> response = addressList.stream()
+                .map(addr -> responseMapper.display(addr.getCustomer(), addr))
+                .toList();
+
+        return ApiResponse.<List<DisplayAdminAddressResponse>>builder()
+                .success(true)
+                .message("Addresses of customer retrieved successfully")
+                .data(response)
+                .build();
+    }
+
+    // Admin: Create address for a specific customer
+    @Override
+    @Transactional
+    public ApiResponse<DisplayAdminAddressResponse> adminCreateByCustomerId(UUID customerId, UpdateAdminAddressRequest input) {
+        Customer customer = customerRepo.findById(customerId)
+                .orElseThrow(() -> new EntityNotFoundException("Customer not found with id: " + customerId));
+
+        if (Boolean.TRUE.equals(input.getIsDefault())) {
+            repo.findDefaultAddressIdByCustomerId(customerId).ifPresent(oldId -> {
+                repo.clearDefaultAddressForCustomer(oldId);
+                repo.flush();
+            });
+        }
+
+        Address newAddress = new Address();
+        requestMapper.updateAdminAddress(newAddress, input);
+        newAddress.setCustomer(customer);
+        repo.save(newAddress);
+
+        DisplayAdminAddressResponse response = responseMapper.display(customer, newAddress);
+
+        return ApiResponse.<DisplayAdminAddressResponse>builder()
+                .success(true)
+                .message("Address created successfully for customer")
+                .data(response)
+                .build();
+    }
+
+    // Admin: Set default address
+    @Override
+    @Transactional
+    public ApiResponse<DisplayAdminAddressResponse> adminSetDefault(UUID addressId) {
+        Address current = repo.findById(addressId)
+                .orElseThrow(() -> new EntityNotFoundException("Address not found with id: " + addressId));
+
+        UUID customerId = current.getCustomer().getId();
+
+        repo.findDefaultAddressIdByCustomerId(customerId).ifPresent(oldId -> {
+            if (!oldId.equals(addressId)) {
+                repo.clearDefaultAddressForCustomer(oldId);
+                repo.flush();
+            }
+        });
+
+        repo.setDefaultbyId(addressId);
+        repo.flush();
+
+        DisplayAdminAddressResponse response = responseMapper.display(current.getCustomer(), current);
+
+        return ApiResponse.<DisplayAdminAddressResponse>builder()
+                .success(true)
+                .message("Address set as default successfully")
+                .data(response)
+                .build();
+    }
 }
