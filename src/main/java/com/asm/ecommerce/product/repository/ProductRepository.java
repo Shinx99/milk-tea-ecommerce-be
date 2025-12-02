@@ -5,10 +5,14 @@ import com.asm.ecommerce.product.domain.Product;
 import org.springframework.data.domain.Page;
 import org.springframework.data.jpa.repository.EntityGraph;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
 import org.springframework.data.domain.Pageable;
+
+import java.time.Instant;
+import java.time.OffsetDateTime;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
@@ -74,6 +78,7 @@ public interface ProductRepository extends JpaRepository<Product, UUID> {
     @EntityGraph(attributePaths = {"category", "images"})
     Optional<Product> findByIdAndActiveTrue(UUID id);
 
+    //For cart--------------------------------------------------------------------------------------------------------------
     /**
      * Use for Cart
      * Fetch product với images để tránh lazy loading
@@ -83,4 +88,33 @@ public interface ProductRepository extends JpaRepository<Product, UUID> {
     Optional<Product> findByIdWithImages(@Param("id") UUID id);
 
 
+    //For admin --------------------------------------------------------------------------------------------------------------
+    // Phuc vu cho method update
+    @EntityGraph(attributePaths = {"category", "images"})
+    Optional<Product> findById(UUID id);
+
+
+    //load Product + findByName + findByCategory for admin
+    @EntityGraph(attributePaths = {"category", "images"})
+    @Query("SELECT p FROM Product p " +
+            "WHERE (:name IS NULL OR :name = '' OR lower(p.name) LIKE lower(concat('%', :name, '%'))) " +
+            "AND (:categoryName IS NULL OR :categoryName = '' OR p.category.categoryName = :categoryName)")
+    Page<Product> searchProductsForAdmin(
+            @Param("name") String name,
+            @Param("categoryName") String categoryName,
+            Pageable pageable
+    );
+
+    //Create or Update record
+    <S extends Product> S save(S entity);
+
+    //Soft Delete
+    @Modifying
+    @Query("""
+            update Product p
+                set p.active = false,
+                p.updatedAt = :now
+            where p.id = :id and p.active = true
+            """)
+    int softDeleteById(@Param("id") UUID id, @Param("now") OffsetDateTime now);
 }

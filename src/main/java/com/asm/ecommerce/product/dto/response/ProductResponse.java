@@ -24,6 +24,8 @@ public class ProductResponse {
     private Boolean active;
     private BigDecimal price;
     private List<String> imageUrl;
+    private OffsetDateTime createdAt;
+    private OffsetDateTime updatedAt;
 
     // Day la cai list chua [Tra sua, Banh, Kem,...]
     private CategoryResponse category;

@@ -32,4 +32,7 @@ public interface ProductCategoryRepository extends JpaRepository<ProductCategory
 """)
     Page<ProductCategory> findAll(@Param("keyword") String keyword, Pageable pageable);
 
+    // cho Product Admin ------------------------------------------------------------------------------------------------
+    List<ProductCategory> findAllByParentIsNull();
+
 }

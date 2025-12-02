@@ -43,6 +43,8 @@ public class ProductMapper {
                 .description(product.getDescription())
                 .price(product.getPrice())
                 .imageUrl(images)
+                .createdAt(product.getCreatedAt())
+                .updatedAt(product.getUpdatedAt())
                 .build();
     }
 

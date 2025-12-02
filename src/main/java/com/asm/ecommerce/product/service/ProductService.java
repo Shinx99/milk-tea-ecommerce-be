@@ -28,11 +28,18 @@ public interface ProductService {
     @Transactional
     ApiResponse<PageResponse<ProductResponse>> findByCategoryIdAndIdNot(UUID excludeId, Pageable pageable);
 
+    // for admin-------------------------------------------------------------------------------------------------------------------
+    // Method: Hien thi cho ca trang Product
+    //Display for Customer
+    @Transactional(readOnly = true)
+    ApiResponse<PageResponse<ProductResponse>> findAllByForAdmin(String keyword, String categoryName, Pageable pageable);
+
     ProductResponse create(ProductRequest request);
 
     ProductResponse update(UUID id, ProductRequest request);
     void delete(UUID id);
 
+    // for cart-------------------------------------------------------------------------------------------------------------------
     //todo: === Cart =====
     List<ProductResponse> searchProductsByName(String name);
     ProductResponse getProductInfoForCart(UUID productId);

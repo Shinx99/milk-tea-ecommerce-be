@@ -78,6 +78,7 @@ public class CategoryController {
     }
 
 
+    //cho admin----------------------------------------------------------------------------------------------------------------
     @GetMapping("/admin/categories")
     @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<ApiResponse<PageResponse<CategoryResponse>>> getAllCategoriesForAdmin(
@@ -94,5 +95,13 @@ public class CategoryController {
         return ResponseEntity.ok(response);
     }
 
+    //cho product admin -------------------------------------------------------------------------------------------------------
+    @GetMapping("/categories/productAdmin")
+    @PreAuthorize("hasRole('ADMIN')")
+    public ResponseEntity<ApiResponse<List<CategoryResponse>>> loadCategoryForProductAdmin(){
+        ApiResponse<List<CategoryResponse>> response = service.loadCategoryForProductAdmin();
+
+        return ResponseEntity.ok(response);
+    }
 
 }

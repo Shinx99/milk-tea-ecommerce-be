@@ -12,6 +12,7 @@ import com.asm.ecommerce.product.repository.ProductRepository;
 import com.asm.ecommerce.shared.dto.ApiResponse;
 import com.asm.ecommerce.shared.dto.PageResponse;
 import com.asm.ecommerce.shared.exception.ResourceNotFoundException;
+import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
@@ -19,6 +20,8 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.Instant;
+import java.time.OffsetDateTime;
 import java.util.List;
 import java.util.UUID;
 import java.util.stream.Collectors;
@@ -35,7 +38,7 @@ public class ProductServiceImpl implements ProductService {
 
 
     // Method: Hien thi cho ca trang Product
-    //Display for Both Customer and Admin
+    //Display for Customer
     @Transactional(readOnly = true)
     @Override
     public ApiResponse<PageResponse<ProductResponse>> findAllByActiveTrueAndFilter(String keyword, String categoryName, Pageable pageable) {
@@ -159,7 +162,33 @@ public class ProductServiceImpl implements ProductService {
                 .build();
     }
 
+    // for admin---------------------------------------------------------------------------------------------------------------
     // --- PHƯƠNG THỨC CREATE (Đã đồng bộ imageUrl và xử lý publicId) ---
+
+    // Method: Hien thi cho ca trang Product
+    //Display for Customer
+    @Transactional(readOnly = true)
+    @Override
+    public ApiResponse<PageResponse<ProductResponse>> findAllByForAdmin(String keyword, String categoryName, Pageable pageable) {
+        Page<Product> products = repo.searchProductsForAdmin(keyword, categoryName, pageable);
+
+        PageResponse<ProductResponse> pageResponse = PageResponse.<ProductResponse>builder()
+                .content(products.getContent().stream()
+                        .map(ProductMapper::toResponse)
+                        .toList())
+                .pageNumber(products.getNumber())
+                .pageSize(products.getSize())
+                .totalPages(products.getTotalPages())
+                .totalElements(products.getTotalElements())
+                .last(products.isLast())
+                .build();
+
+        return ApiResponse.<PageResponse<ProductResponse>>builder()
+                .success(true)
+                .message("Products retrieved successfully!")
+                .data(pageResponse)
+                .build();
+    }
 
     @Override
     @Transactional
@@ -214,6 +243,7 @@ public class ProductServiceImpl implements ProductService {
         // BƯỚC 1: Xóa ảnh cũ (Kích hoạt DELETE do orphanRemoval=true)
         if (entity.getImages() != null) {
             entity.getImages().clear();
+            repo.saveAndFlush(entity);
         }
 
         // BƯỚC 2: Tạo và thêm ảnh mới (Dùng req.getImageUrl())
@@ -242,11 +272,12 @@ public class ProductServiceImpl implements ProductService {
     }
 
     @Override
+    @Transactional
     public void delete(UUID id) {
-        if (!repo.existsById(id)) {
-            throw new ResourceNotFoundException("Product not found ");
+        int updated = repo.softDeleteById(id, OffsetDateTime.now());
+        if(updated == 0){
+            throw new EntityNotFoundException("Product not found or already inactive");
         }
-        repo.deleteById(id);
     }
 
     @Override
@@ -254,7 +285,9 @@ public class ProductServiceImpl implements ProductService {
         return List.of();
     }
 
-    //todo: ============= Cart ===================
+
+
+    //todo: ============= Cart ===================----------------------------------------------------------------------------
     @Override
     @Transactional(readOnly = true)
     public ProductResponse getProductInfoForCart(UUID productId) {

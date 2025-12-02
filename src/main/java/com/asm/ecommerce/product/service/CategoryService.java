@@ -30,4 +30,6 @@ public interface CategoryService {
     //todo: ==== Cart =====
     String getCategoryNameById(UUID categoryId);
 
+    // For product admin -------------------------------------------------------------------------------------------------------
+    ApiResponse<List<CategoryResponse>> loadCategoryForProductAdmin();
 }
