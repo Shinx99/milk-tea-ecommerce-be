@@ -159,8 +159,14 @@ app:
 
 # ⭐ JWT
 jwt:
-  secret: ${JWT_SECRET_FOR_SUCH_A_LONG_DECODE}
+  #secret: ${JWT_SECRET_FOR_SUCH_A_LONG_DECODE}
+  secret: ${JWT_SECRET}
   expiry: ${JWT_EXPIRY}
 
-
+# ⭐ Gemini
+gemini:
+  api:
+    key: ${GEMINI_API_KEY}
+    url: https://generativelanguage.googleapis.com/v1beta/models/gemini-pro:generateContent
+    timeout: ${GEMINI_API_TIMEOUT:30s}
 

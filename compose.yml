@@ -60,6 +60,9 @@ services:
       - SPRING_DEVTOOLS_RESTART_ADDITIONAL_PATHS=src/main
       - JWT_SECRET=${JWT_SECRET}
       - JWT_EXPIRY=${JWT_EXPIRY}
+      # ⭐ Gemini API
+      - GEMINI_API_KEY=${GEMINI_API_KEY}
+      - GEMINI_API_TIMEOUT=${GEMINI_API_TIMEOUT:-30s}
     env_file: .env
     depends_on:
       postgres:

@@ -39,6 +39,17 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
             @NonNull FilterChain filterChain
     ) throws ServletException, IOException {
 
+        String path = request.getRequestURI();
+
+        // ✅ Bỏ qua các endpoint public
+        if (path.startsWith("/api/chat")
+                || path.startsWith("/api/auth")
+                || path.startsWith("/api/health")
+                || path.startsWith("/api/test")) {
+            filterChain.doFilter(request, response);
+            return;
+        }
+
         //Khi request di toi -> Filter Hoi xem ve moi cua khach(request) co phai la Authorization khong!
         final String authHeader = request.getHeader("Authorization");
         final String jwt;
