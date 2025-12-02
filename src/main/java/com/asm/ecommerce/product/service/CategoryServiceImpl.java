@@ -156,5 +156,16 @@ public class CategoryServiceImpl implements CategoryService{
         return category != null ? category.getCategoryName() : null;
     }
 
+    //For product admin---------------------------------------------------------------------------------------------------
+    public ApiResponse<List<CategoryResponse>> loadCategoryForProductAdmin(){
+        List<ProductCategory> categories = repo.findAllByParentIsNull();
 
+        List<CategoryResponse> dto = CategoryMapper.toResponse(categories);
+
+        return ApiResponse.<List<CategoryResponse>>builder()
+                .success(true)
+                .message("Category for Combobox retrieved successfully!")
+                .data(dto)
+                .build();
+    }
 }
