@@ -59,7 +59,7 @@ public class ProductMapper {
                 .id(cat.getId())
                 .categoryName(cat.getCategoryName())
                 .isActive(cat.getActive())
-                .sortOrder(cat.getSortOrder())
+                //.sortOrder(cat.getSortOrder())
                 .parentId(cat.getParent() != null ? cat.getParent().getId() : null);
 
         // [DÒNG 3] Kiểm tra xem "Trà Sữa" có con không?

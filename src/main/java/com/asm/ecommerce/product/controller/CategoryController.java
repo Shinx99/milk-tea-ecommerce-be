@@ -19,19 +19,20 @@ import java.util.List;
 import java.util.UUID;
 
 @RestController
-@RequestMapping("/api/categories")
+@RequestMapping("/api")
 @RequiredArgsConstructor
 public class CategoryController {
 
     private final CategoryService service;
     // -------------------------------------------------------------
-    @GetMapping("/{id}")
+    @GetMapping("/categories/{id}")
     public ResponseEntity<CategoryResponse> getCategoryById(@PathVariable UUID id) {
         CategoryResponse category = service.getCategoryById(id); // Ghi chú: Gọi Service tìm theo ID.
         return ResponseEntity.ok(category);
     }
 
-    @PostMapping
+    @PostMapping("/categories")
+    @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<CategoryResponse> createCategory(
             @RequestBody @Valid CategoryRequest request) {
         CategoryResponse response = service.createCategory(request); // Ghi chú: Gọi Service để lưu vào DB.
@@ -40,7 +41,8 @@ public class CategoryController {
         return new ResponseEntity<>(response, HttpStatus.CREATED);
     }
 
-    @PutMapping("/{id}")
+    @PutMapping("/categories/{id}")
+    @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<CategoryResponse> updateCategory(
             @PathVariable UUID id,
             @RequestBody @Valid CategoryRequest request) {
@@ -51,7 +53,8 @@ public class CategoryController {
         return ResponseEntity.ok(updatedCategory);
     }
 
-    @DeleteMapping("/{id}")
+    @DeleteMapping("/categories/{id}")
+    @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<Void> deleteCategory(@PathVariable UUID id) {
         // Ghi chú: Gọi Service để xóa Category (Service sẽ kiểm tra ràng buộc).
         service.deleteCategoryById(id);
@@ -60,7 +63,7 @@ public class CategoryController {
         return ResponseEntity.noContent().build();
     }
 
-    @GetMapping
+    @GetMapping("/categories")
     public ResponseEntity<ApiResponse<List<CategoryResponse>>> loadCategoryForCombobox(){
         ApiResponse<List<CategoryResponse>> response = service.loadCategoryForCombobox();
 
@@ -75,7 +78,7 @@ public class CategoryController {
     }
 
 
-    @GetMapping("/admin")
+    @GetMapping("/admin/categories")
     @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<ApiResponse<PageResponse<CategoryResponse>>> getAllCategoriesForAdmin(
         @RequestParam(required = false) String keyword,

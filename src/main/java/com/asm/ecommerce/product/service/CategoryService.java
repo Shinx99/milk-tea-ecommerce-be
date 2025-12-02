@@ -25,7 +25,7 @@ public interface CategoryService {
 
     void deleteCategoryById(UUID id);
 
-    ApiResponse<PageResponse<CategoryResponse>> getAllCategories(String keyword, Pageable pageable);
+    ApiResponse<PageResponse<CategoryResponse>>  getAllCategories(String keyword, Pageable pageable);
 
     //todo: ==== Cart =====
     String getCategoryNameById(UUID categoryId);
