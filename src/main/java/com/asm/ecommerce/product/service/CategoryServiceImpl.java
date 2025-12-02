@@ -88,13 +88,13 @@ public class CategoryServiceImpl implements CategoryService{
     @Transactional
     public void deleteCategoryById(UUID id) {
         ProductCategory categoryToDelete = findCategoryById(id);
-
         if (!categoryToDelete.getChildren().isEmpty()) {
             throw new RuntimeException("Cannot delete category: It has " + categoryToDelete.getChildren().size() + " child categories.");
         }
         if (!categoryToDelete.getProducts().isEmpty()) {
             throw new RuntimeException("Cannot delete category: It has " + categoryToDelete.getProducts().size() + " associated products.");
         }
+
         categoryToDelete.setActive(false);
         repo.save(categoryToDelete);
     }
@@ -127,7 +127,7 @@ public class CategoryServiceImpl implements CategoryService{
 
     @Override
     public ApiResponse<PageResponse<CategoryResponse>> getAllCategories(String keyword, Pageable pageable) {
-        // Ghi chú: Sửa lỗi! Gọi hàm Repository đã định nghĩa (@Query) để lấy TẤT CẢ (active=true/false)
+
         Page<ProductCategory> categories = repo.findAll(keyword, pageable);
 
         PageResponse<CategoryResponse> pageResponse = PageResponse.<CategoryResponse>builder()

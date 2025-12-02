@@ -26,8 +26,9 @@ public interface ProductCategoryRepository extends JpaRepository<ProductCategory
     @Query("""
     SELECT c
     FROM ProductCategory c
-    WHERE (:keyword IS NULL OR :keyword = '')
-      OR lower(c.categoryName) LIKE lower(CONCAT('%', :keyword, '%'))
+    WHERE c.parent IS NULL
+        AND (:keyword IS NULL OR :keyword = ''
+            OR lower(c.categoryName) LIKE lower(CONCAT('%', :keyword, '%')))
 """)
     Page<ProductCategory> findAll(@Param("keyword") String keyword, Pageable pageable);
 
