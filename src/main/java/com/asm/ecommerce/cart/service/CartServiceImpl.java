@@ -1,6 +1,7 @@
 package com.asm.ecommerce.cart.service;
 
 import com.asm.ecommerce.cart.domain.Cart;
+import com.asm.ecommerce.cart.dto.order.CartItemDto;
 import com.asm.ecommerce.cart.dto.product.ProductInfoDto;
 import com.asm.ecommerce.cart.dto.request.AddToCartRequestDto;
 import com.asm.ecommerce.cart.dto.request.RemoveCartRequestDto;
@@ -278,6 +279,8 @@ public class CartServiceImpl implements CartService{
         return response;
     }
 
+
+
     /**
      * Enrichment thông tin product từ ProductService
      * TODO: Implement khi có ProductService
@@ -394,5 +397,28 @@ public class CartServiceImpl implements CartService{
             ↓
         Use in business logic
     */
+
+    // todo: ==== Order ====
+    @Override
+    public List<CartItemDto> getActiveItemsForOrder(UUID userId) {
+        // 1. Đổi userId -> customerId
+        UUID customerId = customerService.getCustomerIdByUserId(userId);
+
+        // 2. Lấy tất cả cart active của customer
+        List<Cart> carts = cartRepository.findByCustomerIdAndStatus(customerId, "active");
+
+        // 3. Map sang CartItemDto (dùng cho OrderService)
+        return cartItemMapper.toDtos(carts);
+    }
+
+    @Override
+    public void markCartAsAbandonedAfterOrder(UUID userId) {
+        UUID customerId = customerService.getCustomerIdByUserId(userId);
+
+        List<Cart> carts = cartRepository.findByCustomerIdAndStatus(customerId, "active");
+
+        carts.forEach(cart -> cart.setStatus("abandoned"));
+        cartRepository.saveAll(carts);
+    }
 
 }

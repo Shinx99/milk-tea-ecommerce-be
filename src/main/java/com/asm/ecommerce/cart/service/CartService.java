@@ -1,11 +1,13 @@
 package com.asm.ecommerce.cart.service;
 
+import com.asm.ecommerce.cart.dto.order.CartItemDto;
 import com.asm.ecommerce.cart.dto.request.AddToCartRequestDto;
 import com.asm.ecommerce.cart.dto.request.RemoveCartRequestDto;
 import com.asm.ecommerce.cart.dto.request.UpdateCartRequestDto;
 import com.asm.ecommerce.cart.dto.response.CartItemResponseDto;
 import com.asm.ecommerce.cart.dto.response.CartSummaryResponseDto;
 
+import java.util.List;
 import java.util.UUID;
 
 public interface CartService {
@@ -35,6 +37,11 @@ public interface CartService {
 
 
     //todo: check date & delete
+
+    //todo: ==== Order ====
+    List<CartItemDto> getActiveItemsForOrder(UUID userId);
+
+    void markCartAsAbandonedAfterOrder(UUID userId);
 
 
 }
