@@ -1,11 +1,15 @@
 package com.asm.ecommerce.cart.mapper;
 
 import com.asm.ecommerce.cart.domain.Cart;
+import com.asm.ecommerce.cart.dto.order.CartItemDto;
 import com.asm.ecommerce.cart.dto.request.AddToCartRequestDto;
 import com.asm.ecommerce.cart.dto.response.CartItemResponseDto;
+import org.mapstruct.AfterMapping;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
+import org.mapstruct.MappingTarget;
 
+import java.math.BigDecimal;
 import java.util.List;
 import java.util.UUID;
 
@@ -60,4 +64,29 @@ public interface CartItemMapper {
      * Dùng cho API trả về nhiều items
      */
     List<CartItemResponseDto> toResponseDtoList(List<Cart> carts);
+
+
+    // todo: ==== Order ====
+    // Entity -> DTO cho feature Order / checkout
+    @Mapping(source = "id",              target = "id")
+    @Mapping(source = "customerId",      target = "customerId")
+    @Mapping(source = "productId",       target = "productId")
+    @Mapping(source = "quantity",        target = "quantity")
+    @Mapping(source = "price",           target = "unitPrice")
+    @Mapping(source = "sizeCategoryId",        target = "sizeCategoryId")
+    @Mapping(source = "sugarCategoryId",       target = "sugarCategoryId")
+    @Mapping(source = "iceCategoryId",         target = "iceCategoryId")
+    @Mapping(source = "temperatureCategoryId", target = "temperatureCategoryId")
+    @Mapping(target = "lineTotal",       ignore = true)   // tính ở @AfterMapping
+    CartItemDto toDto(Cart entity);
+
+    List<CartItemDto> toDtos(List<Cart> entities);
+
+    @AfterMapping
+    default void calcLineTotal(Cart entity, @MappingTarget CartItemDto dto) {
+        BigDecimal price = entity.getPrice() != null ? entity.getPrice() : BigDecimal.ZERO;
+        int qty = entity.getQuantity() != null ? entity.getQuantity() : 0;
+        dto.setUnitPrice(price);
+        dto.setLineTotal(price.multiply(BigDecimal.valueOf(qty)));
+    }
 }

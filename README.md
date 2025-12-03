@@ -523,13 +523,13 @@ The application includes sample data for testing:
 
 This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
 
-## 👨‍🎓 Academic Information
+## ‍🎓 Academic Information
 
-- **Course**: Lập trình Java 5 (Java Programming 5)
+- **Course**: Lập trình Java (Java Programming)
 - **Institution**: FPT Polytechnic
 - **Assignment**: E-commerce Website Development
 - **Semester**: Fall 2025
-- **Instructor**: TeamDev
+- **Instructor**: Dev-Storm
 
 ## 📞 Contact & Support
 
