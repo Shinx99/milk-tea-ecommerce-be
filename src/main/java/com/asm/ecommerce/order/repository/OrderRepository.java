@@ -15,8 +15,8 @@ public interface OrderRepository extends JpaRepository<Order, UUID> {
 
     List<Order> findByCustomerId(UUID customerId);
 
-    // tìm theo mã đơn
-    Order findByOrderCode(String orderCode);
+    // tìm theo mã đơn (order Code)
+    Optional<Order> findByOrderCode(String orderCode);
 
     // tìm theo customer
     List<Order> findByCustomerIdOrderByPlacedAtDesc(UUID customerId);
@@ -27,7 +27,7 @@ public interface OrderRepository extends JpaRepository<Order, UUID> {
     // Lịch sử đơn của 1 customer (dùng với PageResponse)
     Page<Order> findByCustomerIdOrderByPlacedAtDesc(UUID customerId, Pageable pageable);
 
-    // tìm theo mã đơn (order Code)
+    // tìm theo mã đơn
     //Optional<Order> findByOrderCode(String orderCode);
 
 }

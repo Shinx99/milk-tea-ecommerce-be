@@ -27,7 +27,8 @@ public class VNPayUtil {
                                 String orderType,
                                 String ipAddress) throws Exception {
 
-        Map<String, String> vnpParams = new HashMap<>();
+        //Map<String, String> vnpParams = new HashMap<>();
+        Map<String, String> vnpParams = new TreeMap<>(); // Dùng TreeMap để tự động sort
 
         vnpParams.put("vnp_Version", "2.1.0");
         vnpParams.put("vnp_Command", "pay");
@@ -50,13 +51,24 @@ public class VNPayUtil {
         String expireDate = df.format(expire.getTime());
         vnpParams.put("vnp_ExpireDate", expireDate);
 
-        // Nếu dùng IPN URL từ code (tuỳ bạn config trên portal hay không)
-        // vnpParams.put("vnp_IpnUrl", vnPayConfig.getIpnUrl());
+        // Nếu dùng IPN URL từ code (tuỳ có config trên portal hay không)
+//        if (vnPayConfig.getIpnUrl() != null && !vnPayConfig.getIpnUrl().isEmpty()) {
+//            vnpParams.put("vnp_IpnUrl", vnPayConfig.getIpnUrl());
+//        }
+        //vnpParams.put("vnp_IpnUrl", vnPayConfig.getIpnUrl());
+
+        // Log thông tin để debug
+        log.debug("[VNPay] Creating payment with params: {}", vnpParams);
+        log.info("[VNPay] tmnCode={}, hashSecret={}...",
+                vnPayConfig.getTmnCode(),
+                vnPayConfig.getHashSecret().substring(0, Math.min(10, vnPayConfig.getHashSecret().length())));
 
         String query = buildSignedQuery(vnpParams, vnPayConfig.getHashSecret());
 
         String paymentUrl = vnPayConfig.getPayUrl() + "?" + query;
         log.info("Created VNPay URL for order: {}", orderCode);
+
+
 
         return paymentUrl;
     }

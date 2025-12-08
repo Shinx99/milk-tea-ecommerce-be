@@ -129,6 +129,17 @@ public class OrderServiceImpl implements OrderService {
     }
 
     @Override
+    public OrderSummaryDto getOrderForPaymentByCode(String orderCode) {
+
+        Order order = orderRepository.findByOrderCode(orderCode)
+                .orElseThrow(() -> new RuntimeException(
+                        "Order not found with code: " + orderCode));
+
+        // Nếu bạn đã có mapper Order -> OrderSummaryDto
+        return orderMapper.toOrderSummaryDto(order);
+    }
+
+    @Override
     @Transactional
     public void markOrderPaid(UUID orderId) {
         Order order = orderRepository.findById(orderId)
