@@ -65,7 +65,7 @@ public class PaymentServiceImpl implements PaymentService{
             String paymentUrl = vnPayUtil.createPayment(
                     transactionRef,
                     amount.longValue(),
-                    "Thanh toán đơn hàng " + order.getOrderCode(),
+                    "Thanh toan don hang " + order.getOrderCode(),
                     "other",
                     clientIp
             );
@@ -83,6 +83,7 @@ public class PaymentServiceImpl implements PaymentService{
             paymentRepository.save(payment);
             throw new RuntimeException("Không tạo được URL thanh toán VNPAY");
         }
+
     }
 
     @Override
@@ -92,7 +93,10 @@ public class PaymentServiceImpl implements PaymentService{
 
         // 1. Validate chữ ký
         boolean valid = vnPayUtil.validateSignature(vnpParams);
+        log.info("[VNPay][CALLBACK] signature valid={}", valid);
+
         if (!valid) {
+            log.error("[VNPay][CALLBACK] invalid signature, params={}", vnpParams);
             log.error("Invalid VNPay signature");
             throw new RuntimeException("Invalid VNPay signature");
         }
@@ -101,6 +105,10 @@ public class PaymentServiceImpl implements PaymentService{
         String transactionRef = vnpParams.get("vnp_TxnRef");
         String vnpAmountStr = vnpParams.get("vnp_Amount");
 
+        log.info("[VNPay][CALLBACK] code={}, txnRef={}, amountRaw={}",
+                responseCode, transactionRef, vnpAmountStr);
+
+
         // 2. Tìm payment theo transactionRef
         Payment payment = paymentRepository.findByTransactionRef(transactionRef)
                 .orElseThrow(() -> new RuntimeException("Payment not found for ref: " + transactionRef));
@@ -108,6 +116,10 @@ public class PaymentServiceImpl implements PaymentService{
         // 3. Kiểm tra số tiền (optional nhưng nên làm)
         if (vnpAmountStr != null) {
             BigDecimal vnpAmount = new BigDecimal(vnpAmountStr).divide(BigDecimal.valueOf(100));
+
+            log.info("[VNPay][CALLBACK] compare amount payment={} vs vnp={}",
+                    payment.getAmount(), vnpAmount);
+
             if (payment.getAmount().compareTo(vnpAmount) != 0) {
                 log.error("Amount mismatch: payment={}, vnp={}", payment.getAmount(), vnpAmount);
                 throw new RuntimeException("Invalid amount");
@@ -175,6 +187,25 @@ public class PaymentServiceImpl implements PaymentService{
 
         PaymentResultDto dto = paymentMapper.toPaymentResultDto(order, payment);
         dto.setMessage("Đã ghi nhận thanh toán COD");
+        return dto;
+    }
+
+    @Override
+    public PaymentResultDto getPaymentResultByOrderCode(String orderCode) {
+
+        // 1. Tìm order theo orderCode (lấy thông tin đơn)
+        OrderSummaryDto order = orderService.getOrderForPaymentByCode(orderCode);
+
+        // 2. Tìm payment mới nhất theo transactionRef == orderCode
+        Payment payment = paymentRepository
+                .findFirstByTransactionRefOrderByCreatedAtDesc(orderCode)
+                .orElseThrow(() -> new RuntimeException(
+                        "Payment not found for orderCode: " + orderCode
+                ));
+
+        // 3. Map sang DTO
+        PaymentResultDto dto = paymentMapper.toPaymentResultDto(order, payment);
+        dto.setMessage("Trạng thái thanh toán: " + payment.getStatus());
         return dto;
     }
 }

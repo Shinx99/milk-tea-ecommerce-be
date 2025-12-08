@@ -11,8 +11,10 @@ public interface PaymentRepository extends JpaRepository<Payment, UUID> {
     // Dùng khi xử lý callback/IPN: map từ vnp_TxnRef -> Payment
     Optional<Payment> findByTransactionRef(String transactionRef);
 
-    // Nếu muốn lấy payment mới nhất theo order
+    // Nếu muốn lấy payment mới nhất theo order Id
     Optional<Payment> findFirstByOrderIdOrderByCreatedAtDesc(UUID orderId);
 
+    // Lấy payment theo order-code (transactionRef = orderCode)
+    Optional<Payment> findFirstByTransactionRefOrderByCreatedAtDesc(String transactionRef);
 
 }

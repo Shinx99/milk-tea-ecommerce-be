@@ -19,10 +19,13 @@ public interface OrderService {
     // xem chi tiết 1 order
     OrderDetailDto getOrderById(UUID orderId);
 
-
+    // todo: ====== payment =====
     OrderSummaryDto getOrderForPayment(UUID orderId);   // chứa id, orderCode, total, currency, status
+    OrderSummaryDto getOrderForPaymentByCode(String orderCode);
     void markOrderPaid(UUID orderId);
     void markOrderPaymentFailed(UUID orderId);
+
+
 
 
 }

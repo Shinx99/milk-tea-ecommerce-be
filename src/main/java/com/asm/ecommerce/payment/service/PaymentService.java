@@ -19,4 +19,7 @@ public interface PaymentService {
 
     // (Optional) 4. Tạo bản ghi payment cho COD, không đi qua VNPAY
     PaymentResultDto createCodPayment(UUID orderId);
+
+    // Lấy trạng thái thanh toán cho FE
+    PaymentResultDto getPaymentResultByOrderCode(String orderCode);
 }

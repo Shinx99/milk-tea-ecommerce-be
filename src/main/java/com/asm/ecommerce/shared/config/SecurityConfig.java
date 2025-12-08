@@ -121,7 +121,7 @@ public class SecurityConfig {
                         .requestMatchers("/api/orders/**").authenticated()
                         .requestMatchers("/api/customers/**").authenticated()
                         .requestMatchers("/api/addresses/**").authenticated()
-                        .requestMatchers("/api/payments/**").authenticated()
+                        .requestMatchers("/api/payments/**").permitAll()    //tạm thời để test ngrok
                         .requestMatchers("/api/vouchers/apply").authenticated()
 
                         // 7. Protected internal endpoint
