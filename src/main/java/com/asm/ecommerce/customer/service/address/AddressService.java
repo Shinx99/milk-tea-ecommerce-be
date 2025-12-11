@@ -49,4 +49,6 @@ public interface AddressService {
     @Transactional
     ApiResponse<DisplayAdminAddressResponse> adminSetDefault(UUID addressId);
 
+    @Transactional(readOnly = true)
+    DisplayAdminAddressResponse getOrderAddress(UUID customerId);
 }

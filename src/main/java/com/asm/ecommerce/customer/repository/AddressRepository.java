@@ -27,8 +27,6 @@ public interface AddressRepository extends JpaRepository<Address, UUID> {
     @Query("SELECT a FROM Address a WHERE a.customer.id = :customerId AND a.active = true")
     List<Address> findAllWithCustomerByActiveTrue(@Param("customerId") UUID customerId);
 
-
-
     //Display--------------------------------------------------------------------------------------------------------------
 
     //---------------------------------------------------------------------------------------------------------------------
@@ -40,6 +38,11 @@ public interface AddressRepository extends JpaRepository<Address, UUID> {
     // Lấy ID địa chỉ mặc định theo customerId
     @Query("SELECT a.id FROM Address a WHERE a.customer.id = :customerId AND a.isDefault = true AND a.active = true")
     Optional<UUID> findDefaultAddressIdByCustomerId(@Param("customerId") UUID customerId);
+
+    //Vuong -> OrderAdmin
+    @Query("SELECT a FROM Address a WHERE a.customer.id = :customerId AND a.isDefault = true")
+    Optional<Address> findDefaultAddressByCustomerId(UUID customerId);
+    //Vuong -> OrderAdmin
 
     // Bỏ cờ mặc định theo addressId
     @Modifying

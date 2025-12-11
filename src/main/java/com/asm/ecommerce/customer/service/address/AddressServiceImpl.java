@@ -265,4 +265,16 @@ public class AddressServiceImpl implements AddressService {
                 .data(response)
                 .build();
     }
+
+    //toDo: Vuong -> OrderAdmin export service cho feature Order
+
+    @Transactional(readOnly = true)
+    @Override
+    public DisplayAdminAddressResponse getOrderAddress(UUID customerId) {
+
+        Address defaultAddress = repo.findDefaultAddressByCustomerId(customerId)
+                .orElseThrow(() -> new EntityNotFoundException("No default address for customer: " + customerId));
+
+        return responseMapper.display(defaultAddress.getCustomer(), defaultAddress);
+    }
 }
