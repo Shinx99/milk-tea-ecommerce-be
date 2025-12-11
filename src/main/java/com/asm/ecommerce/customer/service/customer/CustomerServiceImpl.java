@@ -281,4 +281,25 @@ public class CustomerServiceImpl implements CustomerService {
                 .getId();
     }
 
+
+    //toDo: Vuong -> OrderAdmin export service cho feature Order
+    @Transactional(readOnly = true)
+    @Override
+    public DisplayAdminCustomerResponse getOrderCustomer(UUID customerId) {
+        Customer customer = repo.findById(customerId)
+                .orElseThrow(() -> new EntityNotFoundException("Customer not found"));
+
+        UserDto userDto = null;
+        try {
+            Map<UUID, UserDto> usersMap = userClient.findByUserIds(
+                    List.of(customer.getUserId()));
+            userDto = usersMap.get(customer.getUserId());
+        } catch (Exception e) {
+            log.warn("Failed to fetch user {} for customer {}: {}",
+                    customer.getUserId(), customerId, e.getMessage());
+        }
+        return displayCustomerMapper.display(customer, userDto);
+    }
+
+
 }

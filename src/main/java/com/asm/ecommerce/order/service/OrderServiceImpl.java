@@ -2,27 +2,37 @@ package com.asm.ecommerce.order.service;
 
 import com.asm.ecommerce.cart.dto.order.CartItemDto;
 import com.asm.ecommerce.cart.service.CartService;
+import com.asm.ecommerce.customer.dto.response.address.DisplayAdminAddressResponse;
+import com.asm.ecommerce.customer.dto.response.customer.DisplayAdminCustomerResponse;
+import com.asm.ecommerce.customer.service.address.AddressService;
 import com.asm.ecommerce.customer.service.customer.CustomerService;
 import com.asm.ecommerce.order.domain.Order;
 import com.asm.ecommerce.order.domain.OrderItem;
 import com.asm.ecommerce.order.dto.payment.OrderSummaryDto;
 import com.asm.ecommerce.order.dto.request.CreateOrderRequestDto;
+import com.asm.ecommerce.order.dto.response.AdminOrderDto;
 import com.asm.ecommerce.order.dto.response.OrderDetailDto;
+import com.asm.ecommerce.order.dto.response.OrderItemDto;
+import com.asm.ecommerce.order.mapper.AdminOrderMapper;
 import com.asm.ecommerce.order.mapper.OrderMapper;
 import com.asm.ecommerce.order.mapper.OrderRequestMapper;
 import com.asm.ecommerce.order.repository.OrderRepository;
-import com.asm.ecommerce.order.service.OrderService;
+import com.asm.ecommerce.product.domain.Product;
+import com.asm.ecommerce.product.repository.ProductRepository;
+import com.asm.ecommerce.shared.dto.ApiResponse;
+import com.asm.ecommerce.shared.dto.PageResponse;
 import com.asm.ecommerce.shared.exception.ResourceNotFoundException;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
 import java.time.Instant;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.UUID;
+import java.util.*;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -33,7 +43,13 @@ public class OrderServiceImpl implements OrderService {
     private final OrderRequestMapper orderRequestMapper;
     private final OrderMapper orderMapper;
     private final CartService cartService;
+
+    // Vuong---------------------------------------
+    private final AdminOrderMapper adminOrderMapper;
     private final CustomerService customerService;
+    private final AddressService addressService;
+    private final ProductRepository productRepository;
+    // Vuong---------------------------------------
 
     @Override
     @Transactional
@@ -170,5 +186,65 @@ public class OrderServiceImpl implements OrderService {
 
         order.setStatus("payment_failed");
         orderRepository.save(order);
+    }
+
+    //toDo: Vuong -> AdminOrder
+    @Transactional
+    @Override
+    public ApiResponse<PageResponse<AdminOrderDto>> findAllForOrderAdmin(String search, Pageable pageable) {
+        Page<Order> orders = orderRepository.findOrderAdmin(search, pageable);
+
+        List<AdminOrderDto> content = orders.getContent().stream()
+                .map(order -> {
+
+                    //Lay DTO cua customer
+                    DisplayAdminCustomerResponse customer =
+                            customerService.getOrderCustomer(order.getCustomerId());
+
+                    //Lay DTO cua address
+                    DisplayAdminAddressResponse address =
+                            addressService.getOrderAddress(order.getCustomerId());
+
+                    AdminOrderDto dto = adminOrderMapper.toAdminOrderDto(order, customer, address);
+
+                    // Fill productName cho tung item
+                    if (dto.getItems() == null || dto.getItems().isEmpty()) {
+                        return dto;
+                    }
+
+                    // 1) Gom tat ca productId cua order nay
+                    Set<UUID> productIds = dto.getItems().stream()
+                            .map(OrderItemDto::getProductId)
+                            .filter(Objects::nonNull)
+                            .collect(Collectors.toSet());
+
+                    // 2) Query 1 lần lấy product
+                    Map<UUID, String> productNameById = productRepository.findAllById(productIds).stream()
+                            .collect(Collectors.toMap(Product::getId, Product::getName));
+
+                    // 3) Gán productName cho từng item
+                    dto.getItems().forEach(item ->
+                            item.setProductName(productNameById.get(item.getProductId()))
+                    );
+
+                    return dto;
+
+                })
+                .toList();
+
+        PageResponse<AdminOrderDto> pageResponse = PageResponse.<AdminOrderDto>builder()
+                .content(content)
+                .pageNumber(orders.getNumber())
+                .pageSize(orders.getSize())
+                .totalPages(orders.getTotalPages())
+                .totalElements(orders.getTotalElements())
+                .last(orders.isLast())
+                .build();
+
+        return ApiResponse.<PageResponse<AdminOrderDto>>builder()
+                .success(true)
+                .message("Orders retrieved successfully!")
+                .data(pageResponse)
+                .build();
     }
 }

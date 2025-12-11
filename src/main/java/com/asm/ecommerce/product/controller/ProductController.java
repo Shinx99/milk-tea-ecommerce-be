@@ -25,7 +25,7 @@ import java.util.UUID;
 @RestController
 @RequestMapping("/api/products")
 @RequiredArgsConstructor
-@CrossOrigin(origins = "http://localhost:5173") //Sao co cai 5173 o day vay? --> Vuong
+@CrossOrigin(origins = "http://localhost:5173")
 public class ProductController {
     private final ProductService service;
 
@@ -101,7 +101,6 @@ public class ProductController {
     }
 
     //--------------------------------------------------------------------------------------------------------------------------------------------
-    // ADMIN chua xu ly xong?
     //Ham fetch product len trang Product + findByName + findByCategory cho admin
     @GetMapping("/admin")
     @PreAuthorize("hasRole('ADMIN')")
