@@ -88,15 +88,7 @@ public class AddressAdminController {
         return ResponseEntity.status(HttpStatus.CREATED).body(response);
     }
 
-    // PUT: /api/addresses/{id}
-    // METHOD: update new customer
-    //Request -> addressesId
-    @PutMapping("/{id}")
-    @PreAuthorize("hasAnyRole('ADMIN', 'CUSTOMER')")
-    public ResponseEntity<ApiResponse<DisplayAdminAddressResponse>> update(@PathVariable UUID id, @Valid @RequestBody UpdateAdminAddressRequest input){
-        ApiResponse<DisplayAdminAddressResponse> response = service.update(id, input);
-        return ResponseEntity.ok(response);
-    }
+    // === ĐÃ LOẠI BỎ ENDPOINT PUT XUNG ĐỘT update(@PathVariable UUID id, ...) ===
 
     // DELETE: /api/addresses/{id}
     // Request -> addressesId
@@ -134,6 +126,33 @@ public class AddressAdminController {
     @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<?> adminSetDefault(@PathVariable UUID addressId){
         return ResponseEntity.ok(service.adminSetDefault(addressId));
+    }
+
+
+    // === ENDPOINT SỬA CHÍNH (DÀNH CHO ADMIN) ===
+// PUT: /api/addresses/{addressId}
+    @PutMapping("/{addressId}")
+    @PreAuthorize("hasRole('ADMIN')")
+    public ResponseEntity<ApiResponse<DisplayAdminAddressResponse>> adminUpdate(
+            @PathVariable UUID addressId,
+            @Valid @RequestBody UpdateAdminAddressRequest input) {
+
+        // Đây là hàm Admin Update hợp lệ và sẽ được gọi sau khi xóa endpoint cũ.
+        ApiResponse<DisplayAdminAddressResponse> response = service.adminUpdateAddress(addressId, input);
+
+        return ResponseEntity.ok(response);
+    }
+
+
+    // PATCH: /api/addresses/{addressId}/deactivate
+    @PatchMapping("/{addressId}/deactivate")
+    @PreAuthorize("hasRole('ADMIN')")
+    public ResponseEntity<Void> adminDeactivateAddress(@PathVariable UUID addressId) {
+
+        service.adminDeactivateAddress(addressId);
+
+        // Trả về 204 No Content
+        return ResponseEntity.noContent().build();
     }
 
 
