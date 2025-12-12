@@ -51,4 +51,11 @@ public interface AddressService {
 
     @Transactional(readOnly = true)
     DisplayAdminAddressResponse getOrderAddress(UUID customerId);
+
+    @Transactional
+    ApiResponse<DisplayAdminAddressResponse> adminUpdateAddress(UUID id, UpdateAdminAddressRequest input);
+
+
+    @Transactional
+    void adminDeactivateAddress(UUID id);
 }

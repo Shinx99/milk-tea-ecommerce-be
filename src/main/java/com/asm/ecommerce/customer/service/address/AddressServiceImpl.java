@@ -277,4 +277,71 @@ public class AddressServiceImpl implements AddressService {
 
         return responseMapper.display(defaultAddress.getCustomer(), defaultAddress);
     }
+
+    // *** PHƯƠNG THỨC MỚI: ADMIN SỬA ĐỊA CHỈ ***
+    @Override
+    @Transactional
+    public ApiResponse<DisplayAdminAddressResponse> adminUpdateAddress(UUID addressId, UpdateAdminAddressRequest input) {
+        Address current = repo.findById(addressId)
+                .orElseThrow(() -> new EntityNotFoundException("AddressId not found with id: " + addressId));
+
+        UUID customerId = current.getCustomer().getId();
+
+        // 1. Xử lý logic đặt mặc định nếu input yêu cầu
+        if (Boolean.TRUE.equals(input.getIsDefault())) {
+            repo.findDefaultAddressIdByCustomerId(customerId).ifPresent(oldId -> {
+                if (!oldId.equals(addressId)) {
+                    // Xóa trạng thái mặc định cũ
+                    repo.clearDefaultAddressForCustomer(oldId);
+                    repo.flush();
+                }
+            });
+            // Set địa chỉ hiện tại là mặc định
+            current.setIsDefault(true);
+        } else if (current.getIsDefault() && Boolean.FALSE.equals(input.getIsDefault())) {
+            // Trường hợp Admin BỎ chọn mặc định trên một địa chỉ đang mặc định
+            current.setIsDefault(false);
+            // BE không tự động chọn địa chỉ mặc định mới khi Admin bỏ chọn
+        }
+
+        // 2. Cập nhật các trường địa chỉ khác
+        requestMapper.updateAdminAddress(current, input);
+
+        // 3. Lưu
+        repo.save(current);
+
+        DisplayAdminAddressResponse response = responseMapper.display(current.getCustomer(), current);
+
+        return ApiResponse.<DisplayAdminAddressResponse>builder()
+                .success(true)
+                .message("Addresses updated successfully by Admin")
+                .data(response)
+                .build();
+    }
+
+
+    // *** PHƯƠNG THỨC MỚI: ADMIN VÔ HIỆU HÓA (SOFT DELETE) ***
+    @Override
+    @Transactional
+    public void adminDeactivateAddress(UUID addressId) {
+        Address current = repo.findById(addressId)
+                .orElseThrow(() -> new EntityNotFoundException("Address not found with id: " + addressId));
+
+        // 1. Kiểm tra nghiệp vụ: KHÔNG cho phép xóa địa chỉ mặc định
+        if (Boolean.TRUE.equals(current.getIsDefault())) {
+            // Ném lỗi để Controller trả về HTTP 400 Bad Request
+            throw new IllegalArgumentException("Cannot deactivate the default address. Please set another address as default first.");
+        }
+
+        // 2. Thực hiện Soft Delete
+        // Giả định hàm softDeleteById thực hiện UPDATE ADDRESS SET active = false WHERE id = :addressId
+        int updated = repo.softDeleteById(addressId);
+
+        if (updated == 0) {
+            log.warn("Admin attempted to deactivate non-existent or already inactive address: {}", addressId);
+            throw new EntityNotFoundException("Address not found or already inactive");
+        }
+
+        log.info("Address {} deactivated successfully by Admin", addressId);
+    }
 }

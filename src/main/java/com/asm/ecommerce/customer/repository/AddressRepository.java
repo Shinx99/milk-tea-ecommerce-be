@@ -2,6 +2,7 @@ package com.asm.ecommerce.customer.repository;
 
 import com.asm.ecommerce.customer.domain.Address;
 import com.asm.ecommerce.customer.domain.Customer;
+import jakarta.transaction.Transactional;
 import org.springframework.data.domain.Page;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Modifying;
@@ -66,7 +67,7 @@ public interface AddressRepository extends JpaRepository<Address, UUID> {
     Optional<UUID> findOneActiveAddressIdForCustomer(@Param("customerId") UUID customerId,
                                                      @Param("excludeId")  UUID excludeId);
 
-
+    @Transactional
     @Modifying
     @Query("UPDATE Address a SET a.isDefault = true WHERE a.id = :id AND a.active = true")
     int setDefaultbyId(@Param("id") UUID id);
@@ -78,6 +79,7 @@ public interface AddressRepository extends JpaRepository<Address, UUID> {
     <S extends Address> S save(S entity);
 
     //Soft delete
+    @Transactional
     @Modifying
     @Query("""
         update Address a
