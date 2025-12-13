@@ -193,6 +193,15 @@
             <artifactId>spring-boot-starter-aop</artifactId>
         </dependency>
 
+        <!-- iText 7 for PDF generation -->
+        <dependency>
+            <groupId>com.itextpdf</groupId>
+            <artifactId>itext7-core</artifactId>
+            <version>8.0.4</version>
+            <type>pom</type>
+        </dependency>
+
+
 
         <!-- Testing -->
         <dependency>

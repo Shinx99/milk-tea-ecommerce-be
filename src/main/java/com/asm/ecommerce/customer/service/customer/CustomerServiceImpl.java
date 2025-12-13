@@ -281,6 +281,16 @@ public class CustomerServiceImpl implements CustomerService {
                 .getId();
     }
 
+    //========== OrderInvoce ==========
+    @Override
+    public UUID getUserIdByCustomerId(UUID customerId) {
+        Customer customer = repo.findById(customerId)
+                .orElseThrow(() -> new ResourceNotFoundException("Customer not found"));
+        return customer.getUserId(); // field FK sang bảng user
+    }
+
+
+
 
     //toDo: Vuong -> OrderAdmin export service cho feature Order
     @Transactional(readOnly = true)

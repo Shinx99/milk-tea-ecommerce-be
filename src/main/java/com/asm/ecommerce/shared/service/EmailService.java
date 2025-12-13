@@ -9,4 +9,6 @@ public interface EmailService {
      */
     void sendPasswordResetEmail(String toEmail, String resetLink);
 
+    void sendInvoiceEmail(String toEmail, String subject, String body, byte[] pdfBytes, String fileName);
+
 }

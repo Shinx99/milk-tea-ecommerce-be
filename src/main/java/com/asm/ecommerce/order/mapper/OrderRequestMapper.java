@@ -51,5 +51,8 @@ public interface OrderRequestMapper {
     @Mapping(target = "currency",      ignore = true)
     @Mapping(target = "items",         ignore = true) // set qua order.addItem(...)
     @Mapping(source = "customerId",    target = "customerId")
+    @Mapping(source = "customerName",  target = "customerName") // thêm
+    @Mapping(source = "phone",         target = "phone")        // thêm
+    @Mapping(source = "address",       target = "address")
     Order toOrder(CreateOrderRequestDto dto);
 }

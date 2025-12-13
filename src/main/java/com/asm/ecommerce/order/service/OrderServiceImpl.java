@@ -1,5 +1,6 @@
 package com.asm.ecommerce.order.service;
 
+import com.asm.ecommerce.auth.service.UserService;
 import com.asm.ecommerce.cart.dto.order.CartItemDto;
 import com.asm.ecommerce.cart.service.CartService;
 import com.asm.ecommerce.customer.dto.response.address.DisplayAdminAddressResponse;
@@ -8,10 +9,13 @@ import com.asm.ecommerce.customer.service.address.AddressService;
 import com.asm.ecommerce.customer.service.customer.CustomerService;
 import com.asm.ecommerce.order.domain.Order;
 import com.asm.ecommerce.order.domain.OrderItem;
+import com.asm.ecommerce.order.dto.invoice.InvoiceDataDto;
+import com.asm.ecommerce.order.dto.invoice.InvoiceItemDto;
 import com.asm.ecommerce.order.dto.payment.OrderSummaryDto;
 import com.asm.ecommerce.order.dto.request.CreateOrderRequestDto;
 import com.asm.ecommerce.order.dto.response.AdminOrderDto;
 import com.asm.ecommerce.order.dto.response.OrderDetailDto;
+import com.asm.ecommerce.order.mapper.InvoiceMapper;
 import com.asm.ecommerce.order.dto.response.OrderItemDto;
 import com.asm.ecommerce.order.mapper.AdminOrderMapper;
 import com.asm.ecommerce.order.mapper.OrderMapper;
@@ -22,9 +26,13 @@ import com.asm.ecommerce.product.repository.ProductRepository;
 import com.asm.ecommerce.shared.dto.ApiResponse;
 import com.asm.ecommerce.shared.dto.PageResponse;
 import com.asm.ecommerce.shared.exception.ResourceNotFoundException;
+import com.asm.ecommerce.shared.security.UserPrincipal;
+import com.asm.ecommerce.shared.service.EmailService;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
@@ -47,6 +55,12 @@ public class OrderServiceImpl implements OrderService {
     // Vuong---------------------------------------
     private final AdminOrderMapper adminOrderMapper;
     private final CustomerService customerService;
+    private final InvoiceMapper invoiceMapper;
+    private final EmailService emailService;
+    private final InvoicePdfService invoicePdfService;
+    private final InvoiceEmailJob invoiceEmailJob;
+
+
     private final AddressService addressService;
     private final ProductRepository productRepository;
     // Vuong---------------------------------------
@@ -85,6 +99,8 @@ public class OrderServiceImpl implements OrderService {
             item.setProductId(cartItem.getProductId());
             item.setQuantity(cartItem.getQuantity());
             item.setPrice(cartItem.getUnitPrice());
+            item.setProductName(cartItem.getProductName());
+            item.setProductImage(cartItem.getProductImage());
             //item.setLineTotal(cartItem.getLineTotal());
             item.setSizeCategoryId(cartItem.getSizeCategoryId());
             item.setSugarCategoryId(cartItem.getSugarCategoryId());
@@ -170,6 +186,10 @@ public class OrderServiceImpl implements OrderService {
         order.setStatus("paid");
         order.setCompletedAt(Instant.now()); // nếu bạn có field này
         orderRepository.save(order);
+
+        // gọi gửi mail bất đồng bộ, KHÔNG block VNPay callback
+        invoiceEmailJob.sendInvoiceAsync(order.getId());
+
     }
 
     @Override
@@ -187,6 +207,7 @@ public class OrderServiceImpl implements OrderService {
         order.setStatus("payment_failed");
         orderRepository.save(order);
     }
+
 
     //toDo: Vuong -> AdminOrder
     @Transactional
