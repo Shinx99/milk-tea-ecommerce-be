@@ -58,6 +58,10 @@ public interface CustomerService {
     // --- Cart ---
     UUID getCustomerIdByUserId(UUID userId);
 
+    // --- Order Invoice -----
+    UUID getUserIdByCustomerId(UUID customerId);
+
+
     //toDo: Vuong -> OrderAdmin export service cho feature Order
     @Transactional
     DisplayAdminCustomerResponse getOrderCustomer(UUID customerId);

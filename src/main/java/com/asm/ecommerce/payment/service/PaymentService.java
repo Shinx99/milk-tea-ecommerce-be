@@ -1,9 +1,11 @@
 package com.asm.ecommerce.payment.service;
 
+import com.asm.ecommerce.payment.domain.Payment;
 import com.asm.ecommerce.payment.dto.CreatePaymentResponseDto;
 import com.asm.ecommerce.payment.dto.PaymentResultDto;
 
 import java.util.Map;
+import java.util.Optional;
 import java.util.UUID;
 
 public interface PaymentService {
@@ -22,4 +24,8 @@ public interface PaymentService {
 
     // Lấy trạng thái thanh toán cho FE
     PaymentResultDto getPaymentResultByOrderCode(String orderCode);
+
+    // todo: ==== invoice PDF ====
+    Optional<Payment> getPaymentByOrderId(UUID orderId);
+
 }

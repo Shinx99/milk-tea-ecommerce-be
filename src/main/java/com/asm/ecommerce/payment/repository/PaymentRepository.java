@@ -17,4 +17,7 @@ public interface PaymentRepository extends JpaRepository<Payment, UUID> {
     // Lấy payment theo order-code (transactionRef = orderCode)
     Optional<Payment> findFirstByTransactionRefOrderByCreatedAtDesc(String transactionRef);
 
+    // Tim payment theo orderId
+    Optional<Payment> findByOrderId(UUID orderId);
+
 }

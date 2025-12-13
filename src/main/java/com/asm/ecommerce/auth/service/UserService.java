@@ -44,4 +44,8 @@ public interface UserService extends UserDetailsService{
      * @param customerId Customer UUID
      */
     void updateCustomerId(UUID userId, UUID customerId);
+
+    // ---- Order Invoice  ------
+    String getEmailByUserId(UUID userId);
+
 }

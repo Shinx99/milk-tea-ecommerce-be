@@ -1,6 +1,7 @@
 package com.asm.ecommerce.payment.service;
 
 import com.asm.ecommerce.order.dto.payment.OrderSummaryDto;
+import com.asm.ecommerce.order.service.InvoicePdfService;
 import com.asm.ecommerce.order.service.OrderService;
 import com.asm.ecommerce.payment.config.VNPayUtil;
 import com.asm.ecommerce.payment.domain.Payment;
@@ -8,6 +9,7 @@ import com.asm.ecommerce.payment.dto.CreatePaymentResponseDto;
 import com.asm.ecommerce.payment.dto.PaymentResultDto;
 import com.asm.ecommerce.payment.mapper.PaymentMapper;
 import com.asm.ecommerce.payment.repository.PaymentRepository;
+import com.asm.ecommerce.shared.service.EmailService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -16,6 +18,7 @@ import org.springframework.transaction.annotation.Transactional;
 import java.math.BigDecimal;
 import java.time.Instant;
 import java.util.Map;
+import java.util.Optional;
 import java.util.UUID;
 
 @Service
@@ -27,6 +30,8 @@ public class PaymentServiceImpl implements PaymentService{
     private final OrderService orderService;
     private final VNPayUtil vnPayUtil;
     private final PaymentMapper paymentMapper;
+    private final InvoicePdfService invoicePdfService;
+    private final EmailService emailService;
 
     @Override
     @Transactional
@@ -207,5 +212,12 @@ public class PaymentServiceImpl implements PaymentService{
         PaymentResultDto dto = paymentMapper.toPaymentResultDto(order, payment);
         dto.setMessage("Trạng thái thanh toán: " + payment.getStatus());
         return dto;
+    }
+
+    // todo: ==== invoice pdf ====
+    @Override
+    public Optional<Payment> getPaymentByOrderId(UUID orderId) {
+        return Optional.ofNullable(paymentRepository.findByOrderId(orderId)
+                .orElse(null));
     }
 }

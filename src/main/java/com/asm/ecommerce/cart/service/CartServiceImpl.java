@@ -399,7 +399,7 @@ public class CartServiceImpl implements CartService{
     */
 
     // todo: ==== Order ====
-    @Override
+    /*@Override
     public List<CartItemDto> getActiveItemsForOrder(UUID userId) {
         // 1. Đổi userId -> customerId
         UUID customerId = customerService.getCustomerIdByUserId(userId);
@@ -407,9 +407,48 @@ public class CartServiceImpl implements CartService{
         // 2. Lấy tất cả cart active của customer
         List<Cart> carts = cartRepository.findByCustomerIdAndStatus(customerId, "active");
 
+
+
         // 3. Map sang CartItemDto (dùng cho OrderService)
         return cartItemMapper.toDtos(carts);
+    }*/
+
+    @Override
+    public List<CartItemDto> getActiveItemsForOrder(UUID userId) {
+        UUID customerId = customerService.getCustomerIdByUserId(userId);
+
+        List<Cart> carts = cartRepository.findByCustomerIdAndStatus(customerId, "active");
+
+        List<CartItemDto> dtos = cartItemMapper.toDtos(carts);
+
+        // enrich productName, productImage cho từng CartItemDto
+        for (CartItemDto dto : dtos) {
+            try {
+                ProductResponse productResponse = productService.getProductInfoForCart(dto.getProductId());
+                ProductInfoDto product = productInfoMapper.fromProductResponse(productResponse);
+
+                String name = product.getName() != null ? product.getName() : "[Không có tên]";
+                if (product.getIsLowStock()) {
+                    name += " (Sắp hết)";
+                }
+                if (product.getIsOutOfStock()) {
+                    name += " (Hết hàng)";
+                }
+                dto.setProductName(name);
+                dto.setProductImage(product.getImageUrl() != null
+                        ? product.getImageUrl()
+                        : getDefaultImageUrl());
+
+            } catch (Exception e) {
+                log.error("Error enriching product {} for order item", dto.getProductId(), e);
+                dto.setProductName("[Lỗi tải sản phẩm]");
+                dto.setProductImage(getDefaultImageUrl());
+            }
+        }
+
+        return dtos;
     }
+
 
     @Override
     public void markCartAsAbandonedAfterOrder(UUID userId) {

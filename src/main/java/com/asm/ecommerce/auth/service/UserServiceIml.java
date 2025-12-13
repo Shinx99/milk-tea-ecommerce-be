@@ -112,4 +112,12 @@ public class UserServiceIml implements UserService{
         return (UserDetails) userRepository.findByEmailWithRole(email)
                 .orElseThrow(() -> new UsernameNotFoundException("User not found with email: " + email));
     }
+
+    // --------- Order Invoice ----------
+    @Override
+    public String getEmailByUserId(UUID userId) {
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new ResourceNotFoundException("User not found"));
+        return user.getEmail();
+    }
 }
