@@ -31,5 +31,12 @@ public interface OrderService {
 
     //toDo: Vuong -> AdminOrder
     @Transactional
-    ApiResponse<PageResponse<AdminOrderDto>> findAllForOrderAdmin(String search, Pageable pageable);
+    ApiResponse<PageResponse<AdminOrderDto>> findAllForOrderAdmin(String search, String status, Pageable pageable);
+
+    @Transactional
+    void markOrderProcessing(UUID orderId);
+
+    // Cap nhat trang thai completed neu khua admin edit
+    @Transactional
+    void markOrderCompleted(UUID orderId);
 }

@@ -16,6 +16,11 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
+import org.springframework.web.cors.CorsConfiguration;
+import org.springframework.web.cors.CorsConfigurationSource;
+import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
+
+import java.util.List;
 
 import static org.springframework.security.config.Customizer.withDefaults;
 
@@ -60,6 +65,20 @@ public class SecurityConfig {
             JwtUtil jwtUtil
     ) {
         return new JwtAuthenticationFilter(jwtUtil, userDetailsService);
+    }
+
+
+    @Bean
+    public CorsConfigurationSource corsConfigurationSource() {
+        CorsConfiguration cfg = new CorsConfiguration();
+        cfg.setAllowedOriginPatterns(List.of("http://localhost:5173", "http://127.0.0.1:5173"));
+        cfg.setAllowedMethods(List.of("GET","POST","PUT","DELETE","OPTIONS"));
+        cfg.setAllowedHeaders(List.of("*"));
+        cfg.setAllowCredentials(true);
+
+        UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
+        source.registerCorsConfiguration("/**", cfg);
+        return source;
     }
 
 
@@ -123,6 +142,8 @@ public class SecurityConfig {
                         .requestMatchers("/api/addresses/**").authenticated()
                         .requestMatchers("/api/payments/**").permitAll()    //tạm thời để test ngrok
                         .requestMatchers("/api/vouchers/apply").authenticated()
+
+                        .requestMatchers("/ws/**").permitAll()
 
                         // 7. Protected internal endpoint
                         .requestMatchers("/internal/**").permitAll() // chỉ bật ở profile dev/local

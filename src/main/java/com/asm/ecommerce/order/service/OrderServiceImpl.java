@@ -212,8 +212,8 @@ public class OrderServiceImpl implements OrderService {
     //toDo: Vuong -> AdminOrder
     @Transactional
     @Override
-    public ApiResponse<PageResponse<AdminOrderDto>> findAllForOrderAdmin(String search, Pageable pageable) {
-        Page<Order> orders = orderRepository.findOrderAdmin(search, pageable);
+    public ApiResponse<PageResponse<AdminOrderDto>> findAllForOrderAdmin(String search, String status, Pageable pageable) {
+        Page<Order> orders = orderRepository.findOrderAdmin(search, status, pageable);
 
         List<AdminOrderDto> content = orders.getContent().stream()
                 .map(order -> {
@@ -268,4 +268,40 @@ public class OrderServiceImpl implements OrderService {
                 .data(pageResponse)
                 .build();
     }
+
+
+    // Cap nhat trang thai processing neu khua admin edit
+    @Transactional
+    @Override
+    public void markOrderProcessing(UUID orderId){
+        Order order = orderRepository.findById(orderId)
+                .orElseThrow(() -> new ResourceNotFoundException("Order not found with id: " + orderId));
+
+        // Chi cho phep chuyen tu paid -> processing
+        if(!"paid".equalsIgnoreCase(order.getStatus())){
+            return;
+        }
+
+        order.setStatus("processing");
+        order.setCompletedAt(Instant.now());
+        orderRepository.save(order);
+    }
+
+    // Cap nhat trang thai completed neu khua admin edit
+    @Transactional
+    @Override
+    public void markOrderCompleted(UUID orderId){
+        Order order = orderRepository.findById(orderId)
+                .orElseThrow(() -> new ResourceNotFoundException("Order not found with id: " + orderId));
+
+        // Chi cho phep chuyen tu processing -> completed
+        if(!"processing".equalsIgnoreCase(order.getStatus())){
+            return;
+        }
+
+        order.setStatus("completed");
+        order.setCompletedAt(Instant.now());
+        orderRepository.save(order);
+    }
+
 }

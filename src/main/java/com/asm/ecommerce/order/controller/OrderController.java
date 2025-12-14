@@ -55,21 +55,38 @@ public class OrderController {
     }
 
 
-    //toDo: Vuong -> Order Admin
+    //toDo: Vuong -> Order Admin ---------------------------------------------------------------------------------------
     @GetMapping("/admin")
     @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<ApiResponse<PageResponse<AdminOrderDto>>> findAllForAdmin(
             @RequestParam(defaultValue = "0") int page,
             @RequestParam(defaultValue = "8") int size,
-            @RequestParam(required = false) String search
+            @RequestParam(required = false) String keyword,
+            @RequestParam(required = false) String status
     ){
 
         Pageable pageable = PageRequest.of(page, size);
 
-        ApiResponse<PageResponse<AdminOrderDto>> response = orderService.findAllForOrderAdmin(search, pageable);
+        ApiResponse<PageResponse<AdminOrderDto>> response = orderService.findAllForOrderAdmin(keyword, status, pageable);
         return ResponseEntity.ok(response);
     }
 
+
+    // SET ORDER STATUS FROM PAID -> PROCESSING
+    @PutMapping("/admin/processing/{id}")
+    @PreAuthorize("hasRole('ADMIN')")
+    public ResponseEntity<Void> setStatusProccessing(@PathVariable UUID id){
+        orderService.markOrderProcessing(id);
+        return ResponseEntity.noContent().build();
+    }
+
+    //SET ORDER STATUS FROM PROCESSING -> COMPLETED
+    @PutMapping("/admin/completed/{id}")
+    @PreAuthorize("hasRole('ADMIN')")
+    public ResponseEntity<Void> setStatusCompleted(@PathVariable UUID id){
+        orderService.markOrderCompleted(id);
+        return ResponseEntity.noContent().build();
+    }
 
 
 }
