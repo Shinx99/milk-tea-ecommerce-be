@@ -89,7 +89,7 @@ public interface ProductRepository extends JpaRepository<Product, UUID> {
 
 
     //For admin --------------------------------------------------------------------------------------------------------------
-    // Phuc vu cho method update
+    //toDo: Vuong -> Phuc vu cho method update
     @EntityGraph(attributePaths = {"category", "images"})
     Optional<Product> findById(UUID id);
 

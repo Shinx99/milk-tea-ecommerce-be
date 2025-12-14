@@ -33,7 +33,7 @@ public interface OrderRepository extends JpaRepository<Order, UUID> {
     // tìm theo mã đơn
     //Optional<Order> findByOrderCode(String orderCode);
 
-    //todo: Vuong -> ADMIN_ORDER
+    //todo: Vuong -> ADMIN_ORDER------------------------------------------------------------------------------------------
 
     //Ham findAll + Search + Phan trang
     @Query(value = """
@@ -46,6 +46,8 @@ WHERE
      OR LOWER(u.email)    ILIKE '%' || LOWER(:search) || '%'
      OR LOWER(o.order_code) ILIKE '%' || LOWER(:search) || '%'
      OR LOWER(o.status)     ILIKE '%' || LOWER(:search) || '%')
+AND (:status IS NULL OR :status = '' 
+     OR LOWER(o.status) ILIKE '%' || LOWER(:status) || '%')
 ORDER BY o.placed_at DESC
 """,
             countQuery = """
@@ -58,15 +60,9 @@ WHERE
      OR LOWER(u.email)    ILIKE '%' || LOWER(:search) || '%'
      OR LOWER(o.order_code) ILIKE '%' || LOWER(:search) || '%'
      OR LOWER(o.status)     ILIKE '%' || LOWER(:search) || '%')
+AND (:status IS NULL OR :status = '' 
+     OR LOWER(o.status) ILIKE '%' || LOWER(:status) || '%')
 """,
             nativeQuery = true)
-    Page<Order> findOrderAdmin(@Param("search") String search, Pageable pageable);
-
-
-
-
-    //Ham cho Order Detail
-
-
-
+    Page<Order> findOrderAdmin(@Param("search") String search, @Param("status") String status, Pageable pageable);
 }
