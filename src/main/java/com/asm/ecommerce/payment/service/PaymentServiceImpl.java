@@ -37,8 +37,6 @@ public class PaymentServiceImpl implements PaymentService{
     @Transactional
     public CreatePaymentResponseDto createVNPayPayment(UUID orderId, String clientIp) {
 
-
-
         // 1. Lấy thông tin order qua public service
         OrderSummaryDto order = orderService.getOrderForPayment(orderId);
 

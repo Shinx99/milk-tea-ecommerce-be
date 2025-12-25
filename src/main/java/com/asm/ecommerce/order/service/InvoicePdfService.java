@@ -192,7 +192,7 @@ public class InvoicePdfService {
 
     private void addTotals(Document document, InvoiceDataDto invoiceData) {
         BigDecimal discount = invoiceData.getDiscountTotal() != null ? invoiceData.getDiscountTotal() : BigDecimal.ZERO;
-        BigDecimal tax      = invoiceData.getTaxTotal() != null ? invoiceData.getTaxTotal() : BigDecimal.ZERO;
+        //BigDecimal tax      = invoiceData.getTaxTotal() != null ? invoiceData.getTaxTotal() : BigDecimal.ZERO;
         BigDecimal ship     = invoiceData.getShippingFee() != null ? invoiceData.getShippingFee() : BigDecimal.ZERO;
         BigDecimal subtotal = invoiceData.getSubtotal() != null ? invoiceData.getSubtotal() : BigDecimal.ZERO;
         BigDecimal total    = invoiceData.getTotal() != null ? invoiceData.getTotal() : BigDecimal.ZERO;
@@ -207,7 +207,7 @@ public class InvoicePdfService {
         // luôn hiển thị giảm giá, thuế, phí ship (kể cả 0)
         addTotalRow(totalsTable, "Giảm giá:", discount.negate()); // ví dụ: -10.000 đ
         addTotalRow(totalsTable, "Phí ship:", ship);
-        addTotalRow(totalsTable, "Thuế:", tax);
+        //addTotalRow(totalsTable, "Thuế:", tax);
 
         Cell labelCell = new Cell()
                 .add(new Paragraph("Thành tiền:").setFontSize(12).setBold())
