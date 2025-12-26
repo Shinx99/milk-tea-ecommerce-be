@@ -46,13 +46,6 @@ public class PaymentController {
     /**
      * FE lấy kết quả thanh toán của 1 order (màn payment result / chi tiết đơn)
      */
-    /*@GetMapping("/{orderId}/result")
-    public ResponseEntity<ApiResponse<PaymentResultDto>> getPaymentResult(
-            @PathVariable UUID orderId
-    ) {
-        PaymentResultDto dto = paymentService.getPaymentResultByOrderId(orderId);
-        return ResponseEntity.ok(ApiResponse.success(dto));
-    }*/
 
     @GetMapping("/by-code/{orderCode}/result")
     public ResponseEntity<ApiResponse<PaymentResultDto>> getPaymentResult(
