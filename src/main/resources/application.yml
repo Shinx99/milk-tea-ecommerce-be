@@ -9,6 +9,20 @@ server:
     max-threads: ${SERVER_TOMCAT_MAX_THREADS:200}
 
 spring:
+  mail:
+    host: ${MAIL_HOST}
+    port: ${MAIL_PORT}
+    username: ${MAIL_USERNAME}
+    password: ${MAIL_PASSWORD}
+    properties:
+      mail:
+        smtp:
+          auth: true
+          starttls:
+            enable: true
+            autoconfigure:
+              exclude: org.springframework.boot.autoconfigure.mail.MailSenderAutoConfiguration
+
   application:
     name: ${APP_NAME:ecommerce-service}
   profiles:
@@ -81,6 +95,11 @@ spring:
     redis:
       time-to-live: ${SPRING_CACHE_REDIS_TIME_TO_LIVE:600s}
 
+  # URL nội bộ cho Feign khi chạy dạng modular monolith
+  user:
+    service:
+      url: http://localhost:${server.port}
+
 flyway:
   enabled: ${SPRING_FLYWAY_ENABLED:true}
   baseline-on-migrate: ${SPRING_FLYWAY_BASELINE_ON_MIGRATE:false}
@@ -107,9 +126,9 @@ management:
         liveness:
           include: ${MANAGEMENT_ENDPOINT_HEALTH_GROUP_LIVENESS_INCLUDE:ping}
   # ⭐ Metrics export
-  metrics:
-    export:
-      simple:
+  simple:
+    metrics:
+      export:
         enabled: ${MANAGEMENT_METRICS_EXPORT_SIMPLE_ENABLED:true}
 
 logging:
@@ -129,3 +148,35 @@ app:
   features:
     cache-enabled: ${APP_FEATURES_CACHE_ENABLED:true}
     metrics-enabled: ${APP_FEATURES_METRICS_ENABLED:true}
+
+    # Cấu hình CORS
+  cors:
+    allowed-origins: ${CORS_ALLOWED_ORIGINS:http://localhost:5173}
+
+    # Cấu hình URL Frontend (dùng cho email reset pass)
+  frontend:
+    base-url: ${APP_FRONTEND_BASE_URL:http://localhost:5173}
+
+# ⭐ JWT
+jwt:
+  #secret: ${JWT_SECRET_FOR_SUCH_A_LONG_DECODE}
+  secret: ${JWT_SECRET}
+  expiry: ${JWT_EXPIRY}
+
+# ⭐ Gemini
+gemini:
+  api:
+    key: ${GEMINI_API_KEY}
+    url: https://generativelanguage.googleapis.com/v1beta/models/gemini-pro:generateContent
+    timeout: ${GEMINI_API_TIMEOUT:30s}
+# ⭐ Vnpay
+vnpay:
+  tmn-code: ${VNPAY_TMN_CODE}
+  hash-secret: ${VNPAY_HASH_SECRET}
+  pay-url: ${VNPAY_PAY_URL}
+  return-url: ${VNPAY_RETURN_URL}
+  ipn-url: ${VNPAY_IPN_URL}
+  api-url: ${VNPAY_API_URL}
+
+
+

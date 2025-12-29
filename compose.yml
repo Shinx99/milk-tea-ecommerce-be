@@ -1,6 +1,6 @@
 services:
   postgres:
-    image: ${POSTGRES_IMAGE} #"--new add"
+    image: ${POSTGRES_IMAGE}
     container_name: ${APP_NAME:-ecommerce}-postgres
     environment:
       POSTGRES_DB: ${POSTGRES_DB}
@@ -10,7 +10,8 @@ services:
     ports:
       - "5432:5432"
     volumes:
-      - postgres_data:/var/lib/postgresql/data
+      - ${POSTGRES_VOLUME}
+
     healthcheck:
       test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER} -d ${POSTGRES_DB}"]
       interval: 10s
@@ -57,6 +58,17 @@ services:
       - SPRING_DEVTOOLS_RESTART_ENABLED=true
       - SPRING_DEVTOOLS_LIVERELOAD_ENABLED=true
       - SPRING_DEVTOOLS_RESTART_ADDITIONAL_PATHS=src/main
+      - JWT_SECRET=${JWT_SECRET}
+      - JWT_EXPIRY=${JWT_EXPIRY}
+      - VNPAY_TMN_CODE=${VNPAY_TMN_CODE}
+      - VNPAY_HASH_SECRET=${VNPAY_HASH_SECRET}
+      - VNPAY_PAY_URL=${VNPAY_PAY_URL}
+      - VNPAY_RETURN_URL=${VNPAY_RETURN_URL}
+      - VNPAY_IPN_URL=${VNPAY_IPN_URL}
+      - VNPAY_API_URL=${VNPAY_API_URL}
+      # ⭐ Gemini API
+      - GEMINI_API_KEY=${GEMINI_API_KEY}
+      - GEMINI_API_TIMEOUT=${GEMINI_API_TIMEOUT:-30s}
     env_file: .env
     depends_on:
       postgres:

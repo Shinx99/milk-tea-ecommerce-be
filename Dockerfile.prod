@@ -1,0 +1,28 @@
+# =========================
+# Stage 1: Build JAR
+# =========================
+FROM maven:3.9.6-eclipse-temurin-17 AS build
+WORKDIR /app
+
+# Copy pom và tải dependencies để tận dụng cache
+COPY pom.xml ./
+RUN mvn -B dependency:go-offline
+
+# Copy source và build JAR
+COPY . .
+RUN mvn -B clean package -DskipTests
+
+# =========================
+# Stage 2: Runtime (prod)
+# =========================
+FROM eclipse-temurin:17-jre-alpine
+WORKDIR /app
+
+# Copy JAR từ stage build
+COPY --from=build /app/target/*.jar app.jar
+
+# Expose port HTTP của Spring Boot
+EXPOSE 8080
+
+# Chạy ứng dụng
+ENTRYPOINT ["java","-jar","/app/app.jar"]

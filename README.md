@@ -1,195 +1,222 @@
 
 
-# 🧋 Milk Tea E-commerce - Spring MVC
+# 🧋 Milk Tea E-commerce - Spring Boot REST API
 
-> **Java 5 Assignment** - E-commerce website cho trà sữa sử dụng Spring Boot MVC, Thymeleaf và JPA
-
+> E-commerce backend for a milk tea shop, built with **Spring Boot 3.3.4**, **PostgreSQL 16** and **Docker**.  
+> Provides REST APIs for both the customer portal and the admin dashboard.
 
 [![Spring Boot](https://img.shields.io/badge/Spring%20Boot-3.3.4-brightgreen)](https://spring.io/projects/spring-boot)
 [![Java](https://img.shields.io/badge/Java-17-orange)](https://openjdk.java.net/projects/jdk/17/)
 [![PostgreSQL](https://img.shields.io/badge/PostgreSQL-16-blue)](https://www.postgresql.org/)
 [![Docker](https://img.shields.io/badge/Docker-Compose-blue)](https://docs.docker.com/compose/)
-[![Thymeleaf](https://img.shields.io/badge/Thymeleaf-3.1-green)](https://www.thymeleaf.org/)
 
-> **Professional e-commerce platform for milk tea business** - Java 5 Assignment (FPT Polytechnic)
->
-> Modern full-stack web application built with Spring Boot MVC, featuring **Package by Feature architecture**, customer portal, admin dashboard, and comprehensive business management tools.
+> **E-commerce platform for milk tea business**
 
 ## 🎯 Project Overview
 
-This e-commerce platform demonstrates modern Spring Boot development practices with **Package by Feature** architecture, providing a complete business solution for milk tea stores including customer shopping experience and administrative management tools.
+This e-commerce platform demonstrates modern Spring Boot development practices with a  
+**Package by Feature** architecture, providing a complete business solution for milk tea stores, including both the customer shopping experience and administrative management tools.
+
+## 🌐 Live Demo & Frontend
+
+- **Live site**: https://your-production-domain.com
+- **Frontend repository**: https://github.com/Shinx99/milk-tea-ecommerce-fe
+- **Backend repository**: https://github.com/Shinx99/milk-tea-ecommerce-springmvc
 
 ### 🏗️ Architecture Highlights
-- **Package by Feature**: Organized by business capabilities rather than technical layers
-- **Spring Boot MVC**: RESTfull architecture with Thymeleaf templating
-- **Domain-Driven Design**: Clear separation of business concerns
-- **Docker-First Development**: Containerized for consistent environments
 
+- **Package by Feature**: Organized by business capabilities rather than technical layers.
+- **Spring Boot REST API**: Clean REST API architecture.
+- **Domain-Driven Design mindset**: Clear separation of business concerns.
+- **Docker-first development**: Containerized for consistent environments.
+
+---
 
 ## 🚀 Quick Start
-- **Docker Desktop** (recommended)
-- **Java 17+** (optional for local development)
 
-### Setup
-- git clone https://github.com/yourusername/milk-tea-ecommerce-springmvc <br>
-- cd milk-tea-ecommerce-springmvc <br>
-- cp .env.example .env <br>
-- docker compose up --build
+Requirements:
+
+- **Docker Desktop or Docker Engine**
+- **Java 17+** (optional, only if you want to run without Docker)
+
+### 1. Setup
+
+```bash
+ git clone https://github.com/Shinx99/milk-tea-ecommerce-springmvc.git
+ cd milk-tea-ecommerce-springmvc 
+ cp .env.example .env
+ ```
+Update values in .env if needed (DB, JWT, mail, VNPay, ...)
+ ```bash
+ docker compose up --build
+```
+
+- App: `http://localhost:8080`
+- PostgreSQL runs in a container, Flyway automatically applies all migrations and sample data.
+
+### Account demo:
+```bash
+Admin:
+email: admin@milktea.local
+password: Admin#123
+
+Customer:
+email: customer1@milktea.local
+password: Customer#1
+```
+
+
+
+---
 
 ## ✨ Features
 
 ### 🛍️ Customer Portal
-- **Product Catalog**: Browse milk tea products with categories and search
-- **Shopping Cart**: Add, update, remove items with persistent sessions
-- **User Management**: Registration, authentication, profile management
-- **Order Processing**: Secure checkout and order history
-- **Email Integration**: Account activation and password recovery
+
+- **Product catalog**: Browse milk tea products by category, search and view details.
+- **Shopping cart**: Add, update and remove items before checkout.
+- **Order & payment**: Place orders with COD / online payment and view order history.
+- **User account**: Registration, login and profile management (customer info, shipping addresses).
+- **Email notifications**: Send order confirmation / invoice and important updates to customers.
 
 ### 🔧 Admin Dashboard
-- **Product Management**: CRUD operations for products and categories
-- **User Management**: Customer account administration
-- **Order Management**: Process and track customer orders
-- **Business Reports**: Revenue analytics and VIP customer insights
-- **Inventory Control**: Stock management and pricing
 
-### 🔒 Security Features
-- **Role-based Access Control**: Customer/Admin separation
-- **Spring Security**: Authentication and authorization
-- **Session Management**: Secure user sessions
-- **CSRF Protection**: Cross-site request forgery prevention
+- **Category management**: Full CRUD for product categories (create, update, delete, search by name).
+- **Product management**: CRUD for products, assign products to categories, manage product images.
+- **Order management**: View all orders and update order status (pending, shipping, completed, cancelled).
+- **Customer & address management**: View customer list and their shipping addresses to support order handling.
 
-## 🛠️ Tech Stack
+### 🔒 Security
 
-- **Backend**: Spring Boot 3.3.4, Spring MVC, Spring Security
-- **Frontend**: Thymeleaf, Bootstrap 5, JavaScript
-- **Database**: PostgreSQL 16 with Hibernate/JPA
-- **Containerization**: Docker & Docker Compose
-- **Build Tool**: Maven 3.9.6
-- **Java**: OpenJDK 17 +
-
-## 📁 Project Structure (Package by Feature)
-```
-src/main/java/com/asm/ecommerce/
-│
-├── 🚀 EcommerceApplication.java                 # Main Spring Boot application
-│
-├── 📦 product/                                  # Product management feature
-│   ├── 🎮 Controller.java                       # Product display & CRUD operations
-│   ├── ⚙️ Service.java                          # Business logic & validation
-│   ├── 💾 Repository.java                       # JPA data access layer
-│   ├── 📋 entity/Product.java                   # Product JPA entity
-│   └── 📤 dto/ProductDto.java                   # Data transfer objects
-│
-├── 🤝 shared/                                   # Shared utilities & cross-cutting concerns
-│   ├── ⚙️ config/                               # Spring configuration classes
-│   │   ├── SecurityConfig.java                  # Security configuration
-│   │   └── WebMvcConfig.java                    # MVC configuration  
-│   ├── 🚨 exception/                            # Global exception handling
-│   │   ├── GlobalExceptionHandler.java          # @ControllerAdvice
-│   │   └── BusinessException.java               # Custom exceptions
-│   └── 🔧 util/                                 # Utility classes
-│       ├── DateUtils.java                       # Date manipulation
-│       └── ValidationUtils.java                 # Common validations
-│
-└── 🔮 [Future Features]/                        # Additional features to be implemented
-    ├── cart/                                    # Shopping cart management
-    ├── order/                                   # Order processing
-    ├── user/                                    # User account management
-    ├── admin/                                   # Admin dashboard
-    └── notification/                            # Email & notifications
-
-src/main/resources/
-├── 🗄️ db/                                        # Database related files
-│   └── migration/                               # Flyway migration scripts
-│       ├── V1__Create_tables.sql                # Initial schema
-│       └── V2__Insert_sample_data.sql           # Sample data
-├── 🌐 static/                                   # Static web assets
-│   ├── css/                                     # Stylesheets
-│   │   ├── bootstrap.min.css                    # Bootstrap framework
-│   │   └── custom.css                           # Custom styles
-│   ├── js/                                      # JavaScript files
-│   │   ├── jquery.min.js                        # jQuery library
-│   │   └── app.js                               # Application scripts
-│   └── images/                                  # Image assets
-│       ├── logo.png                             # Application logo
-│       └── products/                            # Product images
-├── 📄 templates/                                # Thymeleaf templates
-│   ├── layout/                                  # Layout templates
-│   │   ├── base.html                           # Base layout
-│   │   └── fragments.html                      # Reusable fragments
-│   ├── hello.html                              # Welcome page template
-│   └── product/                                # Product-related templates
-│       ├── list.html                           # Product listing
-│       └── detail.html                         # Product details
-└── ⚙️ application.yml                           # Application configuration
-
-src/test/java/com/asm/ecommerce/
-├── 🧪 EcommerceApplicationTests.java            # Integration tests
-└── product/                                    # Feature-specific tests
-    ├── ProductControllerTest.java              # Controller tests
-    └── ProductServiceTest.java                 # Service tests
-```
-```
-
-## 📊 Sample Data
-
-The application includes sample data for testing:
-- **10 product categories** (Classic Milk Tea, Fruit Tea, etc.)
-- **200+ products** with various flavors and toppings
-- **5 customer accounts** for testing
-- **1 admin account** for management
-- **Sample orders** for demonstration
-
-## 🎯 Assignment Compliance
-
-### ✅ Completed Requirements
-- [x] **Product Display**: Homepage, categories, search functionality
-- [x] **Shopping Cart**: Add, update, remove, checkout
-- [x] **User Management**: Registration, login, profile, password reset
-- [x] **Order Processing**: Place orders, view history, order details
-- [x] **Admin Panel**: CRUD operations for all entities
-- [x] **Business Reports**: Revenue by category, VIP customers
-- [x] **Security**: Role-based access control
-- [x] **Email Integration**: Account activation, notifications
-
-### 📈 Performance Metrics
-- **Startup time**: < 30 seconds with Docker
-- **Page load time**: < 200ms average
-- **Database queries**: Optimized with JPA
-- **Concurrent users**: Tested up to 100 users
-
-## 🐛 Troubleshooting
-
-### Common Issues
-
-**Port already in use:**
-
-## 🤝 Contributing
-
-1. Fork the repository
-2. Create feature branch (`git checkout -b feature/new-feature`)
-3. Commit changes (`git commit -am 'Add new feature'`)
-4. Push to branch (`git push origin feature/new-feature`)
-5. Create Pull Request
-
-## 📄 License
-
-This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
-
-## 👨‍🎓 Academic Information
-
-- **Course**: Lập trình Java 5 (Java Programming 5)
-- **Institution**: FPT Polytechnic
-- **Assignment**: E-commerce Website Development
-- **Semester**: Fall 2025
-- **Instructor**: TeamDev
-
-## 📞 Contact & Support
-
-- **Developer**: TeamDEV
-- **Email**: ...@gmail.com
-- **GitHub**: [@Shinx99](https://github.com/Shinx99)
+- **JWT-based authentication**: Stateless authentication using JSON Web Tokens for all protected API endpoints.
+- **Role-based access control**: Clear separation between CUSTOMER and ADMIN (e.g. `/api/admin/**` only for ADMIN).
+- **Endpoint-level rules**: Public endpoints for auth and product browsing, authenticated access for cart/orders/customers, admin-only routes for management.
+- **CORS configuration**: Allow frontend clients (e.g. `http://localhost:5173`) to call the APIs safely.
+- **Password hashing**: User passwords are stored using BCrypt.
 
 ---
 
-⭐ If this project helps you learn Spring Boot and e-commerce development, please give it a star!
+## 🛠️ Tech Stack
+
+- **Backend**: Spring Boot 3.3.4, REST API, Spring Security with JWT.
+- **Persistence**: Spring Data JPA, Hibernate.
+- **Database**: PostgreSQL 16 (main database, managed via Flyway migrations).
+- **Containerization**: Docker & Docker Compose (app + PostgreSQL; Redis is prepared for future caching).
+- **Build Tool**: Maven 3.9.6.
+- **Language**: Java 17 (OpenJDK).
+
+---
+
+## 📁 Project Structure (Package by Feature)
+
+
+
+```bash
+📦 src/
+├── main/
+│ ├── java/com.asm.ecommerce
+│ │ ├── 📂 auth/ # authentication & authorization
+│ │ ├── 📂 cart/ # shopping cart
+│ │ ├── 📂 chatbox/ # chat / support module (WIP)
+│ │ ├── 📂 customer/ # customer profiles & shipping addresses
+│ │ ├── 📂 notification/ # email / notifications
+│ │ ├── 📂 order/ # orders
+│ │ ├── 📂 payment/ # payments (COD, VNPay, ...)
+│ │ ├── 📂 product/ # products, categories, images
+│ │ ├── 📂 shared/ # common config, exception, util, DTOs
+│ │ └── 📂 statistics/ # admin statistics APIs
+│ │
+│ └── resources
+│     ├── 📂 db.migration/ # Flyway SQL scripts + sample data
+│     └── application.yml
+│
+└── test/
+    └── java/com.asm.ecommerce/shared/util
+        ├── DateTimeUtilTest.java
+        ├── StringUtilTest.java
+        └── ValidationUtilTest.java
+```
+
+### Project root:
+
+```bash
+├── compose.yml # Docker Compose for dev
+├── docker-compose.prod.yml # Docker Compose for prod
+├── Dockerfile # Dev image
+├── Dockerfile.prod # Multi-stage build for prod
+├── .env / .env.example # Environment variables
+├── create-migration.sh # Helper to create Flyway migrations
+└── pom.xml # Maven build configuration
+```
+---
+
+### 🏠 Home page
+
+![Home page](images/home.png)  
+![Home page – new products](images/new.png)
+
+- Landing page with featured and new products, and quick access to main categories.
+
+### 🛍 Product listing & detail
+
+![Product listing](images/products.png)  
+![Product detail](images/productDetail.png)
+
+- Browse products by category, search and sort results.
+- View full product details (description, price, options, images).
+
+### 🧺 Cart & Checkout
+
+![Cart](images/cart.png)  
+![Checkout](images/checkout.png)  
+![VNPay Checkout](images/vnpay.png)
+
+- Review cart items, update quantities and remove products.
+- Choose shipping address and payment method (COD / VNPay) and place an order.
+
+### 🛠 Admin – Categories & Products
+
+![Admin – Categories](images/admin-categories.png)  
+![Admin – Products](images/admin-products.png)
+
+- Admin panel to manage categories and products (full CRUD, search and filter).
+
+### 📦 Admin – Orders & Customers
+
+![Admin – Orders](images/admin-orders.png)  
+![Admin – Customers](images/admin-customers.png)
+
+- Track orders and update statuses.
+- View customer list and basic profile information to support order handling.
+
+---
+
+## 📊 Sample Data
+
+The database comes with sample data for demo:
+
+- Product categories and products for the shop.
+- Demo customers and one admin account.
+- Sample orders to showcase the admin dashboard.
+
+---
+
+## 🎓 Academic Information
+
+- **Course**: Java Programming
+- **Institution**: FPT Polytechnic
+- **Assignment**: E-commerce Website Development
+- **Semester**: Fall 2025
+- **Instructor**: Dev-Storm
+
+---
+
+## 📞 Contact & Support
+
+- **Developer**: Dev-Storm
+- **Email**: [picatssnam@gmail.com](mailto:picatssnam@gmail.com)
+- **GitHub**: https://github.com/Shinx99
+
+---
+
+I hope this project helps you learn something valuable and grow your career in software development, and I also look forward to receiving your feedback and suggestions to keep improving this project. Thank you very much for your support.
