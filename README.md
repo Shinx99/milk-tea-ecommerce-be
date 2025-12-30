@@ -211,11 +211,22 @@ The database comes with sample data for demo:
 
 ---
 
+## 👥 Project Team
+
+**Milk Tea E-commerce Team (5 Full Stack Developers)**
+
+- **Nam** – Backend (Auth, Payment, Order), Frontend (Cart, Checkout) – https://github.com/Shinx99  
+- **Vũ** – Backend (Security, Deployment), Frontend (Home, Search) – https://github.com/AnhVu-Josep 
+- **Vương** – Backend (Admin Dashboard), Frontend (Admin UI) – https://github.com/BuiHoangVuong-Haha 
+- **Hải** – Backend (Notification, Statistics), Frontend (User Profile) – https://github.com/NgocHai112 
+- **Trung** – Backend (Product, Customer), Frontend (Product Catalog) – https://github.com/HoangTrung2004 
+
+---
+
 ## 📞 Contact & Support
 
 - **Developer**: Dev-Storm
 - **Email**: [picatssnam@gmail.com](mailto:picatssnam@gmail.com)
-- **GitHub**: https://github.com/Shinx99
 
 ---
 
