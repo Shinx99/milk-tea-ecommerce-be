@@ -1,0 +1,209 @@
+# =============================================================================
+# PRODUCTION PROFILE CONFIGURATION
+# Override settings từ application.yml cho môi trường production
+# =============================================================================
+
+# =============================================================================
+# SERVER CONFIGURATION
+# =============================================================================
+server:
+  port: 8080
+  shutdown: graceful
+
+  # Error handling - Ẩn thông tin nhạy cảm
+  error:
+    include-message: never
+    include-binding-errors: never
+    include-stacktrace: never
+    include-exception: false
+    whitelabel:
+      enabled: false
+
+  # Compression settings
+  compression:
+    enabled: true
+    mime-types: text/html,text/xml,text/plain,text/css,application/javascript,application/json
+    min-response-size: 1024
+
+  # Tomcat optimization
+  tomcat:
+    max-threads: 200
+    min-spare-threads: 10
+    accept-count: 100
+    connection-timeout: 20000
+
+# =============================================================================
+# SPRING CONFIGURATION
+# =============================================================================
+spring:
+
+  # ---------------------------------------------------------------------------
+  # JPA/HIBERNATE - Tắt SQL logging và optimize
+  # ---------------------------------------------------------------------------
+  jpa:
+    show-sql: false
+    open-in-view: false
+    properties:
+      hibernate:
+        format_sql: false
+        use_sql_comments: false
+        # Production JPA optimizations
+        jdbc:
+          batch_size: 20
+          batch_versioned_data: true
+        order_inserts: true
+        order_updates: true
+        # Connection settings
+        connection:
+          provider_disables_autocommit: true
+    hibernate:
+      ddl-auto: validate
+
+  # ---------------------------------------------------------------------------
+  # DEVTOOLS - Tắt hoàn toàn trong production
+  # ---------------------------------------------------------------------------
+  devtools:
+    restart:
+      enabled: false
+    livereload:
+      enabled: false
+    add-properties: false
+
+  # ---------------------------------------------------------------------------
+  # CACHE - Đảm bảo không dùng cache
+  # ---------------------------------------------------------------------------
+  cache:
+    type: none
+
+  # ---------------------------------------------------------------------------
+  # DATASOURCE - Connection pool optimization
+  # ---------------------------------------------------------------------------
+  datasource:
+    hikari:
+      maximum-pool-size: 10
+      minimum-idle: 5
+      connection-timeout: 20000
+      idle-timeout: 300000
+      max-lifetime: 1800000
+      leak-detection-threshold: 60000
+      auto-commit: false
+      connection-test-query: SELECT 1
+
+# =============================================================================
+# FLYWAY - Production safety
+# =============================================================================
+flyway:
+  enabled: true
+  clean-disabled: true
+  baseline-on-migrate: false
+  validate-on-migrate: true
+  out-of-order: false
+
+# =============================================================================
+# ACTUATOR & MONITORING
+# =============================================================================
+management:
+  endpoints:
+    enabled-by-default: false
+    web:
+      exposure:
+        include: health,info,metrics
+      base-path: /actuator
+
+  endpoint:
+    health:
+      enabled: true
+      show-details: when-authorized
+      show-components: when-authorized
+      probes:
+        enabled: true
+      group:
+        readiness:
+          include: db
+        liveness:
+          include: ping
+
+    info:
+      enabled: true
+
+    metrics:
+      enabled: true
+
+  # Metrics configuration
+  metrics:
+    export:
+      simple:
+        enabled: true
+    distribution:
+      percentiles-histogram:
+        http.server.requests: true
+    tags:
+      application: ${spring.application.name}
+      environment: production
+
+# =============================================================================
+# LOGGING CONFIGURATION
+# =============================================================================
+logging:
+  level:
+    root: WARN
+    org.springframework: INFO
+    org.springframework.web: INFO
+    org.springframework.security: INFO
+    org.springframework.boot: INFO
+    org.hibernate: WARN
+    org.hibernate.SQL: WARN
+    org.hibernate.type.descriptor.sql.BasicBinder: WARN
+    com.asm.ecommerce: INFO
+    com.zaxxer.hikari: WARN
+    org.flywaydb: INFO
+
+  # File logging (nếu cần)
+  file:
+    name: /var/log/ecommerce/application.log
+    max-size: 10MB
+    max-history: 30
+    total-size-cap: 1GB
+
+  # Pattern cho production - không có màu, format đơn giản
+  pattern:
+    console: "%d{yyyy-MM-dd HH:mm:ss.SSS} %-5level [%thread] %logger{40} : %msg%n"
+    file: "%d{yyyy-MM-dd HH:mm:ss.SSS} %-5level [%thread] %logger{40} : %msg%n"
+
+# =============================================================================
+# APPLICATION CUSTOM PROPERTIES - Production Overrides
+# =============================================================================
+app:
+  environment: production
+
+  features:
+    cache-enabled: false
+    metrics-enabled: true
+    debug-mode: false
+
+  # CORS - Update với domain thật trong .env
+  cors:
+    allowed-origins: ${CORS_ALLOWED_ORIGINS:https://yourdomain.com}
+
+  # Frontend URL - Update với domain thật trong .env
+  frontend:
+    base-url: ${APP_FRONTEND_BASE_URL:https://yourdomain.com}
+
+# =============================================================================
+# GEMINI - Production timeout
+# =============================================================================
+gemini:
+  api:
+    timeout: 60s
+    max-retries: 3
+
+# =============================================================================
+# VNPAY - Production URLs (nếu khác sandbox)
+# =============================================================================
+vnpay:
+  # Override URLs nếu dùng VNPay production (không phải sandbox)
+  # Nếu vẫn dùng sandbox, comment các dòng dưới
+  pay-url: ${VNPAY_PAY_URL:https://vnpayment.vn/paymentv2/vpcpay.html}
+  api-url: ${VNPAY_API_URL:https://vnpayment.vn/merchant_webapi/api/transaction}
+  return-url: ${VNPAY_RETURN_URL}
+  ipn-url: ${VNPAY_IPN_URL}

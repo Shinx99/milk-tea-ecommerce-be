@@ -93,6 +93,14 @@ public class PaymentController {
         // 2. Lấy orderCode / transactionRef để FE tra kết quả
         String orderCode = params.get("vnp_TxnRef");
 
+        // 2. Xử lý callback NGAY (không đợi IPN)
+        try {
+            paymentService.handleVNPayCallback(params);
+            log.info("VNPay callback processed successfully for orderCode: {}", orderCode);
+        } catch (Exception e) {
+            log.error("Error processing VNPay callback", e);
+        }
+
         // 3. Redirect sang trang Vue hiển thị kết quả
         URI uri = URI.create(frontendBaseUrl + "/payment-result?orderCode="+orderCode);
         return ResponseEntity.status(302).location(uri).build();

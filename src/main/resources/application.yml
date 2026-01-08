@@ -60,19 +60,6 @@ spring:
       ddl-auto: ${SPRING_JPA_HIBERNATE_DDL_AUTO:validate}
     defer-datasource-initialization: false
 
-  data:
-    redis:
-      host: ${SPRING_DATA_REDIS_HOST}
-      port: ${SPRING_DATA_REDIS_PORT:6379}
-      password: ${SPRING_DATA_REDIS_PASSWORD:}
-      timeout: ${SPRING_DATA_REDIS_TIMEOUT:2s}
-      # ⭐ Redis connection pool
-      lettuce:
-        pool:
-          max-active: ${SPRING_DATA_REDIS_LETTUCE_POOL_MAX_ACTIVE:8}
-          max-idle: ${SPRING_DATA_REDIS_LETTUCE_POOL_MAX_IDLE:8}
-          min-idle: ${SPRING_DATA_REDIS_LETTUCE_POOL_MIN_IDLE:0}
-
   servlet:
     multipart:
       max-file-size: ${SPRING_SERVLET_MULTIPART_MAX_FILE_SIZE:10MB}
@@ -91,9 +78,7 @@ spring:
 
   # ⭐ Caching configuration
   cache:
-    type: ${SPRING_CACHE_TYPE:redis}
-    redis:
-      time-to-live: ${SPRING_CACHE_REDIS_TIME_TO_LIVE:600s}
+    type: NONE
 
   # URL nội bộ cho Feign khi chạy dạng modular monolith
   user:
@@ -122,7 +107,7 @@ management:
       # ⭐ Health check components
       group:
         readiness:
-          include: ${MANAGEMENT_ENDPOINT_HEALTH_GROUP_READINESS_INCLUDE:db,redis}
+          include: ${MANAGEMENT_ENDPOINT_HEALTH_GROUP_READINESS_INCLUDE:db}
         liveness:
           include: ${MANAGEMENT_ENDPOINT_HEALTH_GROUP_LIVENESS_INCLUDE:ping}
   # ⭐ Metrics export
@@ -146,7 +131,7 @@ app:
   version: ${APP_VERSION:@project.version@}
   environment: ${APP_ENVIRONMENT:development}
   features:
-    cache-enabled: ${APP_FEATURES_CACHE_ENABLED:true}
+    cache-enabled: ${APP_FEATURES_CACHE_ENABLED:false}  # ✅ Consistent
     metrics-enabled: ${APP_FEATURES_METRICS_ENABLED:true}
 
     # Cấu hình CORS
