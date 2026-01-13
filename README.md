@@ -19,7 +19,7 @@ This e-commerce platform demonstrates modern Spring Boot development practices w
 
 ## 🌐 Live Demo & Frontend
 
-- **Live site**: https://your-production-domain.com
+- **Live site**: http://57.180.46.117
 - **Frontend repository**: https://github.com/Shinx99/milk-tea-ecommerce-fe
 - **Backend repository**: https://github.com/Shinx99/milk-tea-ecommerce-springmvc
 
