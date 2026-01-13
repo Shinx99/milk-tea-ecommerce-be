@@ -205,7 +205,7 @@ The database comes with sample data for demo:
 
 - **Course**: Java Programming
 - **Institution**: FPT Polytechnic
-- **Assignment**: E-commerce Website Development
+- **Assignment**: Milktea Website Development
 - **Semester**: Fall 2025
 - **Instructor**: Dev-Storm
 
@@ -215,11 +215,11 @@ The database comes with sample data for demo:
 
 **Milk Tea E-commerce Team (5 Full Stack Developers)**
 
-- **Nam** – Backend (Auth, Payment, Order), Frontend (Cart, Checkout) – https://github.com/Shinx99  
-- **Vũ** – Backend (Security, Deployment), Frontend (Home, Search) – https://github.com/AnhVu-Josep 
-- **Vương** – Backend (Admin Dashboard), Frontend (Admin UI) – https://github.com/BuiHoangVuong-Haha 
-- **Hải** – Backend (Notification, Statistics), Frontend (User Profile) – https://github.com/NgocHai112 
-- **Trung** – Backend (Product, Customer), Frontend (Product Catalog) – https://github.com/HoangTrung2004 
+- **Nam**  – https://github.com/Shinx99  
+- **Vũ** – https://github.com/AnhVu-Josep 
+- **Vương** – https://github.com/BuiHoangVuong-Haha 
+- **Hải** – https://github.com/NgocHai112 
+- **Trung** – https://github.com/HoangTrung2004 
 
 ---
 
