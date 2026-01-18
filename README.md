@@ -217,7 +217,7 @@ The database comes with sample data for demo:
 
 - **Nam**  – https://github.com/Shinx99  
 - **Vũ** – https://github.com/AnhVu-Josep 
-- **Vương** – https://github.com/BuiHoangVuong-Haha 
+- **Vương** – https://github.com/BuiHoangVuong777
 - **Hải** – https://github.com/NgocHai112 
 - **Trung** – https://github.com/HoangTrung2004 
 
