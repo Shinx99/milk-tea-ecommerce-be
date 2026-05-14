@@ -24,5 +24,9 @@ COPY --from=build /app/target/*.jar app.jar
 # Expose port HTTP của Spring Boot
 EXPOSE 8080
 
-# Chạy ứng dụng
-ENTRYPOINT ["java","-jar","/app/app.jar"]
+# Health check (optional nhưng nên có)
+HEALTHCHECK --interval=30s --timeout=3s --start-period=40s --retries=3 \
+  CMD wget --no-verbose --tries=1 --spider http://localhost:8080/actuator/health || exit 1
+
+# Sử dụng shell form để đọc JAVA_OPTS từ environment
+ENTRYPOINT ["sh", "-c", "java $JAVA_OPTS -jar /app/app.jar"]

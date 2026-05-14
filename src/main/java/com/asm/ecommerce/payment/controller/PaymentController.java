@@ -10,6 +10,7 @@ import com.asm.ecommerce.shared.dto.ApiResponse;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -25,6 +26,9 @@ public class PaymentController {
 
     private final PaymentService paymentService;
     private final VNPayUtil vnPayUtil;
+
+    @Value("${app.frontend.base-url}")
+    private String frontendBaseUrl;
 
     /**
      * Tạo thanh toán VNPay cho 1 order (FE gọi sau khi user chọn VNPAY)
@@ -82,15 +86,23 @@ public class PaymentController {
         boolean valid = vnPayUtil.validateSignature((params));
         if(!valid){
             //chuyển sang trang báo lỗi chung
-            URI uri = URI.create("http://localhost:5173/payment-result?status=INVALID_SIGNATURE");
+            URI uri = URI.create(frontendBaseUrl + "/payment-result?status=INVALID_SIGNATURE");
             return ResponseEntity.status(302).location(uri).build();
         }
 
         // 2. Lấy orderCode / transactionRef để FE tra kết quả
         String orderCode = params.get("vnp_TxnRef");
 
+        // 2. Xử lý callback NGAY (không đợi IPN)
+        try {
+            paymentService.handleVNPayCallback(params);
+            log.info("VNPay callback processed successfully for orderCode: {}", orderCode);
+        } catch (Exception e) {
+            log.error("Error processing VNPay callback", e);
+        }
+
         // 3. Redirect sang trang Vue hiển thị kết quả
-        URI uri = URI.create("http://localhost:5173/payment-result?orderCode="+orderCode);
+        URI uri = URI.create(frontendBaseUrl + "/payment-result?orderCode="+orderCode);
         return ResponseEntity.status(302).location(uri).build();
 
         // Ví dụ: chỉ validate chữ ký, còn lại để IPN xử lý.

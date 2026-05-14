@@ -19,7 +19,7 @@ This e-commerce platform demonstrates modern Spring Boot development practices w
 
 ## 🌐 Live Demo & Frontend
 
-- **Live site**: https://your-production-domain.com
+- **Live site**: http://57.180.46.117
 - **Frontend repository**: https://github.com/Shinx99/milk-tea-ecommerce-fe
 - **Backend repository**: https://github.com/Shinx99/milk-tea-ecommerce-springmvc
 
@@ -205,9 +205,21 @@ The database comes with sample data for demo:
 
 - **Course**: Java Programming
 - **Institution**: FPT Polytechnic
-- **Assignment**: E-commerce Website Development
+- **Assignment**: Milktea Website Development
 - **Semester**: Fall 2025
 - **Instructor**: Dev-Storm
+
+---
+
+## 👥 Project Team
+
+**Milk Tea E-commerce Team (5 Full Stack Developers)**
+
+- **Nam**  – https://github.com/Shinx99  
+- **Vũ** – https://github.com/AnhVu-Josep 
+- **Vương** – https://github.com/BuiHoangVuong777
+- **Hải** – https://github.com/NgocHai112 
+- **Trung** – https://github.com/HoangTrung2004 
 
 ---
 
@@ -215,7 +227,6 @@ The database comes with sample data for demo:
 
 - **Developer**: Dev-Storm
 - **Email**: [picatssnam@gmail.com](mailto:picatssnam@gmail.com)
-- **GitHub**: https://github.com/Shinx99
 
 ---
 
