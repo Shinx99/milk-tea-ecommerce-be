@@ -35,7 +35,21 @@ server:
 # =============================================================================
 # SPRING CONFIGURATION
 # =============================================================================
+
 spring:
+  mail:
+    host: ${MAIL_HOST}
+    port: ${MAIL_PORT}
+    username: ${MAIL_USERNAME}
+    password: ${MAIL_PASSWORD}
+    properties:
+      mail:
+        smtp:
+          auth: true
+          starttls:
+            enable: true
+            autoconfigure:
+              exclude: org.springframework.boot.autoconfigure.mail.MailSenderAutoConfiguration
 
   # ---------------------------------------------------------------------------
   # JPA/HIBERNATE - Tắt SQL logging và optimize
@@ -78,16 +92,15 @@ spring:
   # ---------------------------------------------------------------------------
   # DATASOURCE - Connection pool optimization
   # ---------------------------------------------------------------------------
-  datasource:
-    hikari:
-      maximum-pool-size: 10
-      minimum-idle: 5
-      connection-timeout: 20000
-      idle-timeout: 300000
-      max-lifetime: 1800000
-      leak-detection-threshold: 60000
-      auto-commit: false
-      connection-test-query: SELECT 1
+#  datasource:
+#    hikari:
+#      maximum-pool-size: 10
+#      minimum-idle: 5
+#      connection-timeout: 20000
+#      idle-timeout: 300000
+#      max-lifetime: 1800000
+#      leak-detection-threshold: 60000
+#      connection-test-query: SELECT 1
 
 # =============================================================================
 # FLYWAY - Production safety

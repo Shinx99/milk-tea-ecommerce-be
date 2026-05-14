@@ -64,7 +64,7 @@ services:
 
   frontend:
     build:
-      context: ../frontend
+      context: ../../frontend/milk-tea-ecommerce-fe
       dockerfile: Dockerfile.prod
       args:
         VITE_API_BASE_URL: /api
