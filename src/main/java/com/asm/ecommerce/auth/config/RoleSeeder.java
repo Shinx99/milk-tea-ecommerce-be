@@ -7,6 +7,8 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.transaction.annotation.EnableTransactionManagement;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.time.Instant;
 import java.time.OffsetDateTime;
@@ -15,9 +17,11 @@ import java.util.UUID;
 @Slf4j
 @Configuration
 @RequiredArgsConstructor
+@EnableTransactionManagement
 public class RoleSeeder {
 
     @Bean
+    @Transactional
     CommandLineRunner seedRoles(RoleRepository roleRepository) {
         return args -> {
             //Check để tránh duplicate
@@ -36,11 +40,14 @@ public class RoleSeeder {
     }
 
     private void createRole(RoleRepository repository, String roleName, String description) {
+        Instant now = Instant.now();
         Role role = Role.builder()
                 .id(UUID.randomUUID())
                 .role(roleName)
                 .description(description)
                 .isActive(true)
+                .createdAt(now)
+                .updatedAt(now)
                 .build();
         repository.save(role);
     }
