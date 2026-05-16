@@ -27,8 +27,8 @@ services:
       dockerfile: Dockerfile.prod
     image: ${APP_NAME:-ecommerce}-backend:latest
     container_name: ${APP_NAME:-ecommerce}-backend
-    expose:
-      - "8080"
+    ports:
+      - "8080:8080"
     env_file: .env
     environment:
       # Database
@@ -53,27 +53,13 @@ services:
       - VNPAY_RETURN_URL=${VNPAY_RETURN_URL}
       - VNPAY_IPN_URL=${VNPAY_IPN_URL}
       - VNPAY_API_URL=${VNPAY_API_URL}
+      # CORS - Cho phép Vercel domain
+      - CORS_ALLOWED_ORIGINS=${CORS_ALLOWED_ORIGINS:-https://your-frontend.vercel.app}
       # Spring Profile
       - SPRING_PROFILES_ACTIVE=${SPRING_PROFILES_ACTIVE:-prod}
     depends_on:
       postgres:
         condition: service_healthy
-    networks:
-      - app-network
-    restart: unless-stopped
-
-  frontend:
-    build:
-      context: ../../frontend/milk-tea-ecommerce-fe
-      dockerfile: Dockerfile.prod
-      args:
-        VITE_API_BASE_URL: /api
-    image: ${APP_NAME:-ecommerce}-frontend:latest
-    container_name: ${APP_NAME:-ecommerce}-frontend
-    ports:
-      - "80:80"
-    depends_on:
-      - backend
     networks:
       - app-network
     restart: unless-stopped
