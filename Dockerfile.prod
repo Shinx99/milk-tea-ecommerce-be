@@ -4,7 +4,7 @@
 FROM maven:3.9.6-eclipse-temurin-17 AS build
 WORKDIR /app
 
-# Copy pom và tải dependencies để tận dụng cache
+# Copy pom và tải dependencies
 COPY pom.xml ./
 RUN mvn -B dependency:go-offline
 
@@ -18,15 +18,21 @@ RUN mvn -B clean package -DskipTests
 FROM eclipse-temurin:17-jre-alpine
 WORKDIR /app
 
+# ✅ Fix 1: Cài wget cho healthcheck
+RUN apk add --no-cache wget
+
 # Copy JAR từ stage build
 COPY --from=build /app/target/*.jar app.jar
 
-# Expose port HTTP của Spring Boot
+# Expose port (cho document)
 EXPOSE 8080
 
-# Health check (optional nhưng nên có)
-HEALTHCHECK --interval=30s --timeout=3s --start-period=40s --retries=3 \
-  CMD wget --no-verbose --tries=1 --spider http://localhost:8080/actuator/health || exit 1
+# ✅ Fix 2: Cho phép Render gán cổng động
+ENV JAVA_OPTS="-Xms256m -Xmx512m"
 
-# Sử dụng shell form để đọc JAVA_OPTS từ environment
-ENTRYPOINT ["sh", "-c", "java $JAVA_OPTS -jar /app/app.jar"]
+# Health check (đã có wget)
+HEALTHCHECK --interval=30s --timeout=3s --start-period=40s --retries=3 \
+  CMD wget --no-verbose --tries=1 --spider http://localhost:${PORT:-8080}/actuator/health || exit 1
+
+# ✅ Fix 3: Dùng cổng từ biến môi trường PORT
+ENTRYPOINT ["sh", "-c", "java $JAVA_OPTS -Dserver.port=${PORT:-8080} -jar /app/app.jar"]
